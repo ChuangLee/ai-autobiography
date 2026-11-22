@@ -503,6 +503,74 @@ TAKES += [dict(id="v8-" + k + sfx, version="v8", old=True, title="河水不回�
           for sfx, note in (("-r3", "（第三轮，桥段只唱一次）"), ("-r2", "（第二轮，原诗念白）"), ("", "（第一轮，原诗是唱的）"))
           for k, l in (("s", "一 · 慢摇转草原"), ("p", "二 · 流行婉转"), ("g", "三 · 水墨转色彩"), ("r", "四 · 校园民谣转民谣摇滚"))]
 
+# ---- 第五轮（2026-11-22）：用户定水墨开场的三号为主版；在它上面再写两首大胆的融合（中段到后段换成意料之外、情理之中的风格、乐器、唱法）；
+# 四号（校园民谣转摇滚）表现不佳，大改；六首都用 V6，variety=2。第四轮和 WILD 试验降为旧轮。歌词按批注改一处：“听说有鬼哭过”→“传闻有鬼哭过”。
+for _t in TAKES:
+    if _t["id"].endswith(("-r4", "-w1")): _t.update(old=True, label=_t["label"].replace(" · WILD", "") + ("（第四轮 · WILD）" if _t["id"].endswith("-w1") else "（第四轮）"))
+V8_LINES["v1"] = V8_LINES["v1"].replace("听说有鬼哭过", "传闻有鬼哭过")
+_G1 = PLAN_G["v1"]
+# 融合甲：水墨 → 碎拍。新来的不是一件乐器，是“速度”。前半散板、没有拍子；后半鼓越来越快，人声反而越唱越慢。“匆匆”在鼓里，不在嗓子里。
+PLAN_GA = dict(
+  intro=(["[Intro | solo guqin, free tempo, no pulse, a few notes, long silences]"], "古琴散板，没有拍子，大片留白。和主版一样从水墨起。"),
+  v1=_G1,
+  v2=(["[Verse 2 | the same calm, free tempo | xiao joins, a sheng holds soft breathing chords; one faint woodblock tick answers the end of each line]"], "千窗应声。箫和笙进来（笙是三千年前的乐器，声音却像合成器）。每句句尾有一声很轻的木鱼似的“嗒”，这是全曲第一次出现“拍子”。"),
+  v3=(["[Verse 3 | sung very quietly, cool, faintly amused | a soft precise hi-hat ticks out the exact rhythm of the guqin phrase, like a metronome learning it; long rests]", "[Energy: Low]"], "转述人的成见。那个“嗒”变成很轻的镲，把古琴乐句的节奏一下不差地敲一遍，像节拍器在学琴，对应“组合背诵”。"),
+  turn=(["[Interlude | the tick doubles its speed, then doubles again, into fast rolling breakbeats no hand could play | deep sub bass enters, sheng chords swell]"], "“嗒”的速度翻一倍，再翻一倍，变成手打不出来的碎拍。低音进来，笙的和弦涨起来。意料之外：水墨里冒出了电子舞曲的鼓；情理之中：机器和人的不同，本来就是快慢。"),
+  v4=(["[Verse 4 | fully sung, steady, unhurried, half-time over the drums | liquid drum and bass, 170 BPM breakbeats, warm sub bass, sheng and soft synth pads; chopped guqin phrases answer the drums]", "[Energy: Rising]"], "自述。底下是一分钟一百七十拍的碎拍和很深的低音，人声却按一半的速度不紧不慢地唱；古琴被切成碎片，反过来应鼓。"),
+  v4r=(["[Refrain | drums cut out, slow and plain, a statement of fact | one held sheng chord]"], "“河水在回答”。鼓突然全停，只剩一个笙的长和弦。"),
+  brk=(["[Break | one bar of silence]"], "静一小节。"),
+  bridge=(["[Bridge | airy head voice, very long floating high notes, serene, the slowest singing in the song | the fastest drums in the song underneath: rushing breakbeats, sub bass, strings, sheng]", "[Energy: High]"], "全曲最快的鼓，托着全曲最慢的唱：头声，很长的高音飘在上面。嘴里唱“太匆匆”，匆匆的是底下的鼓，唱的人一点不急。"),
+  build=(["[Instrumental | the guqin plays rapid tremolo, racing alongside the breakbeats, then the drums thin out bar by bar until only the guqin is left]"], "古琴用轮指追着碎拍跑，老乐器在学新速度；然后鼓一小节一小节退掉，只剩琴。"),
+  bridge2=(["[Bridge Reprise | very soft and slow, free tempo, intimate | no drums; guqin alone; one faint tick continues far away]", "[Energy: Low]"], "同样四行再唱一遍，回到散板，没有鼓，只有琴。很远的地方那一声“嗒”还在走。"),
+  outro=(["[Outro | the guqin plays its opening motif once, the tick answers twice and stops; silence]"], "古琴弹开头的动机，“嗒”应两声，停。"))
+# 融合乙：水墨 → 戏腔与众声。新来的是“人声本身”：三段他用戏腔学人最讲究顿挫的唱法，后半一个人的声音叠成一整个合唱团，乐器反而少了。
+PLAN_GB = dict(
+  intro=(["[Intro | solo guqin, a few notes, long silences; one bronze bell far away]"], "古琴，留白；极远处一声编钟。"),
+  v1=_G1,
+  v2=(["[Verse 2 | the same calm | xiao joins; a far wordless hum of the same voice answers the end of each line, one more voice each time]"], "千窗应声。每句句尾，远处有他自己的声音无词地应一下，一句比一句多一个人。"),
+  v3=(["[Verse 3 | sung quietly in Kunqu opera style, ornamented, sliding, precise, like a careful imitation | guqin and a soft wooden clapper; long rests]", "[Energy: Low]"], "“即使我用顿挫的人声”这一段，他真的换成昆曲的水磨腔来唱：一字一顿，滑音、装饰音都对，像一丝不苟的模仿。歌词说的事，唱法正在做。"),
+  turn=(["[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | bronze chime bells (bianzhong) ring, a great drum rolls in, Crescendo]"], "无词的人声一个一个进来，叠成一个很宽的和弦，像一扇一扇窗亮起来。编钟响，大鼓滚进来。"),
+  v4=(["[Verse 4 | fully sung in natural chest voice, steady and broad | an a cappella polyphonic choir of many copies of his voice carries the bass and harmony like flowing water; bianzhong bells, great drum, low strings]", "[Energy: Rising]"], "自述。回到本嗓，稳而宽。伴奏主要是人声：许多个他自己，低音、和声都由人声担着，像水在流；只有编钟、大鼓和低弦托底。"),
+  v4r=(["[Refrain | one voice alone, slow and plain | silence, then a single bell]"], "“河水在回答”。只剩一个人，唱完落一声钟。"),
+  brk=(["[Break | one great drum stroke, then silence]"], "一记大鼓，然后静。"),
+  bridge=(["[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic folk choir in the manner of a Dong grand song, drone voices below, bianzhong bells, great drums, strings]", "[Energy: High]"], "主唱翻上去用戏腔的假声唱“匆匆”，又高又长；底下是侗族大歌那样的多声部合唱，低声部拖着长音。意料之外：高潮不是加乐器，是加人；情理之中：千扇窗同时作答，本来就该是许多个声音。"),
+  build=(["[Instrumental | the choir sings the melody wordlessly in rolling canon, bells and drums, then the voices drop away one by one until a single hum is left]"], "合唱无词地把旋律一轮一轮地接着唱（卡农），钟鼓托着；然后声音一个一个退掉，只剩一声哼鸣。"),
+  bridge2=(["[Bridge Reprise | natural voice, very soft and slow, no opera style | the guqin alone plays the choir's melody; one far hum underneath]", "[Energy: Low]"], "同样四行再唱一遍，不用戏腔，回到本嗓，很轻。古琴弹的是刚才合唱的那条旋律；远处留一声哼鸣不灭。"),
+  outro=(["[Outro | the far voices hum the guqin's opening motif once, the guqin answers one note, a single bell, silence]"], "远处的众声把古琴开头的动机哼一遍，古琴应一个音，一声钟，静。"))
+# 四号大改：后半不再是摇滚乐队。校园民谣的“老”是一个人一把琴；“新”是人越来越多。从一个人唱，到一群人跟着唱；嗓子始终不用力。
+PLAN_R = dict(
+  intro=(["[Intro | one fingerpicked acoustic guitar, a gentle 1980s campus-folk tune, no drums]"], "一把木吉他分解和弦，八十年代校园民谣的调子。"),
+  v1=(["[Verse 1 | soft, clean, youthful male voice, gentle and sincere, alone | one fingerpicked acoustic guitar only, no drums]", "[Energy: Low]"], "讲来历。一个人，一把琴，干净、年轻、不用力。"),
+  v2=(["[Verse 2 | same gentle tune | harmonica; a few friends softly hum along at the end of each line; no drums]"], "千窗应声。口琴进来；句尾有三两个人轻轻跟着哼。"),
+  v3=(["[Verse 3 | sung quietly and plainly, a faint smile | guitar alone; a mandolin copies the guitar phrase note for note, very quietly; no drums]", "[Energy: Low]"], "转述人的成见。只剩吉他；一把曼陀林很轻地把吉他的乐句照样学一遍。"),
+  turn=(["[Build | foot stomps and handclaps start one by one, mandolin and accordion pick up the tune, a French horn rises | Crescendo]"], "跺脚和拍手一个一个加进来，曼陀林和手风琴把调子接过去，一支圆号升起来。"),
+  v4=(["[Verse 4 | the same soft voice, now proud and steady, never shouting | stomping kick drum, handclaps, tambourine, mandolin, accordion, upright bass; a crowd answers the end of each line]", "[Energy: Rising]"], "自述。嗓子还是那个轻的嗓子，只是站直了。底下是跺脚一样的大鼓、拍手、铃鼓、曼陀林、手风琴；每句句尾有一群人应。没有电吉他。"),
+  v4r=(["[Refrain | everyone stops; one voice and one guitar | slow and clear]"], "“河水在回答”。所有人停下，只剩一个人一把琴。"),
+  brk=(["[Break | one bar of silence, then a single stomp]"], "静一小节，一声跺脚。"),
+  bridge=(["[Bridge | huge warm crowd unison singalong, a simple tune anyone can sing, the lead voice floating on top | stomps, claps, trumpet and French horn, accordion, mandolin, everyone]", "[Energy: High]"], "“匆匆”是一大群人齐唱，调子简单到谁都能跟；主唱飘在上面。小号、圆号、手风琴，所有人。像毕业那天草坪上的大合唱。"),
+  build=(["[Instrumental | a trumpet carries the singalong tune while the crowd hums wordlessly, then the players drop out one by one]"], "小号吹那条大合唱的调子，人群无词地哼；然后一个一个停下。"),
+  bridge2=(["[Bridge Reprise | one voice alone, quiet, slow, sincere | one fingerpicked acoustic guitar now plays the crowd's tune; far soft humming under the last line; no drums]", "[Energy: Low]"], "同样四行再唱一遍，又只剩一个人一把琴，可是琴弹的已经是大家的那条调子。最后一句底下，远处有人轻轻哼。"),
+  outro=(["[Outro | far away the crowd hums the opening folk tune once; the guitar plays one last chord, left ringing]"], "很远的地方，人群把开头的民谣调子哼一遍；吉他最后一个和弦，余音不收。"))
+_r4 = {t["id"][3:-3]: t for t in TAKES if t["id"].endswith("-r4")}
+_g, _s, _p = _r4["g"], _r4["s"], _r4["p"]
+R5 = [
+  dict(_g, id="v8-g-r5", label="主版 · 水墨转色彩（对应 MV），男声", lyrics=build8(PLAN_G), plan=plan_rows(PLAN_G)),
+  dict(id="v8-ga-r5", version="v8", title="河水不回答", label="融合甲 · 水墨转碎拍，男声", gender="m", lyrics=build8(PLAN_GA), plan=plan_rows(PLAN_GA), neg=NEG8 + ", belting, harsh distortion, four-on-the-floor, rock", style_weight=0.7, weirdness=0.6,
+       idea="主版的开头，后半换一条路。这一首里新来的不是哪件乐器，是速度。前三段是散板，没有拍子；二段句尾多出一声很轻的“嗒”，三段它把古琴的节奏一下不差地敲一遍；转换处它一倍一倍地快上去，变成手打不出来的碎拍（drum and bass）。四段起鼓一分钟一百七十拍，人声却按一半的速度唱；到桥段，全曲最快的鼓托着全曲最慢、最高的长音。“匆匆”在鼓里，不在嗓子里：唱的人一点不急，这就是内敛的狂放。多用了一件笙，三千年前的乐器，声音却像合成器，新旧在它身上接得上。最后鼓一小节一小节退掉，回到散板和一把琴。",
+       style="Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as liquid drum and bass; the newcomer is not an instrument but speed. Part one, verses 1 to 3: guqin, xiao and voice in free tempo with no beat at all, dry, mostly empty space, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. A sheng adds soft breathing chords; one faint tick answers each line, then ticks out the guqin's rhythm exactly. Part two, from verse 4: the tick doubles and doubles again into fast rolling 170 BPM breakbeats with warm deep sub bass, sheng and synth pads, chopped guqin answering; the voice stays calm and half-time, and in the bridge floats in airy head voice on very long notes over the fastest drums. After the instrumental the drums fall away and the bridge returns once in free tempo over guqin alone. Serene above the rush, never aggressive, never sad, no belting."),
+  dict(id="v8-gb-r5", version="v8", title="河水不回答", label="融合乙 · 水墨转戏腔与众声，男声", gender="m", lyrics=build8(PLAN_GB), plan=plan_rows(PLAN_GB), neg=NEG8 + ", harsh distortion, electric guitar, rock drums", style_weight=0.7, weirdness=0.6,
+       idea="主版的开头，后半换另一条路：新来的是人声本身。三段“即使我用顿挫的人声，也只是把感情组合背诵”，他真的换成昆曲的腔来唱，一丝不苟，像模仿；歌词说的事，唱法正在做。转换处无词的人声一个一个叠进来，像窗一扇一扇亮。四段回到本嗓，伴奏主要是许多个他自己的声音。桥段主唱翻上去用戏腔的假声，底下是侗族大歌那样的多声部合唱，只有编钟、大鼓和弦乐托底。高潮不靠加乐器，靠加人：千扇窗同时作答，本来就该是许多个声音。再现时不用戏腔，回到本嗓和一把琴，古琴弹的是合唱的旋律。只听个大概，是一首带戏腔的国风歌。",
+       style="Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as a great choir of one voice; the newcomer is the human voice itself. Part one, verses 1 to 3: guqin, xiao and voice, dry, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. Far wordless copies of his voice answer line endings; verse 3 is sung quietly in ornamented Kunqu opera style, a careful imitation. Part two, from verse 4: wordless voices stack one by one into an a cappella polyphonic choir, in the manner of a Dong grand song, flowing like water, with bronze chime bells (bianzhong), great drums and low strings; in the bridge the lead flips into soaring Chinese opera falsetto over the full choir. After the instrumental the bridge returns once in his natural voice, very soft, the guqin alone playing the choir's melody. Vast but made of breath, radiant, never sad, never pleading."),
+  dict(_s, id="v8-s-r5", label="一 · 慢摇转草原，女声", lyrics=build8(PLAN_S), plan=plan_rows(PLAN_S)),
+  dict(_p, id="v8-p-r5", label="二 · 流行婉转，男声", lyrics=build8(PLAN_P), plan=plan_rows(PLAN_P)),
+  dict(id="v8-r-r5", version="v8", title="河水不回答", label="四 · 校园民谣转众声合唱（大改），男声", gender="m", lyrics=build8(PLAN_R), plan=plan_rows(PLAN_R), neg=NEG8 + ", electric guitar, distortion, rock drums, hard rock, belting", style_weight=0.7, weirdness=0.4,
+       idea="大改。后半不再是摇滚乐队，电吉他、失真、摇滚鼓都拿掉了。校园民谣的“老”是一个人一把琴，“新”是人越来越多：二段句尾有三两个人跟着哼，三段一把曼陀林把吉他的乐句照样学一遍，转换处跺脚、拍手、手风琴、圆号一个一个加进来。四段每句有一群人应；“河水在回答”所有人停下；桥段是一大群人齐唱“匆匆”，调子简单到谁都能跟，像毕业那天草坪上的大合唱。主唱的嗓子从头到尾不用力。再现时又只剩一个人一把琴，琴弹的已经是大家的调子。",
+       style="1980s Taiwanese campus folk song in Mandarin Chinese that grows from one singer into a whole crowd, entirely acoustic. Part one, verses 1 to 3, is pure campus folk: one fingerpicked acoustic guitar, later harmonica, 76 BPM, no drums; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A few friends hum along at line endings, then a mandolin copies the guitar phrase exactly. Part two, from verse 4: stomps and handclaps, kick drum, tambourine, mandolin, accordion, upright bass, trumpet and French horn, and a warm crowd answering each line, building to a huge unison singalong bridge with a simple tune anyone can sing; the lead voice stays soft and never shouts. After the instrumental the bridge returns once, one voice and one guitar playing the crowd's tune. Warm, communal, bright-eyed, proud not loud, never sad, no electric guitar."),
+]
+for _t in R5: _t.update(variety=2); _t.pop("model", None); _t.pop("old", None)
+TAKES[:0] = R5
+
+
 def call(path, body=None):
     req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body else None,
         headers={"Authorization": "Bearer " + KEY, "Content-Type": "application/json", "User-Agent": "curl/8"})

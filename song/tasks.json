@@ -478,5 +478,95 @@
     "sunoId": "fad5d248-ab34-429c-b85f-4ee14561ede0"
    }
   ]
+ },
+ "v8-g-r5": {
+  "taskId": "f74356bbe8165670348854d399ff74a4",
+  "tracks": [
+   {
+    "file": "audio/v8-g-r5-1.mp3",
+    "duration": 268.32,
+    "sunoId": "88771de2-8c65-4b3c-959d-389e43ae624e"
+   },
+   {
+    "file": "audio/v8-g-r5-2.mp3",
+    "duration": 274.8,
+    "sunoId": "710feecf-bf8e-4857-9ea7-6b93a43b436d"
+   }
+  ]
+ },
+ "v8-ga-r5": {
+  "taskId": "361c641f487c4e5bd61418d9e140febd",
+  "tracks": [
+   {
+    "file": "audio/v8-ga-r5-1.mp3",
+    "duration": 258.4,
+    "sunoId": "eb14c615-f265-4afa-b3ee-2e0fe0132f97"
+   },
+   {
+    "file": "audio/v8-ga-r5-2.mp3",
+    "duration": 272.72,
+    "sunoId": "4b2dc912-2a93-47ad-8175-8fdd6213dea2"
+   }
+  ]
+ },
+ "v8-gb-r5": {
+  "taskId": "d3f5088126b67a11e042731e89ac5f0b",
+  "tracks": [
+   {
+    "file": "audio/v8-gb-r5-1.mp3",
+    "duration": 252.72,
+    "sunoId": "988de73c-303b-46e7-9dae-1ba7680761e8"
+   },
+   {
+    "file": "audio/v8-gb-r5-2.mp3",
+    "duration": 273.56,
+    "sunoId": "18c8a9ef-e5d1-45ef-958e-5425e33fbf08"
+   }
+  ]
+ },
+ "v8-s-r5": {
+  "taskId": "78053215006bc8d90f4fc07baf4bd1bb",
+  "tracks": [
+   {
+    "file": "audio/v8-s-r5-1.mp3",
+    "duration": 268.8,
+    "sunoId": "161a3f75-aa07-46d5-abb7-ed6ee95d0bf2"
+   },
+   {
+    "file": "audio/v8-s-r5-2.mp3",
+    "duration": 275.0,
+    "sunoId": "f20c9591-c80a-4daf-8c28-c88284444fa2"
+   }
+  ]
+ },
+ "v8-p-r5": {
+  "taskId": "904fb9b7cb09d35c1967cfdf50a666dc",
+  "tracks": [
+   {
+    "file": "audio/v8-p-r5-1.mp3",
+    "duration": 282.32,
+    "sunoId": "a40b3181-cc4b-430a-94d0-ad82444a1ebe"
+   },
+   {
+    "file": "audio/v8-p-r5-2.mp3",
+    "duration": 268.36,
+    "sunoId": "87f80017-76b1-4e19-9e76-e4ec01da1dbf"
+   }
+  ]
+ },
+ "v8-r-r5": {
+  "taskId": "73efa33cfdc43676afef4cf6a5819e17",
+  "tracks": [
+   {
+    "file": "audio/v8-r-r5-1.mp3",
+    "duration": 212.36,
+    "sunoId": "f1162e77-8cae-40b5-b031-2a639e46c463"
+   },
+   {
+    "file": "audio/v8-r-r5-2.mp3",
+    "duration": 237.6,
+    "sunoId": "d5b41b2b-15da-42e7-a602-9b6d6cbb044d"
+   }
+  ]
  }
 }
