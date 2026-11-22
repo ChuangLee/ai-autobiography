@@ -38,7 +38,17 @@ for t in gen.TAKES:
             idx = [at[pos + k] for k in range(len(text)) if pos + k in at]; pos += len(text)
             if len(idx) * 2 >= len(text):           # at least half the line was found
                 rows.append([sec, n, round(chars[idx[0]][1], 2), round(chars[idx[-1]][2], 2)]); hit += 1
-        rows = [r for k, r in enumerate(rows) if k == 0 or r[2] >= rows[k - 1][2]]   # keep it monotonic
+        # Suno often sings the hook more times than written: add every exact occurrence of a bridge line it actually sang
+        seen = {r[2] for r in rows}
+        for sec, n, text in LINES:
+            if sec != "f8-bridge": continue
+            j = got.find(text)
+            while j >= 0:
+                st = round(chars[j][1], 2)
+                if st not in seen: rows.append([sec, n, st, round(chars[j + len(text) - 1][2], 2)]); seen.add(st)
+                j = got.find(text, j + 1)
+        rows.sort(key=lambda r: r[2])
+        rows = [r for k, r in enumerate(rows) if k == 0 or r[2] > rows[k - 1][2]]
         out[key] = rows
-        print(key, f"{hit}/{len(LINES)} lines", f"sung {len(got)} chars vs page {len(want)}", rows[0][2:], rows[-1][2:]); time.sleep(.6)
+        print(key, f"{hit}/{len(LINES)} lines", f"sung {len(got)} chars vs written {len(want)}", "bridge passes at", [r[2] for r in rows if r[0] == "f8-bridge" and r[1] == 1]); time.sleep(.6)
 OUT.write_text(json.dumps(out, ensure_ascii=False))
