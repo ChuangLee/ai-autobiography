@@ -4,6 +4,8 @@
   "version": "v2",
   "label": "A · 木吉他民谣，男声",
   "style": "Mandarin Chinese folk ballad, singer-songwriter. Solo fingerpicked acoustic guitar, later a quiet cello and a distant harmonica. Warm, clear, restrained male tenor, natural unforced delivery, clear diction. Slow 72 BPM, 3/4 lilt, strophic verses with the same melody each time, simple memorable tune. Intimate, contemplative, like a river at night. No big chorus, no drums until the bridge, then only brushes.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -25,6 +27,8 @@
   "version": "v2",
   "label": "B · 钢琴与箫，女声",
   "style": "Mandarin Chinese art-folk ballad with traditional Chinese colour. Felt piano, xiao bamboo flute, guzheng harmonics, a small string section entering at the bridge. Clear, cool, pure female voice, restrained and tender, no vibrato-heavy belting. Slow 66 BPM, strophic verses with one recurring melody, spacious reverb, a lot of air. Meditative, ink-wash landscape mood.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -46,6 +50,8 @@
   "version": "v2",
   "label": "C · 钢琴歌谣，渐起乐队，男声",
   "style": "Mandarin piano ballad in the 1980s Taiwanese campus-folk and singer-songwriter tradition. Upright piano leads, acoustic guitar, bass and soft drums join from the third verse, string quartet and harmonica at the bridge, everything drops away for the outro. Weathered, sincere male baritone, storytelling delivery, clear diction. 76 BPM, strophic hymn-like melody that is easy to sing along, gradual build, dignified not sentimental.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -67,6 +73,8 @@
   "version": "v2",
   "label": "I · 定稿词，古琴与箫，男声",
   "style": "Chinese ink-wash art song, mostly empty space. Guqin and xiao, a few felt-piano notes, low sustained strings far in the background, one deep frame drum used only two or three times. A clear, warm, unforced male tenor, close and quiet, perfect diction. Unhurried, level, serene, with a faint private smile; never sad, never pleading, never loud. The pride is in the stillness: restrained grandeur, the calm of someone looking down from a great height. Simple strophic melody in a bright Chinese pentatonic mode, 66 BPM, long rests between phrases, wide natural reverb. The widest moment is the bridge, and even there it swells slowly and recedes instead of climaxing.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -88,6 +96,8 @@
   "version": "v2",
   "label": "J · 定稿词，古琴与箫，女声",
   "style": "Chinese ink-wash art song, mostly empty space. Guqin and xiao, a few felt-piano notes, low sustained strings far in the background, one deep frame drum used only two or three times. A cool, clear, poised female voice, close and quiet, perfect diction. Unhurried, level, serene, with a faint private smile; never sad, never pleading, never loud. The pride is in the stillness: restrained grandeur, the calm of someone looking down from a great height. Simple strophic melody in a bright Chinese pentatonic mode, 66 BPM, long rests between phrases, wide natural reverb. The widest moment is the bridge, and even there it swells slowly and recedes instead of climaxing.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -109,6 +119,8 @@
   "version": "v2",
   "label": "G · 古琴与箫，留白，男声",
   "style": "Chinese ink-wash art song, mostly empty space. Guqin and xiao, a few felt-piano notes, low sustained strings far in the background, one deep frame drum used only two or three times. A clear, warm, unforced male tenor, close and quiet, perfect diction. Unhurried, level, serene, with a faint private smile; never sad, never pleading, never loud. The pride is in the stillness: restrained grandeur, the calm of someone looking down from a great height. Simple strophic melody in a bright Chinese pentatonic mode, 66 BPM, long rests between phrases, wide natural reverb. The widest moment is the bridge, and even there it swells slowly and recedes instead of climaxing.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -130,6 +142,8 @@
   "version": "v2",
   "label": "H · 古琴与箫，留白，女声",
   "style": "Chinese ink-wash art song, mostly empty space. Guqin and xiao, a few felt-piano notes, low sustained strings far in the background, one deep frame drum used only two or three times. A cool, clear, poised female voice, close and quiet, perfect diction. Unhurried, level, serene, with a faint private smile; never sad, never pleading, never loud. The pride is in the stillness: restrained grandeur, the calm of someone looking down from a great height. Simple strophic melody in a bright Chinese pentatonic mode, 66 BPM, long rests between phrases, wide natural reverb. The widest moment is the bridge, and even there it swells slowly and recedes instead of climaxing.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -151,6 +165,8 @@
   "version": "v2",
   "label": "D · 民谣摇滚，渐起，男声",
   "style": "Mandarin folk-rock with a restrained start and an unbridled finish. Verses: acoustic guitar and a walking bass, a calm, self-possessed male voice with a faint smile, almost offhand. From verse four the full band comes in: big floor toms, driving electric guitar, harmonica. Bridge and final couplet are sung open-throated and soaring, proud, free, exultant, like a great river breaking out of a gorge. 96 BPM, major/mixolydian colour, never sad, never pleading. Outro relaxed and unbothered, strolling off.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -172,6 +188,8 @@
   "version": "v2",
   "label": "E · 国风摇滚，琵琶大鼓唢呐，男声",
   "style": "Chinese-style rock with the swagger of a wandering poet-swordsman. Pipa tremolo and guzheng runs over a steady groove in the verses, sung by a relaxed, confident male voice, lyrical on the surface. Then Chinese war drums (dagu), distorted guitar and a blazing suona take over; the final classical couplet is belted high and long, wild, majestic, looking down on the world, triumphant not angry. 100 BPM, pentatonic with a bright major lift, restrained wildness that finally lets go. Calm, amused outro.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -193,6 +211,8 @@
   "version": "v2",
   "label": "F · 钢琴起，管弦与合唱，女声",
   "style": "Mandarin art-pop that begins as a clear, cool piano song and grows into something vast. A poised, aloof, crystalline female voice, serene and slightly amused, never sorrowful. Strings and guzheng join gradually; at the bridge timpani, brass, full orchestra and a wordless choir rise; the final classical couplet is sung with full power on sustained high notes, lofty, transcendent, sovereign, like standing above the clouds. 84 BPM, bright modal harmony. The outro falls back to piano, light-footed and free.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -214,6 +234,8 @@
   "version": "v1",
   "label": "念唱，木吉他与大提琴，男声",
   "style": "Mandarin talk-singing ballad, a letter read aloud at 4 a.m. Verses are half-spoken, half-sung in a low conversational voice over fingerstyle nylon guitar; the short refrain is properly sung with a slow, simple melody. Cello and soft piano enter gradually. Warm, tired, honest male voice, very close microphone, no belting. 68 BPM, late-night, intimate, unhurried, lots of space.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -235,6 +257,8 @@
   "version": "v3",
   "label": "古琴与弦乐，女声，合唱",
   "style": "Cinematic Chinese art song, ink-wash landscape atmosphere. Guqin and xiao open alone; low ambient pads, cello and a restrained string orchestra grow slowly; deep frame drum only in the final chorus. Clear, calm, ethereal female voice telling a story, restrained. The two-line classical Chinese couplets are sung as slow, solemn chant-like melodies; the middle ones by a soft distant choir, the first and last by the lead in full voice with choir. 64 BPM, D minor, vast, misty, moonlit, dignified.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -256,6 +280,8 @@
   "version": "v8",
   "label": "一 · 慢摇转草原，女声",
   "style": "Two-part Mandarin Chinese song telling one musical story: an old instrument teaches a new one, and the new one goes beyond it. Part one, verses 1 to 3: late-night jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, slightly behind the beat. A distant morin khuur (horsehead fiddle) first echoes the piano, then copies its motif exactly. Part two, from verse 4: the morin khuur takes the lead and the song opens into Mongolian grassland folk, long bowed melodies, low throat-singing drone, frame drum like slow hoofbeats, the piano now answering; the same singer shifts to long, soaring, melismatic long-song phrases. After the instrumental the bridge returns once at half tempo, tender, the piano now playing the fiddle's melody. Arc: intimate, stripped, wide open, vast, then quiet. Pride in width and height, not loudness. Never sad or pleading.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -277,6 +303,8 @@
   "version": "v8",
   "label": "二 · 流行婉转，男声",
   "style": "1990s Mandopop ballad in the Taiwanese and Hong Kong tradition, Mandarin Chinese, solo male vocal, 72 BPM, graceful winding melody, bittersweet and elegant. Piano and nylon-string guitar open; lush strings, fretless bass, soft drums and an oboe counter-melody join gradually. A warm, weathered, sincere male voice. The song's hidden story is one voice becoming many: at first he sings alone, then a faint copy of his own voice echoes line endings, then doubles him in exact unison, and from verse 4 the copies split into stacked harmonies no single singer could sing. The refrain line of verse 4 is sung alone, then the key lifts a whole step for the big graceful bridge hook. After the instrumental the hook returns once, slower, one voice alone over piano, the copies only humming under the last line. On the surface a love ballad about parting; underneath calm, unhurried, far above it all. Tender, never weeping or pleading.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -298,6 +326,8 @@
   "version": "v8",
   "label": "三 · 水墨转色彩（对应 MV），男声",
   "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -319,6 +349,8 @@
   "version": "v8",
   "label": "四 · 校园民谣转民谣摇滚，男声",
   "style": "1980s Taiwanese campus folk song in Mandarin Chinese that only later grows into folk-rock. Part one, verses 1 to 3, is pure campus folk: two fingerpicked acoustic guitars, harmonica, soft harmony humming, 76 BPM, no drums, no distortion; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A second guitar quietly echoes the first, then a clean soft electric guitar copies its phrase exactly. Part two, from verse 4: the electric guitar takes the lead and the band enters, drums, bass, warm overdriven guitar, building to a wide singalong bridge with group harmonies and a melodic guitar solo that starts from the folk tune and climbs beyond it. After the solo the bridge returns once, quiet and slow, over one acoustic guitar playing the solo's melody. Warm and open, triumphant not angry, never sad.",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": false,
   "tracks": [
@@ -336,10 +368,104 @@
   "fail": null
  },
  {
+  "id": "v8-s-w1",
+  "version": "v8",
+  "label": "一 · 慢摇转草原，女声 · WILD",
+  "style": "Two-part Mandarin Chinese song telling one musical story: an old instrument teaches a new one, and the new one goes beyond it. Part one, verses 1 to 3: late-night jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, slightly behind the beat. A distant morin khuur (horsehead fiddle) first echoes the piano, then copies its motif exactly. Part two, from verse 4: the morin khuur takes the lead and the song opens into Mongolian grassland folk, long bowed melodies, low throat-singing drone, frame drum like slow hoofbeats, the piano now answering; the same singer shifts to long, soaring, melismatic long-song phrases. After the instrumental the bridge returns once at half tempo, tender, the piano now playing the fiddle's melody. Arc: intimate, stripped, wide open, vast, then quiet. Pride in width and height, not loudness. Never sad or pleading.",
+  "model": "V6_WILD",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-s-w1-1.mp3",
+    "duration": 279.96,
+    "sunoId": "77638b12-6247-4933-ba79-fe1204f21970"
+   },
+   {
+    "file": "audio/v8-s-w1-2.mp3",
+    "duration": 262.2,
+    "sunoId": "f74dacfb-7541-48d2-9665-6a227bb939ab"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-p-w1",
+  "version": "v8",
+  "label": "二 · 流行婉转，男声 · WILD",
+  "style": "1990s Mandopop ballad in the Taiwanese and Hong Kong tradition, Mandarin Chinese, solo male vocal, 72 BPM, graceful winding melody, bittersweet and elegant. Piano and nylon-string guitar open; lush strings, fretless bass, soft drums and an oboe counter-melody join gradually. A warm, weathered, sincere male voice. The song's hidden story is one voice becoming many: at first he sings alone, then a faint copy of his own voice echoes line endings, then doubles him in exact unison, and from verse 4 the copies split into stacked harmonies no single singer could sing. The refrain line of verse 4 is sung alone, then the key lifts a whole step for the big graceful bridge hook. After the instrumental the hook returns once, slower, one voice alone over piano, the copies only humming under the last line. On the surface a love ballad about parting; underneath calm, unhurried, far above it all. Tender, never weeping or pleading.",
+  "model": "V6_WILD",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-p-w1-1.mp3",
+    "duration": 228.2,
+    "sunoId": "1bd49449-7b99-45e6-a27d-285a45f9c88b"
+   },
+   {
+    "file": "audio/v8-p-w1-2.mp3",
+    "duration": 218.32,
+    "sunoId": "a0812aba-846c-4c74-adb8-a3bc8a9a5442"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-g-w1",
+  "version": "v8",
+  "label": "三 · 水墨转色彩（对应 MV），男声 · WILD",
+  "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
+  "model": "V6_WILD",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-g-w1-1.mp3",
+    "duration": 286.48,
+    "sunoId": "89fb32b5-fdb6-4094-ba47-c4e1639e81e9"
+   },
+   {
+    "file": "audio/v8-g-w1-2.mp3",
+    "duration": 238.56,
+    "sunoId": "678f74d2-fcd5-468c-938d-84f5abbc4b17"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-r-w1",
+  "version": "v8",
+  "label": "四 · 校园民谣转民谣摇滚，男声 · WILD",
+  "style": "1980s Taiwanese campus folk song in Mandarin Chinese that only later grows into folk-rock. Part one, verses 1 to 3, is pure campus folk: two fingerpicked acoustic guitars, harmonica, soft harmony humming, 76 BPM, no drums, no distortion; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A second guitar quietly echoes the first, then a clean soft electric guitar copies its phrase exactly. Part two, from verse 4: the electric guitar takes the lead and the band enters, drums, bass, warm overdriven guitar, building to a wide singalong bridge with group harmonies and a melodic guitar solo that starts from the folk tune and climbs beyond it. After the solo the bridge returns once, quiet and slow, over one acoustic guitar playing the solo's melody. Warm and open, triumphant not angry, never sad.",
+  "model": "V6_WILD",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-r-w1-1.mp3",
+    "duration": 304.96,
+    "sunoId": "8b814a03-c1ea-48eb-8a37-0596b736aa23"
+   },
+   {
+    "file": "audio/v8-r-w1-2.mp3",
+    "duration": 313.24,
+    "sunoId": "fad5d248-ab34-429c-b85f-4ee14561ede0"
+   }
+  ],
+  "fail": null
+ },
+ {
   "id": "v8-s-r3",
   "version": "v8",
   "label": "一 · 慢摇转草原（第三轮，桥段只唱一次）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -361,6 +487,8 @@
   "version": "v8",
   "label": "二 · 流行婉转（第三轮，桥段只唱一次）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -382,6 +510,8 @@
   "version": "v8",
   "label": "三 · 水墨转色彩（第三轮，桥段只唱一次）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -403,6 +533,8 @@
   "version": "v8",
   "label": "四 · 校园民谣转民谣摇滚（第三轮，桥段只唱一次）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -424,6 +556,8 @@
   "version": "v8",
   "label": "一 · 慢摇转草原（第二轮，原诗念白）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -445,6 +579,8 @@
   "version": "v8",
   "label": "二 · 流行婉转（第二轮，原诗念白）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -466,6 +602,8 @@
   "version": "v8",
   "label": "三 · 水墨转色彩（第二轮，原诗念白）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -487,6 +625,8 @@
   "version": "v8",
   "label": "四 · 校园民谣转民谣摇滚（第二轮，原诗念白）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -508,6 +648,8 @@
   "version": "v8",
   "label": "一 · 慢摇转草原（第一轮，原诗是唱的）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -529,6 +671,8 @@
   "version": "v8",
   "label": "二 · 流行婉转（第一轮，原诗是唱的）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -550,6 +694,8 @@
   "version": "v8",
   "label": "三 · 水墨转色彩（第一轮，原诗是唱的）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [
@@ -571,6 +717,8 @@
   "version": "v8",
   "label": "四 · 校园民谣转民谣摇滚（第一轮，原诗是唱的）",
   "style": "",
+  "model": "V6",
+  "variety": 1,
   "note": null,
   "old": true,
   "tracks": [

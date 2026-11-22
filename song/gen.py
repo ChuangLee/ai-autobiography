@@ -495,6 +495,9 @@ TAKES += [
        style="1980s Taiwanese campus folk song in Mandarin Chinese that only later grows into folk-rock. Part one, verses 1 to 3, is pure campus folk: two fingerpicked acoustic guitars, harmonica, soft harmony humming, 76 BPM, no drums, no distortion; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A second guitar quietly echoes the first, then a clean soft electric guitar copies its phrase exactly. Part two, from verse 4: the electric guitar takes the lead and the band enters, drums, bass, warm overdriven guitar, building to a wide singalong bridge with group harmonies and a melodic guitar solo that starts from the folk tune and climbs beyond it. After the solo the bridge returns once, quiet and slow, over one acoustic guitar playing the solo's melody. Warm and open, triumphant not angry, never sad."),
 ]
 
+# 试验（2026-11-22）：同样的 prompt，换 V6_WILD 模型、variety=2，看更大胆、两首差别更大时是什么样。
+TAKES += [dict(t, id=t["id"].replace("-r4", "-w1"), label=t["label"] + " · WILD", model="V6_WILD", variety=2) for t in TAKES if t["id"].endswith("-r4")]
+
 # 第一二轮冻结：只为把已生成的音轨留在 songs.json 里作对照
 TAKES += [dict(id="v8-" + k + sfx, version="v8", old=True, title="河水不回答", label=l + note, lyrics="", style="")
           for sfx, note in (("-r3", "（第三轮，桥段只唱一次）"), ("-r2", "（第二轮，原诗念白）"), ("", "（第一轮，原诗是唱的）"))
@@ -517,9 +520,9 @@ def submit():
     for t in TAKES:
         if s.get(t["id"], {}).get("taskId"): continue
         d = call("createTask", {"model": "ai-music-api/generate", "input": {
-            "custom_mode": True, "instrumental": False, "model": "V6", "title": t["title"],
+            "custom_mode": True, "instrumental": False, "model": t.get("model", "V6"), "title": t["title"],
             "lyrics": t["lyrics"], "style": t["style"], "negative_tags": t.get("neg", NEG), **({"vocal_gender": t["gender"]} if t.get("gender") else {}),
-            **({"style_weight": t["style_weight"]} if "style_weight" in t else {}), **({"weirdness_constraint": t["weirdness"]} if "weirdness" in t else {})}})
+            **({"style_weight": t["style_weight"]} if "style_weight" in t else {}), **({"weirdness_constraint": t["weirdness"]} if "weirdness" in t else {}), **({"variety": t["variety"]} if "variety" in t else {})}})
         s[t["id"]] = {"taskId": d["taskId"]}; save(s)
         print("submitted", t["id"], d["taskId"]); time.sleep(1)
 
@@ -545,7 +548,7 @@ def fetch():
             else: pending += 1
         if not pending or time.time() > deadline: break
         time.sleep(10)
-    out = [dict(id=t["id"], version=t["version"], label=t["label"], style=t["style"], note=t.get("note"), old=t.get("old", False), tracks=s.get(t["id"], {}).get("tracks", []),
+    out = [dict(id=t["id"], version=t["version"], label=t["label"], style=t["style"], model=t.get("model", "V6"), variety=t.get("variety", 1), note=t.get("note"), old=t.get("old", False), tracks=s.get(t["id"], {}).get("tracks", []),
                 fail=s.get(t["id"], {}).get("fail")) for t in TAKES]
     (ROOT / "review" / "web" / "songs.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     print("pending" if pending else "all settled")
