@@ -178,16 +178,18 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
   function songBlock(rev) {
     const all = songs.filter((t) => t.version === "v8");
     if (!all.length) return null;
-    return h("section", { id: "songs" }, h("h2", {}, "试听", h("small", {}, "四种编曲，各两首")), h("p", { class: "lead" }, "每种编曲的思路和分段设计在下面的“配曲方案”里。点播放键试听，每首下面可以单独评。"), h("div", { class: "songs" }, all.flatMap((t) => t.tracks.length ? t.tracks.map((tr, i) => {
+    const mk = (takes) => takes.flatMap((t) => t.tracks.length ? t.tracks.map((tr, i) => {
       const th = thread("v8-song-" + t.id + "-" + (i + 1), rev + " · 试听 " + t.label + " · 第" + (i + 1) + "首", rev);
       return h("div", { class: "song" },
         h("div", { class: "t" }, t.label + " · 第 " + (i + 1) + " 首"),
         h("div", { class: "d" }, mmss(tr.duration)),
         h("audio", { controls: "", preload: "metadata", src: tr.file }),
-        h("details", {}, h("summary", {}, "给 Suno 的曲风描述"), t.style),
         h("div", { class: "acts" }, h("button", { onclick: () => th.open(null, null) }, "＋评这一首")),
         th.box);
-    }) : [h("div", { class: "song" }, h("div", { class: "t" }, t.label), h("div", { class: "d" }, t.fail ? "生成失败：" + t.fail : "生成中…"))])));
+    }) : [h("div", { class: "song" }, h("div", { class: "t" }, t.label), h("div", { class: "d" }, t.fail ? "生成失败：" + t.fail : "生成中…"))]);
+    const cur = all.filter((t) => !t.old), old = all.filter((t) => t.old);
+    return h("section", { id: "songs" }, h("h2", {}, "试听", h("small", {}, "四种编曲，各两首")), h("p", { class: "lead" }, "每种编曲的思路和分段设计在下面的“配曲方案”里。点播放键试听，每首下面可以单独评。"), h("div", { class: "songs" }, mk(cur)),
+      old.length ? h("details", { class: "hist old" }, h("summary", {}, "上一轮的 " + old.reduce((n, t) => n + t.tracks.length, 0) + " 首（旧歌词、原诗是唱的，留作对照）"), h("div", { class: "songs" }, mk(old))) : null);
   }
   function promptBlock(rev) {
     const P = content.prompts; if (!P) return null;
