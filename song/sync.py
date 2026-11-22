@@ -12,7 +12,9 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "review" / "web" / "timing.json"
 content = json.loads((ROOT / "review" / "web" / "heshui" / "content.json").read_text())
 han = lambda s: re.findall(r"[一-鿿]", re.sub(r"\[[^\]]*\]?|^[^\[\]]*\]", "", s))
-LINES = [("f8-" + sec["id"], n, "".join(han(line))) for sec in content["final"]["sections"] for n, line in enumerate(sec["lines"], 1)]
+SUNG = [x for x in content["final"]["sections"] if x["id"] != "poem"]          # the closing poem is not sung
+SUNG += [x for x in SUNG if x["id"] == "bridge"]                                  # the bridge returns once at the end
+LINES = [("f8-" + sec["id"], n, "".join(han(line))) for sec in SUNG for n, line in enumerate(sec["lines"], 1)]
 want = "".join(t for _, _, t in LINES)
 out = json.loads(OUT.read_text()) if OUT.exists() else {}
 state = gen.load()

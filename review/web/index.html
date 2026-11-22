@@ -245,7 +245,7 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "四种编曲，各两首，共用这一个播放器";
     P.pp.disabled = !cur; P.pp.textContent = audio.paused ? "▶" : "❚❚";
     P.fol.textContent = follow ? "跟随滚动：开" : "跟随滚动：关";
-    P.lst.replaceChildren(...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前两轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（旧歌词，带原诗，留作对照）"), oldTakes.map(grp))] : []));
+    P.lst.replaceChildren(...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前几轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（留作对照，没有歌词同步）"), oldTakes.map(grp))] : []));
     if (cur) { const th = thread("v8-song-" + cur.key, rev + " · 试听 " + cur.take.label + " · 第" + cur.i + "首", rev);
       P.cmt.replaceChildren(h("div", { class: "opt" }, h("button", { onclick: () => { P.root.classList.add("open"); th.open(null, null); } }, "＋评这一首")), th.box); }
     else P.cmt.replaceChildren();
