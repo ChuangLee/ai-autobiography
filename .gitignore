@@ -1,0 +1,21 @@
+# media: audio and video stay on the review server, not in the repo
+*.mp3
+*.mp4
+*.wav
+*.webm
+mv/ai/clips/
+mv/ai/keys/
+mv/clips/
+# font and glyph sources: re-download with mv/glyphs/fetch.py
+mv/glyphs/src/
+# local tooling, logs, attachments
+.tmp-msg-attachments/
+.agents/
+.claude/
+.hermes/
+skills/
+skills-lock.json
+__pycache__/
+*.log
+.env
+.DS_Store

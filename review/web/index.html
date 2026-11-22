@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>河水不回答 · 第 8 稿</title>
+<style>
+:root{
+  --paper:#f4f1ea; --card:#fbf9f4; --ink:#1d1c1a; --soft:#5d5a54; --faint:#8d897f;
+  --rule:#d9d4c7; --seal:#9c3a2b; --wash:#e9e5da; --mark:#f3e3b8;
+  --serif:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#171614; --card:#1f1e1b; --ink:#e9e5dc; --soft:#b0aba0; --faint:#807b71;
+  --rule:#36332e; --seal:#d0705f; --wash:#262420; --mark:#4a3f1f;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.75;-webkit-text-size-adjust:100%}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);
+  display:flex;gap:4px;overflow-x:auto;padding:8px 16px;font-size:14px;white-space:nowrap}
+nav a{color:var(--soft);text-decoration:none;padding:4px 10px;border-radius:14px}
+nav a:hover{background:var(--wash);color:var(--ink)}
+nav .sp{flex:1}
+nav button{font:inherit;font-size:13px;color:var(--soft);background:none;border:1px solid var(--rule);border-radius:14px;padding:3px 10px;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:0 16px 120px}
+header.hero{padding:56px 0 28px;text-align:center}
+header.hero h1{font-family:var(--serif);font-size:clamp(34px,8vw,52px);letter-spacing:.3em;margin:0 0 6px;font-weight:700;text-indent:.3em}
+header.hero p{color:var(--soft);margin:4px 0;font-size:15px}
+header.hero .rev{font-size:13px;color:var(--faint)}
+h2{font-family:var(--serif);font-size:24px;margin:64px 0 6px;letter-spacing:.08em}
+h2 small{font-family:var(--sans);font-size:13px;color:var(--faint);letter-spacing:0;font-weight:400;margin-left:8px}
+h3{font-size:15px;margin:26px 0 6px;color:var(--seal);letter-spacing:.06em}
+p{margin:8px 0}
+.lead{color:var(--soft)}
+.poem{display:grid;grid-template-columns:1fr;gap:18px;margin:18px 0;padding:22px 18px;background:var(--card);border:1px solid var(--rule);border-radius:6px}
+.poem .c{font-family:var(--serif);font-size:clamp(18px,4.6vw,23px);font-weight:700;letter-spacing:.12em;text-align:center}
+.poem .n{font-size:13.5px;color:var(--soft);text-align:center;margin-top:2px}
+details{border:1px solid var(--rule);border-radius:6px;background:var(--card);margin:12px 0;padding:0 16px}
+details>summary{cursor:pointer;padding:12px 0;font-weight:600}
+details[open]>summary{border-bottom:1px solid var(--rule);margin-bottom:10px}
+details img{max-width:100%;display:block;margin:10px auto 16px;border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+.tw{overflow-x:auto}
+th,td{border-bottom:1px solid var(--rule);padding:8px 8px;text-align:left;vertical-align:top}
+td:first-child{min-width:4.5em}
+th{color:var(--faint);font-weight:500;font-size:13px;white-space:nowrap}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+ol.steps b{color:var(--ink)}
+.src{font-size:12.5px;color:var(--faint)}
+.src a{color:inherit}
+.ver{margin-top:20px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.tag{font-size:12.5px;color:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:1px 10px}
+.sec{position:relative;margin:26px 0;padding:4px 0 4px 18px;border-left:2px solid var(--rule)}
+.sec.classic{border-left-color:var(--seal)}
+.sec .lab{font-size:12.5px;color:var(--faint);letter-spacing:.08em;margin-bottom:4px;display:flex;gap:10px;align-items:center}
+.sec .lab button{font:inherit;font-size:12.5px;color:var(--seal);background:none;border:0;cursor:pointer;padding:2px 0}
+.ln{font-family:var(--serif);font-size:clamp(17px,4.4vw,20px);line-height:2.05;cursor:pointer;border-radius:3px;padding:0 4px;margin:0 -4px;white-space:pre-wrap}
+.ln:hover{background:var(--wash)}
+.ln.has{background:linear-gradient(transparent 62%,var(--mark) 62%)}
+.sec.classic .ln{font-weight:700;letter-spacing:.1em}
+.note{font-size:14px;color:var(--soft);background:var(--wash);border-radius:6px;padding:10px 14px;margin:14px 0}
+.note b{color:var(--ink)}
+.cm{font-size:14px;margin:8px 0;padding:8px 12px;border-radius:6px;background:var(--card);border:1px solid var(--rule)}
+.cm .q{color:var(--faint);font-family:var(--serif);font-size:13.5px}
+.cm .b{white-space:pre-wrap}
+.cm .r{margin-top:6px;padding-top:6px;border-top:1px dashed var(--rule);color:var(--soft);white-space:pre-wrap}
+.cm .f{display:flex;gap:10px;font-size:12px;color:var(--faint);margin-top:4px}
+.cm .f button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
+.st-done{color:#3b7d4f}.st-rejected{color:var(--faint)}
+.form{margin:8px 0}
+.form .q{font-family:var(--serif);font-size:13.5px;color:var(--faint);margin-bottom:4px}
+textarea{width:100%;min-height:74px;font:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;resize:vertical}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;align-items:center}
+.btn{font:inherit;font-size:14px;border-radius:16px;padding:5px 16px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.btn.ghost{background:none;color:var(--soft);border-color:var(--rule)}
+.err{color:var(--seal);font-size:13px;margin-right:auto}
+.songs{margin:14px 0 6px;display:grid;gap:12px}
+.song{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
+.song .t{font-weight:600;font-size:15px}
+.song .d{font-size:12.5px;color:var(--faint);margin:2px 0 8px}
+.song audio{width:100%;height:38px;display:block}
+.song details{border:0;background:none;padding:0;margin:6px 0 0;font-size:12.5px;color:var(--soft)}
+.song details>summary{padding:2px 0;font-weight:400;color:var(--faint);border:0!important;margin:0!important}
+.song .acts{display:flex;gap:12px;margin-top:6px}
+.song .acts button{font:inherit;font-size:12.5px;color:var(--seal);background:none;border:0;cursor:pointer;padding:0}
+.pick{margin:18px 0 0;display:flex;gap:10px;flex-wrap:wrap}
+dialog{border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);padding:20px;max-width:320px;width:90%}
+dialog input{width:100%;font:inherit;padding:8px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);margin:10px 0}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+footer{margin-top:80px;font-size:13px;color:var(--faint);text-align:center}
+.hist{margin:14px 0}.hist>summary{font-family:var(--serif);font-size:17px}.hist .why{font-size:14px;color:var(--soft);margin:4px 0 8px}
+.badge{font-family:var(--sans);font-size:12px;color:var(--seal);border:1px solid var(--seal);border-radius:10px;padding:0 8px;margin-left:10px;vertical-align:middle;letter-spacing:0}
+.old .ln{font-size:16px;line-height:1.9;color:var(--soft)}
+details.past{border:0;background:none;padding:0;margin:2px 0 6px}details.past>summary{padding:0;font-weight:400;font-size:12.5px;color:var(--faint);border:0!important;margin:0 0 4px!important}
+dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var(--soft);font-size:14.5px}
+</style>
+</head>
+<body>
+<nav id="nav"></nav>
+<main id="app"><p style="padding:80px 0;text-align:center;color:var(--faint)">载入中…</p></main>
+<dialog id="key-dialog"><form method="dialog">
+  <div>输入审阅口令</div><input id="key-input" type="password" autocomplete="off"><div class="err" id="key-err"></div>
+  <div class="row"><button class="btn ghost" value="cancel">取消</button><button class="btn" value="ok">确定</button></div>
+</form></dialog>
+<script>
+(() => {
+  "use strict";
+  const API = "api/", KEY_STORES = ["zcj-review-key", "aiedu-review-key"], DOC = "heshui";
+  const $ = (s, r = document) => r.querySelector(s);
+  const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} }, del(k) { try { localStorage.removeItem(k); } catch {} } };
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) { if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else if (v !== false && v != null) el.setAttribute(k, v); }
+    for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid);
+    return el;
+  }
+  let content, songs = [], comments = [], key = "";
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", "X-Review-Key": key } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status });
+    return data;
+  }
+  function ensureKey() {
+    if (key) return Promise.resolve(true);
+    const dlg = $("#key-dialog"); $("#key-input").value = "";
+    return new Promise((resolve) => {
+      dlg.onclose = async () => {
+        if (dlg.returnValue !== "ok") return resolve(false);
+        key = $("#key-input").value.trim();
+        try { await api("auth"); store.set(KEY_STORES[0], key); $("#key-err").textContent = ""; renderNav(); resolve(true); }
+        catch { key = ""; $("#key-err").textContent = "口令不正确"; resolve(ensureKey()); }
+      };
+      dlg.showModal();
+    });
+  }
+  function forget() { key = ""; KEY_STORES.forEach(store.del); renderNav(); }
+  function renderNav() {
+    $("#nav").replaceChildren(h("a", { href: "#final" }, "歌词"), songs.some((t) => t.version === "v8") ? h("a", { href: "#songs" }, "试听") : null, h("a", { href: "#prompts" }, "配曲方案"), h("a", { href: "#notes" }, "说明"), h("a", { href: "#others" }, "其他版本"), h("a", { href: "#history" }, "历史各稿"), h("a", { href: "old/" }, "旧版页面与旧试听"), h("a", { href: "mv/" }, "MV 样片"),
+      h("span", { class: "sp" }), key ? h("button", { onclick: forget }, "已登录 · 退出") : h("button", { onclick: ensureKey }, "输入口令"));
+  }
+  const STATUS = { open: "待处理", done: "已采纳", rejected: "未采纳" };
+  function commentBox(c) {
+    return h("div", { class: "cm" }, c.line ? h("div", { class: "q" }, "「" + (c.section_title || "") + "」") : null, h("div", { class: "b" }, c.body),
+      c.reply ? h("div", { class: "r" }, "回复：" + c.reply) : null,
+      h("div", { class: "f" }, h("span", { class: "st-" + c.status }, STATUS[c.status] || c.status), h("span", {}, (c.created_at || "").slice(0, 16).replace("T", " ") + " UTC · " + c.version),
+        h("button", { onclick: async () => { if (!confirm("删除这条意见？") || !(await ensureKey())) return;
+          try { await api("comments/" + c.id, { method: "DELETE" }); comments = comments.filter((x) => x.id !== c.id); render(); } catch (e) { if (e.status === 401) forget(); alert("删除失败：" + e.message); } } }, "删除")));
+  }
+  function thread(secId, title, rev) {
+    const list = h("div"), formSlot = h("div");
+    const draw = () => { const all = comments.filter((c) => c.doc === DOC && c.section === secId), open_ = all.filter((c) => c.status === "open"), past = all.filter((c) => c.status !== "open");
+      list.replaceChildren(...open_.map(commentBox), ...(past.length ? [h("details", { class: "past" }, h("summary", {}, "已处理的批注 " + past.length + " 条"), past.map(commentBox))] : [])); };
+    function open(line, quote) {
+      const ta = h("textarea", { placeholder: quote ? "对这一句的意见，或直接写出你要的句子…" : "对这一段的意见…" }), err = h("span", { class: "err" });
+      const send = h("button", { class: "btn", onclick: async () => {
+        const body = ta.value.trim(); if (!body || !(await ensureKey())) return; send.disabled = true;
+        try { comments.push(await api("comments", { method: "POST", body: JSON.stringify({ doc: DOC, version: rev, section: secId, section_title: (quote || title).slice(0, 190), line: line || null, body }) }));
+          formSlot.replaceChildren(); draw(); mark(); } catch (e) { if (e.status === 401) forget(); err.textContent = "提交失败：" + e.message; send.disabled = false; } } }, "提交");
+      formSlot.replaceChildren(h("div", { class: "form" }, quote ? h("div", { class: "q" }, "「" + quote + "」") : null, ta,
+        h("div", { class: "row" }, err, h("button", { class: "btn ghost", onclick: () => formSlot.replaceChildren() }, "取消"), send)));
+      ta.focus();
+    }
+    draw(); return { box: h("div", {}, list, formSlot), open };
+  }
+  function mark() { document.querySelectorAll(".ln").forEach((el) => el.classList.toggle("has", comments.some((c) => c.doc === DOC && c.status === "open" && c.section === el.dataset.sec && c.line === +el.dataset.n))); }
+  function section(v, s, prefix) {
+    const secId = prefix + "-" + s.id, t = thread(secId, v.rev + " · " + s.label, v.rev);
+    return h("div", { class: "sec" + (s.classic ? " classic" : "") }, h("div", { class: "lab" }, s.label, h("button", { onclick: () => t.open(null, null) }, "＋批注本段")),
+      s.lines.map((line, i) => h("div", { class: "ln", "data-sec": secId, "data-n": i + 1, title: "点这一句写意见", onclick: () => t.open(i + 1, line.replace(/\s+/g, " ")) }, line)), t.box);
+  }
+  const mmss = (x) => x ? Math.floor(x / 60) + ":" + String(Math.round(x % 60)).padStart(2, "0") : "";
+  function songBlock(rev) {
+    const all = songs.filter((t) => t.version === "v8");
+    if (!all.length) return null;
+    return h("section", { id: "songs" }, h("h2", {}, "试听", h("small", {}, "四种编曲，各两首")), h("p", { class: "lead" }, "每种编曲的思路和分段设计在下面的“配曲方案”里。点播放键试听，每首下面可以单独评。"), h("div", { class: "songs" }, all.flatMap((t) => t.tracks.length ? t.tracks.map((tr, i) => {
+      const th = thread("v8-song-" + t.id + "-" + (i + 1), rev + " · 试听 " + t.label + " · 第" + (i + 1) + "首", rev);
+      return h("div", { class: "song" },
+        h("div", { class: "t" }, t.label + " · 第 " + (i + 1) + " 首"),
+        h("div", { class: "d" }, mmss(tr.duration)),
+        h("audio", { controls: "", preload: "metadata", src: tr.file }),
+        h("details", {}, h("summary", {}, "给 Suno 的曲风描述"), t.style),
+        h("div", { class: "acts" }, h("button", { onclick: () => th.open(null, null) }, "＋评这一首")),
+        th.box);
+    }) : [h("div", { class: "song" }, h("div", { class: "t" }, t.label), h("div", { class: "d" }, t.fail ? "生成失败：" + t.fail : "生成中…"))])));
+  }
+  function promptBlock(rev) {
+    const P = content.prompts; if (!P) return null;
+    return h("section", { id: "prompts" }, h("h2", {}, "配曲方案", h("small", {}, "给 Suno 的分段 prompt · 已生成，试听在下方")), h("p", { class: "lead" }, P.lead),
+      h("details", {}, h("summary", {}, "写法依据与参数"), h("p", { style: "font-size:14.5px;color:var(--soft)" }, P.how)),
+      P.takes.map((t) => { const th = thread("p8-" + t.id, rev + " · 配曲方案 " + t.label, rev);
+        return h("div", { class: "song", style: "margin:16px 0" }, h("div", { class: "t" }, t.label), h("p", { style: "font-size:14.5px;color:var(--soft)" }, t.idea),
+          h("div", { class: "tw" }, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "段落"), h("th", {}, "这一段怎么唱、怎么配"), h("th", {}, "写给 Suno 的标签"))),
+            h("tbody", {}, t.plan.map((r) => h("tr", {}, h("td", {}, r.sec), h("td", {}, r.zh), h("td", { style: "font-size:12.5px;color:var(--faint)" }, r.tags.map((x) => h("div", {}, x)))))))),
+          h("details", {}, h("summary", {}, "全局曲风 prompt（英文，原样发给 Suno）"), h("p", {}, t.style), h("p", {}, h("b", {}, "排除："), t.neg), h("p", {}, h("b", {}, "参数："), t.params)),
+          h("details", {}, h("summary", {}, "发给 Suno 的歌词全文（含标签，长句已拆行）"), h("pre", { style: "white-space:pre-wrap;font:inherit;line-height:1.8" }, t.lyrics)),
+          h("div", { class: "acts" }, h("button", { onclick: () => th.open(null, null) }, "＋评这个方案")), th.box); }));
+  }
+  function render() {
+    const y = scrollY, f = content.final, overall = thread("f8-overall", f.rev + " · 总评", f.rev);
+    $("#app").replaceChildren(...[
+      h("header", { class: "hero" }, h("h1", {}, "河水不回答"), h("p", {}, f.sub || "歌词定稿 · 附历史各稿"), h("p", { class: "rev" }, f.rev + " · " + f.date + " · 点任意一句即可批注")),
+      h("section", { id: "final" }, h("h2", {}, f.rev, h("span", { class: "badge" }, f.status)), h("p", { class: "lead" }, f.lead),
+        f.sections.map((s) => section(f, s, "f8")),
+        h("h3", {}, "总评"), overall.box,
+        h("div", { class: "pick" }, h("button", { class: "btn ghost", onclick: () => overall.open(null, null) }, "写总评"))),
+      songBlock(f.rev), promptBlock(f.rev),
+      h("section", { id: "notes" }, h("h2", {}, "说明", h("small", {}, "歌词各处的来由")), h("dl", { class: "notes" }, f.notes.map(([t, d]) => [h("dt", {}, t), h("dd", {}, d)]))),
+      h("section", { id: "others" }, h("h2", {}, "其他版本", h("small", {}, "已降级，折叠备查")),
+        (content.cands || []).map((c) => { const ct = thread("cand-" + c.id + "-overall", f.rev + " · " + c.name + " · 总评", f.rev);
+          return h("details", { id: "cand-" + c.id, class: "hist old" }, h("summary", {}, c.name), h("p", { class: "lead" }, c.lead),
+            c.sections.map((s) => section(f, s, "c8" + c.id)), h("div", { class: "note" }, c.notes), c.open ? h("div", { class: "note" }, h("b", {}, "还没解决好的："), c.open) : null, ct.box,
+            h("div", { class: "pick" }, h("button", { class: "btn", onclick: async () => { if (!(await ensureKey())) return;
+                try { comments.push(await api("comments", { method: "POST", body: JSON.stringify({ doc: DOC, version: f.rev, section: "cand-" + c.id + "-overall", section_title: f.rev + " · " + c.name + " · 总评", body: "【选定】以「" + c.name + "」为准。" }) })); render(); }
+                catch (e) { if (e.status === 401) forget(); alert("提交失败：" + e.message); } } }, "改用这一版"),
+              h("button", { class: "btn ghost", onclick: () => ct.open(null, null) }, "评这一版"))); }),
+      ),
+      h("section", { id: "history" }, h("h2", {}, "历史各稿", h("small", {}, "由新到旧，共 " + content.history.length + " 稿")),
+        content.history.map((v, i) => h("details", { class: "hist old" }, h("summary", {}, v.rev + " · " + v.title),
+          h("p", { class: "why" }, "改动缘由：" + v.why), v.sections.map((s) => section(v, s, "h" + (content.history.length - i)))))),
+      h("footer", {}, "仅供审阅 · 意见保存在服务器，下一稿会逐条回复")]);
+    mark(); scrollTo(0, y);
+  }
+  async function init() {
+    key = KEY_STORES.map(store.get).find(Boolean) || "";
+    try { content = await (await fetch("heshui/content.json", { cache: "no-cache" })).json(); } catch { $("#app").textContent = "内容载入失败，请刷新。"; return; }
+    try { songs = await (await fetch("songs.json", { cache: "no-cache" })).json(); } catch { songs = []; }
+    try { comments = (await api("comments")).comments; } catch { comments = []; }
+    if (key) await api("auth").catch((e) => { if (e.status === 401) forget(); });
+    renderNav(); render();
+    const go = () => { if (location.hash.length > 1) document.getElementById(location.hash.slice(1))?.scrollIntoView(); };
+    go(); setTimeout(go, 400);
+  }
+  init();
+})();
+</script>
+</body>
+</html>

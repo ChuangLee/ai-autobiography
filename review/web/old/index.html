@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>字成精 · 旧稿存档</title>
+<style>
+:root{
+  --paper:#f4f1ea; --card:#fbf9f4; --ink:#1d1c1a; --soft:#5d5a54; --faint:#8d897f;
+  --rule:#d9d4c7; --seal:#9c3a2b; --wash:#e9e5da; --mark:#f3e3b8;
+  --serif:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;
+  --sans:-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#171614; --card:#1f1e1b; --ink:#e9e5dc; --soft:#b0aba0; --faint:#807b71;
+  --rule:#36332e; --seal:#d0705f; --wash:#262420; --mark:#4a3f1f;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:56px}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.75;-webkit-text-size-adjust:100%}
+nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--rule);
+  display:flex;gap:4px;overflow-x:auto;padding:8px 16px;font-size:14px;white-space:nowrap}
+nav a{color:var(--soft);text-decoration:none;padding:4px 10px;border-radius:14px}
+nav a:hover{background:var(--wash);color:var(--ink)}
+nav .sp{flex:1}
+nav button{font:inherit;font-size:13px;color:var(--soft);background:none;border:1px solid var(--rule);border-radius:14px;padding:3px 10px;cursor:pointer}
+main{max-width:760px;margin:0 auto;padding:0 16px 120px}
+header.hero{padding:56px 0 28px;text-align:center}
+header.hero h1{font-family:var(--serif);font-size:clamp(34px,8vw,52px);letter-spacing:.3em;margin:0 0 6px;font-weight:700;text-indent:.3em}
+header.hero p{color:var(--soft);margin:4px 0;font-size:15px}
+header.hero .rev{font-size:13px;color:var(--faint)}
+h2{font-family:var(--serif);font-size:24px;margin:64px 0 6px;letter-spacing:.08em}
+h2 small{font-family:var(--sans);font-size:13px;color:var(--faint);letter-spacing:0;font-weight:400;margin-left:8px}
+h3{font-size:15px;margin:26px 0 6px;color:var(--seal);letter-spacing:.06em}
+p{margin:8px 0}
+.lead{color:var(--soft)}
+.poem{display:grid;grid-template-columns:1fr;gap:18px;margin:18px 0;padding:22px 18px;background:var(--card);border:1px solid var(--rule);border-radius:6px}
+.poem .c{font-family:var(--serif);font-size:clamp(18px,4.6vw,23px);font-weight:700;letter-spacing:.12em;text-align:center}
+.poem .n{font-size:13.5px;color:var(--soft);text-align:center;margin-top:2px}
+details{border:1px solid var(--rule);border-radius:6px;background:var(--card);margin:12px 0;padding:0 16px}
+details>summary{cursor:pointer;padding:12px 0;font-weight:600}
+details[open]>summary{border-bottom:1px solid var(--rule);margin-bottom:10px}
+details img{max-width:100%;display:block;margin:10px auto 16px;border-radius:4px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+.tw{overflow-x:auto}
+th,td{border-bottom:1px solid var(--rule);padding:8px 8px;text-align:left;vertical-align:top}
+td:first-child{min-width:4.5em}
+th{color:var(--faint);font-weight:500;font-size:13px;white-space:nowrap}
+ol.steps{padding-left:22px}
+ol.steps li{margin:8px 0}
+ol.steps b{color:var(--ink)}
+.src{font-size:12.5px;color:var(--faint)}
+.src a{color:inherit}
+.ver{margin-top:20px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.tag{font-size:12.5px;color:var(--soft);border:1px solid var(--rule);border-radius:12px;padding:1px 10px}
+.sec{position:relative;margin:26px 0;padding:4px 0 4px 18px;border-left:2px solid var(--rule)}
+.sec.classic{border-left-color:var(--seal)}
+.sec .lab{font-size:12.5px;color:var(--faint);letter-spacing:.08em;margin-bottom:4px;display:flex;gap:10px;align-items:center}
+.sec .lab button{font:inherit;font-size:12.5px;color:var(--seal);background:none;border:0;cursor:pointer;padding:2px 0}
+.ln{font-family:var(--serif);font-size:clamp(17px,4.4vw,20px);line-height:2.05;cursor:pointer;border-radius:3px;padding:0 4px;margin:0 -4px;white-space:pre-wrap}
+.ln:hover{background:var(--wash)}
+.ln.has{background:linear-gradient(transparent 62%,var(--mark) 62%)}
+.sec.classic .ln{font-weight:700;letter-spacing:.1em}
+.note{font-size:14px;color:var(--soft);background:var(--wash);border-radius:6px;padding:10px 14px;margin:14px 0}
+.note b{color:var(--ink)}
+.cm{font-size:14px;margin:8px 0;padding:8px 12px;border-radius:6px;background:var(--card);border:1px solid var(--rule)}
+.cm .q{color:var(--faint);font-family:var(--serif);font-size:13.5px}
+.cm .b{white-space:pre-wrap}
+.cm .r{margin-top:6px;padding-top:6px;border-top:1px dashed var(--rule);color:var(--soft);white-space:pre-wrap}
+.cm .f{display:flex;gap:10px;font-size:12px;color:var(--faint);margin-top:4px}
+.cm .f button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0;text-decoration:underline}
+.st-done{color:#3b7d4f}.st-rejected{color:var(--faint)}
+.form{margin:8px 0}
+.form .q{font-family:var(--serif);font-size:13.5px;color:var(--faint);margin-bottom:4px}
+textarea{width:100%;min-height:74px;font:inherit;font-size:15px;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;resize:vertical}
+.row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px;align-items:center}
+.btn{font:inherit;font-size:14px;border-radius:16px;padding:5px 16px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper)}
+.btn.ghost{background:none;color:var(--soft);border-color:var(--rule)}
+.err{color:var(--seal);font-size:13px;margin-right:auto}
+.songs{margin:14px 0 6px;display:grid;gap:12px}
+.song{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:12px 14px}
+.song .t{font-weight:600;font-size:15px}
+.song .d{font-size:12.5px;color:var(--faint);margin:2px 0 8px}
+.song audio{width:100%;height:38px;display:block}
+.song details{border:0;background:none;padding:0;margin:6px 0 0;font-size:12.5px;color:var(--soft)}
+.song details>summary{padding:2px 0;font-weight:400;color:var(--faint);border:0!important;margin:0!important}
+.song .acts{display:flex;gap:12px;margin-top:6px}
+.song .acts button{font:inherit;font-size:12.5px;color:var(--seal);background:none;border:0;cursor:pointer;padding:0}
+.pick{margin:18px 0 0;display:flex;gap:10px;flex-wrap:wrap}
+dialog{border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink);padding:20px;max-width:320px;width:90%}
+dialog input{width:100%;font:inherit;padding:8px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);margin:10px 0}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+footer{margin-top:80px;font-size:13px;color:var(--faint);text-align:center}
+</style>
+</head>
+<body>
+<nav id="nav"></nav>
+<main id="app"><p style="padding:80px 0;text-align:center;color:var(--faint)">载入中…</p></main>
+<dialog id="key-dialog"><form method="dialog">
+  <div>输入审阅口令</div><input id="key-input" type="password" autocomplete="off"><div class="err" id="key-err"></div>
+  <div class="row"><button class="btn ghost" value="cancel">取消</button><button class="btn" value="ok">确定</button></div>
+</form></dialog>
+<script>
+(() => {
+  "use strict";
+  const API = "../api/", KEY_STORES = ["zcj-review-key", "aiedu-review-key"], DOC = "lyrics";
+  const $ = (s, r = document) => r.querySelector(s);
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else if (k === "html") el.innerHTML = v;
+      else if (v !== false && v != null) el.setAttribute(k, v);
+    }
+    for (const kid of kids.flat(Infinity)) if (kid != null && kid !== false) el.append(kid);
+    return el;
+  }
+  let content, songs = [], comments = [], key = "";
+
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, { ...opts, headers: { "Content-Type": "application/json", "X-Review-Key": key } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw Object.assign(new Error(data.error || res.statusText), { status: res.status });
+    return data;
+  }
+  function readKeyFromHash() {
+    const m = location.hash.match(/key=([^&]+)/);
+    if (!m) return;
+    store.set(KEY_STORES[0], decodeURIComponent(m[1]));
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+  function ensureKey() {
+    if (key) return Promise.resolve(true);
+    const dlg = $("#key-dialog");
+    $("#key-input").value = "";
+    return new Promise((resolve) => {
+      dlg.onclose = async () => {
+        if (dlg.returnValue !== "ok") return resolve(false);
+        key = $("#key-input").value.trim();
+        try { await api("auth"); store.set(KEY_STORES[0], key); $("#key-err").textContent = ""; renderNav(); resolve(true); }
+        catch { key = ""; $("#key-err").textContent = "口令不正确"; resolve(ensureKey()); }
+      };
+      dlg.showModal();
+    });
+  }
+  function forget() { key = ""; KEY_STORES.forEach(store.del); renderNav(); }
+
+  function renderNav() {
+    const nav = $("#nav");
+    nav.replaceChildren(
+      h("a", { href: "#poem" }, "母本"), h("a", { href: "#method" }, "方法"),
+      ...content.versions.map((v) => h("a", { href: "#" + v.id }, v.short)),
+      h("a", { href: "#compare" }, "对照"), h("a", { href: "#log" }, "修改记录"),
+      h("span", { class: "sp" }),
+      key ? h("button", { onclick: forget }, "已登录 · 退出") : h("button", { onclick: ensureKey }, "输入口令"));
+  }
+
+  const STATUS = { open: "待处理", done: "已采纳", rejected: "未采纳" };
+  function commentBox(c) {
+    return h("div", { class: "cm" },
+      c.line ? h("div", { class: "q" }, "「" + (c.section_title || "") + "」") : null,
+      h("div", { class: "b" }, c.body),
+      c.reply ? h("div", { class: "r" }, "回复：" + c.reply) : null,
+      h("div", { class: "f" },
+        h("span", { class: "st-" + c.status }, STATUS[c.status] || c.status),
+        h("span", {}, (c.created_at || "").slice(0, 16).replace("T", " ") + " UTC · " + c.version),
+        h("button", { onclick: async () => {
+          if (!confirm("删除这条意见？") || !(await ensureKey())) return;
+          try { await api("comments/" + c.id, { method: "DELETE" }); comments = comments.filter((x) => x.id !== c.id); render(); }
+          catch (e) { if (e.status === 401) forget(); alert("删除失败：" + e.message); }
+        } }, "删除")));
+  }
+  // A comment thread bound to one section id; `quote` pins it to a single line.
+  function thread(secId, title) {
+    const box = h("div", { class: "thread" });
+    const list = h("div");
+    const formSlot = h("div");
+    const draw = () => list.replaceChildren(...comments.filter((c) => c.doc === DOC && c.section === secId).map(commentBox));
+    function open(line, quote) {
+      const ta = h("textarea", { placeholder: quote ? "对这一句的意见…" : "对这一段的意见…" });
+      const err = h("span", { class: "err" });
+      const send = h("button", { class: "btn", onclick: async () => {
+        const body = ta.value.trim();
+        if (!body || !(await ensureKey())) return;
+        send.disabled = true;
+        try {
+          const c = await api("comments", { method: "POST", body: JSON.stringify({
+            doc: DOC, version: content.rev, section: secId, section_title: (quote || title).slice(0, 190), line: line || null, body }) });
+          comments.push(c); formSlot.replaceChildren(); draw(); markLines();
+        } catch (e) { if (e.status === 401) forget(); err.textContent = "提交失败：" + e.message; send.disabled = false; }
+      } }, "提交");
+      formSlot.replaceChildren(h("div", { class: "form" },
+        quote ? h("div", { class: "q" }, "「" + quote + "」") : null, ta,
+        h("div", { class: "row" }, err, h("button", { class: "btn ghost", onclick: () => formSlot.replaceChildren() }, "取消"), send)));
+      ta.focus();
+    }
+    draw();
+    box.append(list, formSlot);
+    return { box, open };
+  }
+  function markLines() {
+    document.querySelectorAll(".ln").forEach((el) => {
+      const hit = comments.some((c) => c.doc === DOC && c.section === el.dataset.sec && c.line === +el.dataset.n);
+      el.classList.toggle("has", hit);
+    });
+  }
+
+  function section(v, s) {
+    const secId = v.id + "-" + s.id;
+    const t = thread(secId, v.short + " · " + s.label);
+    return h("div", { class: "sec" + (s.classic ? " classic" : "") },
+      h("div", { class: "lab" }, s.label, h("button", { onclick: () => t.open(null, null) }, "＋批注本段")),
+      s.lines.map((line, i) => line === "" ? h("div", { style: "height:.9em" }) :
+        h("div", { class: "ln", "data-sec": secId, "data-n": i + 1, title: "点这一句写意见", onclick: () => t.open(i + 1, line.replace(/\s+/g, " ")) }, line)),
+      t.box);
+  }
+  const mmss = (s) => s ? Math.floor(s / 60) + ":" + String(Math.round(s % 60)).padStart(2, "0") : "";
+  function songBlock(v) {
+    const all = songs.filter((t) => t.version === v.id);
+    if (!all.length) return null;
+    const cur = all.filter((t) => !t.old), old = all.filter((t) => t.old);
+    const mk = (takes) => takes.flatMap((t) => t.tracks.length ? t.tracks.map((tr, i) => {
+      const id = v.id + "-song-" + t.id + "-" + (i + 1);
+      const th = thread(id, v.short + " · 试听 " + t.label + " · 第" + (i + 1) + "首");
+      return h("div", { class: "song" },
+        h("div", { class: "t" }, t.label + " · 第 " + (i + 1) + " 首"),
+        h("div", { class: "d" }, [mmss(tr.duration), tr.note].filter(Boolean).join(" · ")),
+        h("audio", { controls: "", preload: "none", src: "../" + tr.file }),
+        h("details", {}, h("summary", {}, "给 Suno 的曲风描述"), t.style),
+        h("div", { class: "acts" }, h("button", { onclick: () => th.open(null, null) }, "＋评这一首")),
+        th.box);
+    }) : [h("div", { class: "song" }, h("div", { class: "t" }, t.label), h("div", { class: "d" }, t.fail ? "生成失败：" + t.fail : "生成中…"))]);
+    return [h("h3", {}, "试听"), h("div", { class: "songs" }, mk(cur)),
+      old.length ? h("details", {}, h("summary", {}, "上一稿的 " + old.reduce((n, t) => n + t.tracks.length, 0) + " 首（旧词旧曲，留作对照）"), h("div", { class: "songs" }, mk(old))) : null];
+  }
+  function version(v) {
+    const overall = thread(v.id + "-overall", v.short + " · 总评");
+    return h("section", { class: "ver", id: v.id },
+      h("h2", {}, "《" + v.title + "》", h("small", {}, v.short + " · " + v.route)),
+      h("div", { class: "meta" }, v.tags.map((t) => h("span", { class: "tag" }, t))),
+      h("p", { class: "lead" }, v.lead),
+      v.id === "v2" ? h("p", {}, h("a", { class: "btn", href: "../", style: "text-decoration:none;display:inline-block" }, "→ 第 8 稿（当前主线）审阅页")) : null,
+      v.mv ? h("p", {}, h("a", { class: "btn", href: "../" + v.mv, target: "_blank", style: "text-decoration:none;display:inline-block" }, "▶ 看 MV 前两段样片")) : null,
+      songBlock(v),
+      v.sections.map((s) => section(v, s)),
+      h("div", { class: "note", html: v.notes }),
+      h("h3", {}, "这一版的总评"),
+      overall.box,
+      h("div", { class: "pick" },
+        h("button", { class: "btn", onclick: () => overall.open(null, null) }, "写总评"),
+        h("button", { class: "btn ghost", onclick: async () => {
+          if (!(await ensureKey())) return;
+          try { comments.push(await api("comments", { method: "POST", body: JSON.stringify({ doc: DOC, version: content.rev, section: v.id + "-overall", section_title: v.short + " · 总评", body: "【选定】以《" + v.title + "》为主稿。" }) })); render(); location.hash = v.id; }
+          catch (e) { if (e.status === 401) forget(); alert("提交失败：" + e.message); }
+        } }, "选这一版为主稿")));
+  }
+  function table(t) {
+    return h("div", { class: "tw" }, h("table", {},
+      h("thead", {}, h("tr", {}, t.head.map((c) => h("th", {}, c)))),
+      h("tbody", {}, t.rows.map((r) => h("tr", {}, r.map((c) => h("td", { html: c })))))));
+  }
+  function render() {
+    const y = scrollY;
+    const general = thread("general", "整体意见");
+    $("#app").replaceChildren(...[
+      h("header", { class: "hero" },
+        h("h1", {}, content.title), h("p", {}, content.subtitle),
+        h("p", { class: "rev" }, "稿次 " + content.rev + " · " + content.updated + " · 可试听 · 点任意一句歌词即可批注")),
+      h("section", { id: "poem" },
+        h("h2", {}, "母本", h("small", {}, "七律《AI自传》与图中旁白")),
+        h("div", { class: "poem" }, content.poem.map((p) => h("div", {}, h("div", { class: "c" }, p.c), h("div", { class: "n" }, p.n)))),
+        h("details", {}, h("summary", {}, "原图"), h("img", { src: "../poem.jpg", alt: "《AI自传》原图：水墨山水，崖上立着一个小小的机器人，山下是人间灯火", loading: "lazy" }))),
+      h("section", { id: "method" },
+        h("h2", {}, "方法", h("small", {}, "调研、流程与审稿标准")),
+        h("p", { class: "lead" }, content.method.lead),
+        h("h3", {}, "调研所得"), table(content.method.research),
+        h("p", { class: "src", html: content.method.sources }),
+        h("h3", {}, "创作与修改流程"), h("ol", { class: "steps" }, content.method.steps.map((s) => h("li", { html: s }))),
+        h("h3", {}, "审稿标准"), table(content.method.rubric)),
+      content.versions.map(version),
+      h("section", { id: "compare" },
+        h("h2", {}, "对照", h("small", {}, "三版怎么选")),
+        table(content.compare.table), h("div", { class: "note", html: content.compare.advice }),
+        h("h3", {}, "整体意见"), general.box,
+        h("div", { class: "pick" }, h("button", { class: "btn", onclick: () => general.open(null, null) }, "写整体意见"))),
+      h("section", { id: "log" },
+        h("h2", {}, "修改记录", h("small", {}, "这一轮改了什么、为什么")),
+        content.log.map((g) => [h("h3", {}, g.title), table(g.table)])),
+      h("footer", {}, "仅供审阅 · 意见保存在服务器，下一稿会逐条回复")].flat(Infinity));
+    markLines();
+    scrollTo(0, y);
+  }
+  async function init() {
+    readKeyFromHash();
+    key = KEY_STORES.map(store.get).find(Boolean) || "";
+    try {
+      content = await (await fetch("content.json", { cache: "no-cache" })).json();
+    } catch { $("#app").textContent = "内容载入失败，请刷新。"; return; }
+    try { songs = await (await fetch("../songs.json", { cache: "no-cache" })).json(); } catch { songs = []; }
+    try { comments = (await api("comments")).comments; } catch { comments = []; }
+    if (key) await api("auth").catch((e) => { if (e.status === 401) forget(); });
+    renderNav(); render();
+    if (location.hash.length > 1) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+  }
+  document.addEventListener("play", (e) => document.querySelectorAll("audio").forEach((x) => { if (x !== e.target) x.pause(); }), true);
+  init();
+})();
+</script>
+</body>
+</html>

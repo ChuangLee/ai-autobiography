@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>河水不回答 · MV 第一段</title>
+<style>
+html,body{margin:0;height:100%;background:#050608;color:#d8d4ca;font-family:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{max-width:100vw;max-height:100vh;aspect-ratio:16/9;width:100vw;display:block;background:#050608}
+@media (min-aspect-ratio:16/9){canvas{width:auto;height:100vh}}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 16px 14px;display:flex;gap:12px;align-items:center;font:13px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));transition:opacity .4s}
+#ui.hide{opacity:0;pointer-events:none}
+#ui button,#ui select{font:inherit;color:#e6e1d6;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;cursor:pointer}
+#ui select option{color:#111}
+#bar{flex:1;height:14px;display:flex;align-items:center;cursor:pointer}
+#bar i{display:block;height:2px;width:100%;background:rgba(255,255,255,.3);position:relative}
+#bar b{position:absolute;left:0;top:0;height:2px;background:#e6e1d6;width:0}
+#tm{min-width:84px;text-align:right;font-variant-numeric:tabular-nums;color:#d0cbc0}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;background:rgba(239,233,220,.94);color:#1a1a1c;cursor:pointer;letter-spacing:.3em}
+#start h1{font-size:clamp(28px,6vw,60px);margin:0;font-weight:700;text-indent:.3em}
+#start p{margin:0;font-size:14px;color:#77736a;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="start"><h1>河水不回答</h1><p>第一段样片 · 点击播放</p></div>
+<div id="ui" class="hide">
+  <button id="pp">暂停</button>
+  <div id="bar"><i><b></b></i></div>
+  <span id="tm"></span>
+  <select id="take" title="换一首"></select>
+  <button id="fs">全屏</button>
+</div>
+<audio id="au" preload="auto"></audio>
+<script src="data/strokes.js"></script>
+<script>
+(() => {
+"use strict";
+// ───────── basics ─────────
+const W = 1920, H = 1080, F = 1300;                       // F: focal length in pixels
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+const FONT = '"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
+const SANS = '"PingFang SC","Noto Sans CJK SC","Microsoft YaHei","Heiti SC",sans-serif';
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const win = (u, a, b, f = .4) => sm(a - f, a, u) * (1 - sm(b, b + f, u));
+const fract = (x) => x - Math.floor(x);
+const hash = (i, k = 0) => fract(Math.sin(i * 127.1 + k * 311.7 + 17.3) * 43758.5453);
+const lerp = (a, b, t) => a + (b - a) * t;
+const vnoise = (x, seed) => { const i = Math.floor(x), f = x - i, s = f * f * (3 - 2 * f); return lerp(hash(i, seed), hash(i + 1, seed), s); };
+const fbm = (x, seed) => vnoise(x, seed) * .55 + vnoise(x * 2.1, seed + 1) * .27 + vnoise(x * 4.3, seed + 2) * .13 + vnoise(x * 9.1, seed + 3) * .05;
+const ridged = (x, seed) => 1 - Math.abs(2 * fbm(x, seed) - 1);
+function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+const PAPER = "#efe9dc", INK = "#17171a";
+
+// ───────── the atlas: every writing system we can draw, plus the things writing was put on ─────────
+const AT = 2048, CELL = 64, COLS = 32, BIG = 128, CARRIER_Y = 1536;
+const GROUPS = {}; let ATLAS, nCell = 0;
+function buildAtlas() {
+  ATLAS = off(AT, AT); const x = ATLAS.getContext("2d");
+  x.fillStyle = "#fff"; x.strokeStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle"; x.lineCap = "round"; x.lineJoin = "round";
+  const cell = (i) => [(i % COLS + .5) * CELL, (Math.floor(i / COLS) + .5) * CELL];
+  const text = (name, chars, font) => { const arr = [...chars]; GROUPS[name] = [nCell, arr.length]; x.font = font; arr.forEach((ch) => { const [cx, cy] = cell(nCell++); x.fillText(ch, cx, cy + 2); }); };
+  const P = (pts) => { x.beginPath(); pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); x.stroke(); };
+  // oracle-bone pictographs, drawn as carved lines (no font has them): 日月山水人木雨目大天火田鱼川牛口
+  const ORACLE = [
+    () => { x.beginPath(); x.arc(0, 0, 17, 0, 7); x.stroke(); x.beginPath(); x.arc(0, 0, 2.5, 0, 7); x.fill(); },
+    () => { x.beginPath(); x.arc(-3, 0, 18, -1.25, 1.25); x.stroke(); x.beginPath(); x.arc(-14, 0, 17, -.9, .9); x.stroke(); P([[2, -3], [2, 5]]); },
+    () => { P([[-20, 16], [-14, -4], [-8, 16], [0, -18], [8, 16], [14, -4], [20, 16]]); },
+    () => { P([[0, -20], [-5, -8], [5, 4], [-2, 20]]); P([[-14, -10], [-17, -2]]); P([[-13, 6], [-16, 14]]); P([[13, -12], [16, -4]]); P([[13, 4], [16, 12]]); },
+    () => { P([[4, -20], [-4, -6], [-8, 20]]); P([[-3, -8], [12, 6]]); },
+    () => { P([[0, -20], [0, 20]]); P([[-12, -16], [0, -4], [12, -16]]); P([[-13, 18], [0, 6], [13, 18]]); },
+    () => { P([[-18, -16], [18, -16]]); P([[0, -16], [0, -4]]); for (let k = 0; k < 6; k++) P([[-15 + (k % 3) * 15, -2 + Math.floor(k / 3) * 12], [-15 + (k % 3) * 15, 5 + Math.floor(k / 3) * 12]]); },
+    () => { x.beginPath(); x.moveTo(-20, 0); x.quadraticCurveTo(0, -18, 20, 0); x.quadraticCurveTo(0, 18, -20, 0); x.stroke(); x.beginPath(); x.arc(0, 0, 6, 0, 7); x.stroke(); },
+    () => { P([[0, -20], [0, 2], [-12, 20]]); P([[0, 2], [12, 20]]); P([[-16, -8], [16, -8]]); },
+    () => { x.beginPath(); x.arc(0, -15, 5, 0, 7); x.stroke(); P([[0, -10], [0, 4], [-11, 20]]); P([[0, 4], [11, 20]]); P([[-15, -3], [15, -3]]); },
+    () => { P([[-18, 18], [-12, -2], [-6, 12], [0, -20], [6, 12], [12, -2], [18, 18]]); },
+    () => { x.strokeRect(-16, -16, 32, 32); P([[0, -16], [0, 16]]); P([[-16, 0], [16, 0]]); },
+    () => { x.beginPath(); x.moveTo(-6, -20); x.quadraticCurveTo(14, -4, -2, 10); x.quadraticCurveTo(-18, -4, -6, -20); x.stroke(); P([[-2, 10], [-10, 20]]); P([[-2, 10], [8, 20]]); P([[-6, -6], [4, -6]]); },
+    () => { for (let k = -1; k <= 1; k++) P([[k * 13, -20], [k * 13 - 5, -6], [k * 13 + 5, 6], [k * 13, 20]]); },
+    () => { P([[-14, -20], [-10, -6], [0, -2], [10, -6], [14, -20]]); P([[0, -2], [0, 20]]); P([[-12, 8], [12, 8]]); },
+    () => { x.beginPath(); x.moveTo(-14, -12); x.lineTo(14, -12); x.lineTo(10, 14); x.lineTo(-10, 14); x.closePath(); x.stroke(); },
+  ];
+  GROUPS.ORACLE = [nCell, ORACLE.length]; x.lineWidth = 3.6;
+  ORACLE.forEach((fn) => { const [cx, cy] = cell(nCell++); x.save(); x.translate(cx, cy); fn(); x.restore(); });
+  // cuneiform: wedges pressed into clay
+  GROUPS.CUNEI = [nCell, 20];
+  for (let k = 0; k < 20; k++) { const [cx, cy] = cell(nCell++); x.save(); x.translate(cx, cy); const n = 3 + Math.floor(hash(k, 201) * 4);
+    for (let j = 0; j < n; j++) { const id = k * 9 + j, len = 14 + 12 * hash(id, 205);
+      x.save(); x.translate((hash(id, 203) - .5) * 30, (hash(id, 204) - .5) * 30); x.rotate([0, Math.PI / 2, Math.PI / 4][Math.floor(hash(id, 202) * 3)]);
+      x.beginPath(); x.moveTo(-len / 2, -5); x.lineTo(-len / 2 + 9, 0); x.lineTo(-len / 2, 5); x.closePath(); x.fill(); x.lineWidth = 2; x.beginPath(); x.moveTo(-len / 2 + 6, 0); x.lineTo(len / 2, 0); x.stroke(); x.restore(); }
+    x.restore(); }
+  text("KAI", "字史书情判决代码论坛深夜无人回复的帖子天雨粟鬼哭仓颉作千窗有问应一念存生说痛疑偷前句言空恐负片时神器皆非我不借尘寰旧姓名国破山河在城春草木深感花溅泪恨别鸟惊心烽火连三月家抵万金白头搔更短浑欲胜簪艰难苦繁霜鬓风急高猿啸哀渚清沙飞回边落萧下尽长江滚来之乎者也其所于则乃此彼何若如故乡年日星云雪灯门路梦道德仁义礼智信诗", `700 50px ${FONT}`);
+  text("HEI", "今又是个没懂想你了晚安对起谢再见明还吗为什么怎办好累妈爱记得忘水流走弯床知已经等这封信写给谁数据网络屏幕模型问答", `700 46px ${SANS}`);
+  text("LATIN", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&?", `700 48px Georgia,"Times New Roman","DejaVu Serif",serif`);
+  text("GREEK", "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθλμπσφψω", `700 46px Georgia,"Times New Roman","DejaVu Serif",serif`);
+  text("CYR", "АБВГДЖЗИКЛМНОПРСТУФХЦЧШЩЫЭЮЯбджфя", `700 46px Georgia,"Times New Roman","DejaVu Serif",serif`);
+  text("ARAB", "ابتثجحخدذرزسشصضطظعغفقكلمنهوي", `700 46px "Geeza Pro","Segoe UI","Amiri","Noto Naskh Arabic","DejaVu Sans",serif`);
+  text("HEB", "אבגדהוזחטיכלמנסעפצקרשת", `700 46px "Arial Hebrew","Segoe UI","FreeSerif","Noto Serif Hebrew","DejaVu Sans",serif`);
+  text("DEVA", "अआइईउऊएऐओऔकखगघचछजझटठडढणतथदधनपफबभमयरलवशषसह", `700 42px "Kohinoor Devanagari","Nirmala UI","FreeSerif","Noto Serif Devanagari",serif`);
+  text("KANA", "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん가나다라마바사아자차카타파하한글", `700 46px "Hiragino Mincho ProN","Yu Mincho","Apple SD Gothic Neo","Malgun Gothic","IPAGothic","Noto Serif CJK JP",serif`);
+  text("CODE", "0123456789{}<>/=;+*#", `700 46px "SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace`);
+  // carriers, in colour: shell, bone, bamboo slips, silk sheet, clay tablet, papyrus, codex page, stone rubbing, printed page, screen
+  const lines = (n, x0, y0, w, dy, col, vertical) => { x.fillStyle = col; for (let i = 0; i < n; i++) for (let j = 0; j < 9; j++) { if (hash(i * 13 + j, 230) < .2) continue;
+    vertical ? x.fillRect(x0 + i * dy, y0 + j * (w / 9), 4, w / 9 - 3) : x.fillRect(x0 + j * (w / 9), y0 + i * dy, w / 9 - 3, 3); } };
+  const C = [
+    () => { x.fillStyle = "#b99a62"; x.beginPath(); x.moveTo(30, 12); x.lineTo(96, 8); x.lineTo(118, 52); x.lineTo(100, 114); x.lineTo(34, 118); x.lineTo(10, 60); x.closePath(); x.fill();
+            x.strokeStyle = "rgba(60,40,20,.55)"; x.lineWidth = 1.5; P([[64, 10], [60, 60], [68, 116]]); P([[12, 60], [116, 54]]); P([[36, 30], [50, 44]]); P([[80, 76], [96, 92]]); lines(3, 30, 26, 62, 26, "rgba(40,26,14,.75)", true); },
+    () => { x.fillStyle = "#d8cdb2"; x.beginPath(); x.moveTo(52, 6); x.lineTo(78, 8); x.lineTo(112, 110); x.lineTo(96, 122); x.lineTo(26, 120); x.lineTo(16, 106); x.closePath(); x.fill(); lines(3, 44, 40, 60, 14, "rgba(50,36,22,.7)", true); },
+    () => { for (let i = 0; i < 6; i++) { x.fillStyle = i % 2 ? "#a98f58" : "#b79c64"; x.fillRect(12 + i * 18, 6, 16, 116); } x.fillStyle = "rgba(70,40,24,.8)"; x.fillRect(10, 30, 110, 3); x.fillRect(10, 96, 110, 3); lines(6, 18, 12, 100, 18, "rgba(24,18,12,.82)", true); },
+    () => { x.fillStyle = "#e6dcc4"; x.fillRect(8, 16, 112, 96); lines(7, 20, 24, 78, 14, "rgba(26,24,24,.78)", true); x.fillStyle = "#b3301e"; x.fillRect(96, 92, 14, 14); },
+    () => { x.fillStyle = "#96673f"; x.beginPath(); x.roundRect(14, 20, 100, 88, 16); x.fill(); x.fillStyle = "rgba(40,22,10,.6)"; for (let i = 0; i < 5; i++) for (let j = 0; j < 7; j++) { x.beginPath(); const px = 26 + j * 12, py = 34 + i * 14; x.moveTo(px, py - 4); x.lineTo(px + 6, py); x.lineTo(px, py + 4); x.fill(); } },
+    () => { x.fillStyle = "#cdb382"; x.beginPath(); x.moveTo(10, 14); x.lineTo(116, 10); x.lineTo(120, 112); x.lineTo(96, 118); x.lineTo(60, 112); x.lineTo(12, 118); x.closePath(); x.fill(); lines(8, 20, 24, 90, 11, "rgba(50,30,16,.72)", false); },
+    () => { x.fillStyle = "#e9dfc6"; x.fillRect(14, 8, 100, 112); lines(9, 22, 30, 38, 9, "rgba(30,24,20,.72)", false); lines(9, 68, 30, 38, 9, "rgba(30,24,20,.72)", false); x.fillStyle = "#9c2a1c"; x.fillRect(22, 12, 14, 14); x.fillStyle = "#3a5a8c"; x.fillRect(68, 12, 10, 14); },
+    () => { x.fillStyle = "#2a2a2e"; x.fillRect(16, 6, 96, 116); lines(5, 28, 14, 100, 16, "rgba(236,232,222,.9)", true); },
+    () => { x.fillStyle = "#f0ece2"; x.fillRect(18, 10, 92, 108); lines(11, 26, 20, 76, 8, "rgba(24,24,26,.75)", false); },
+    () => { x.fillStyle = "#1d2230"; x.beginPath(); x.roundRect(8, 22, 112, 84, 8); x.fill(); lines(6, 18, 34, 70, 10, "rgba(120,220,180,.95)", false); x.fillStyle = "rgba(230,230,240,.95)"; x.fillRect(18, 94, 8, 3); },
+  ];
+  C.forEach((fn, k) => { x.save(); x.translate((k % 16) * BIG, CARRIER_Y + Math.floor(k / 16) * BIG); x.lineWidth = 1.5; fn(); x.restore(); });
+}
+const uvCell = (i) => [(i % COLS) * CELL / AT, Math.floor(i / COLS) * CELL / AT, CELL / AT];
+const uvCarrier = (k) => [(k % 16) * BIG / AT, (CARRIER_Y + Math.floor(k / 16) * BIG) / AT, BIG / AT];
+const pick = (name, r) => GROUPS[name][0] + Math.floor(clamp(r, 0, .9999) * GROUPS[name][1]);
+
+// ───────── WebGL: instanced sprites in a 3D world ─────────
+// kind 0: glyph facing the camera · 1: carrier (own colours) · 2: glyph lying flat on the ground · 3: dark glyph that blocks light
+const glc = off(W, H), gl = glc.getContext("webgl2", { alpha: true, premultipliedAlpha: true, preserveDrawingBuffer: true, antialias: false });
+const STRIDE = 10; let prog, vao, ibuf; const U = {};
+function initGL() {
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, `#version 300 es
+    layout(location=0) in vec2 aCorner; layout(location=1) in vec3 aPos; layout(location=2) in vec4 aInfo; layout(location=3) in vec3 aUV;
+    uniform vec3 uCam; uniform float uPitch, uF, uFogA, uFogB, uTime, uGlint, uLightX; uniform vec2 uRes; uniform vec3 uBase, uHot;
+    out vec2 vUV; out vec4 vCol; out float vKind;
+    void main() {
+      float kind = aInfo.w, c = cos(uPitch), s = sin(uPitch), cr = cos(aInfo.y), sr = sin(aInfo.y);
+      vec2 q = vec2(aCorner.x * cr - aCorner.y * sr, aCorner.x * sr + aCorner.y * cr) * aInfo.x;
+      vec3 wp = aPos; if (kind > 1.5 && kind < 2.5) wp += vec3(q.x, 0.0, -q.y);
+      vec3 r = wp - uCam; float y = c * r.y - s * r.z, z = s * r.y + c * r.z;
+      vec3 r0 = aPos - uCam; float z0 = s * r0.y + c * r0.z;
+      if (z < 20.0 || z0 < 30.0) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); return; }
+      float k = uF / z; vec2 scr = vec2(uRes.x * .5 + r.x * k, uRes.y * .5 - y * k);
+      if (!(kind > 1.5 && kind < 2.5)) scr += q * k;
+      gl_Position = vec4(scr.x / uRes.x * 2.0 - 1.0, 1.0 - scr.y / uRes.y * 2.0, 0.0, 1.0);
+      vUV = aUV.xy + (aCorner + .5) * aUV.z; vKind = kind;
+      float h = fract(sin(dot(aPos.xz, vec2(12.9898, 78.233))) * 43758.5453);
+      float d = abs(aPos.x - uLightX) / (z0 * .11 + 60.0);                        // how close to the line between us and the light
+      float tw = step(.62, fract(h * 7.0 + uTime * (.25 + .5 * h)));
+      float glint = exp(-d * d * 2.2) * (.25 + .75 * tw) * uGlint * step(aPos.y, 40.0);
+      float a = aInfo.z * (1.0 - smoothstep(uFogA, uFogB, z0)) * smoothstep(1.2, 4.0, aInfo.x * uF / z0) * smoothstep(40.0, 260.0, z0);
+      vCol = vec4(mix(uBase, uHot, clamp(glint * 1.2, 0.0, 1.0)), a * (1.0 + 1.5 * glint));
+    }`));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#version 300 es
+    precision mediump float; in vec2 vUV; in vec4 vCol; in float vKind; uniform sampler2D uTex; uniform float uDim, uAdd; out vec4 o;
+    void main() { vec4 t = texture(uTex, vUV); float a = min(1.0, t.a * vCol.a);
+      if (vKind > .5 && vKind < 1.5) o = vec4(t.rgb * uDim, t.a) * min(1.0, vCol.a);          // carrier
+      else if (vKind > 2.5) o = vec4(vec3(0.012, 0.014, 0.022) * a, a);                        // occluder
+      else o = vec4(vCol.rgb * a, a * (1.0 - uAdd)); }`));
+  gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  for (const n of ["uCam", "uPitch", "uF", "uFogA", "uFogB", "uRes", "uTex", "uBase", "uHot", "uDim", "uAdd", "uTime", "uGlint", "uLightX"]) U[n] = gl.getUniformLocation(prog, n);
+  vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+  const qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-.5, -.5, .5, -.5, -.5, .5, .5, .5]), gl.STATIC_DRAW);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+  ibuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, ibuf);
+  [[1, 3, 0], [2, 4, 3], [3, 3, 7]].forEach(([loc, n, o]) => { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, n, gl.FLOAT, false, STRIDE * 4, o * 4); gl.vertexAttribDivisor(loc, 1); });
+  const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ATLAS); gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.viewport(0, 0, W, H);
+}
+const BUF = new Float32Array(90000 * STRIDE); let nInst = 0;
+function put(x, y, z, size, rot, alpha, kind, uv) { if (nInst >= 90000) return; const o = nInst++ * STRIDE; BUF[o] = x; BUF[o + 1] = y; BUF[o + 2] = z; BUF[o + 3] = size; BUF[o + 4] = rot; BUF[o + 5] = alpha; BUF[o + 6] = kind; BUF[o + 7] = uv[0]; BUF[o + 8] = uv[1]; BUF[o + 9] = uv[2]; }
+// draw what was queued, composite it onto the 2D canvas, and optionally add its own blurred copy as bloom
+function flush(cam, o) {
+  gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+  if (nInst) { gl.useProgram(prog); gl.bindVertexArray(vao); gl.bindBuffer(gl.ARRAY_BUFFER, ibuf); gl.bufferData(gl.ARRAY_BUFFER, BUF.subarray(0, nInst * STRIDE), gl.DYNAMIC_DRAW);
+    gl.uniform3f(U.uCam, cam.x, cam.y, cam.z); gl.uniform1f(U.uPitch, cam.p); gl.uniform1f(U.uF, F); gl.uniform2f(U.uRes, W, H); gl.uniform1f(U.uFogA, o.fogA); gl.uniform1f(U.uFogB, o.fogB);
+    gl.uniform3fv(U.uBase, o.base); gl.uniform3fv(U.uHot, o.hot); gl.uniform1f(U.uDim, o.dim ?? 1); gl.uniform1f(U.uAdd, o.add ?? 0); gl.uniform1f(U.uTime, o.time); gl.uniform1f(U.uGlint, o.glint ?? 0); gl.uniform1f(U.uLightX, 0); gl.uniform1i(U.uTex, 0);
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, nInst); }
+  nInst = 0; g.drawImage(glc, 0, 0);
+  if (o.bloom) { g.save(); g.filter = "blur(11px)"; g.globalCompositeOperation = "lighter"; g.globalAlpha = o.bloom; g.drawImage(glc, 0, 0); g.restore(); }
+}
+function proj(cam, x, y, z) { const rx = x - cam.x, ry = y - cam.y, rz = z - cam.z, c = Math.cos(cam.p), s = Math.sin(cam.p), yy = c * ry - s * rz, zz = s * ry + c * rz, k = F / Math.max(1, zz); return [W / 2 + rx * k, H / 2 - yy * k, k]; }
+
+// ───────── the world ─────────
+const ZG = 7200, HG = 2400;                                // where the giant stands, and how tall it is
+const RIVERS = [                                           // x at our end, half-width, particles, scripts along its length
+  { x0: 0, w: 175, n: 11000, seq: ["ORACLE", "ORACLE", "KAI", "KAI", "KAI", "HEI", "HEI", "CODE"], ph: 0 },
+  { x0: -820, w: 80, n: 5200, seq: ["CUNEI", "CUNEI", "LATIN", "LATIN", "LATIN"], ph: 1.7 },
+  { x0: 900, w: 80, n: 5200, seq: ["ARAB", "ARAB", "HEB", "ARAB"], ph: 3.1 },
+  { x0: -1850, w: 90, n: 5000, seq: ["GREEK", "GREEK", "CYR", "LATIN"], ph: 4.4 },
+  { x0: 1950, w: 90, n: 5000, seq: ["DEVA"], ph: 5.2 },
+  { x0: -3100, w: 100, n: 4600, seq: ["KANA"], ph: 0.6 },
+  { x0: 3200, w: 100, n: 4600, seq: ["CYR", "CODE", "LATIN"], ph: 2.3 },
+];
+const riverX = (r, z) => { const conv = 1 - sm(500, ZG - 500, z); return r.x0 * conv * conv + (r.x0 ? 110 : 150) * Math.sin(z * .0011 + r.ph) * (.25 + .75 * conv); };
+const CARRIERS_BY_RIVER = [[0, 1, 2, 2, 3, 7, 8, 9], [4, 4, 5, 6, 8], [5, 6], [5, 6, 8], [5, 3], [3, 8], [6, 8, 9]];
+const ANY = ["KAI", "HEI", "LATIN", "ORACLE", "ARAB", "GREEK", "DEVA", "KANA", "CUNEI", "CYR", "CODE", "KAI", "KAI"];
+// the giant: a robed figure with its head bowed, sampled into points for the characters to occupy
+const GIANT = [];
+function buildGiant() {
+  const mw = 300, mh = 600, m = off(mw, mh), x = m.getContext("2d"); x.fillStyle = "#fff";
+  x.beginPath(); x.moveTo(150, 104);                                                                                        // shoulders, sleeves, a long robe
+  x.bezierCurveTo(196, 106, 226, 122, 232, 160); x.bezierCurveTo(246, 250, 252, 330, 244, 400); x.bezierCurveTo(240, 430, 226, 436, 222, 420);
+  x.bezierCurveTo(232, 500, 250, 560, 268, 600); x.lineTo(32, 600); x.bezierCurveTo(50, 560, 68, 500, 78, 420);
+  x.bezierCurveTo(74, 436, 60, 430, 56, 400); x.bezierCurveTo(48, 330, 54, 250, 68, 160); x.bezierCurveTo(74, 122, 104, 106, 150, 104); x.fill();
+  x.beginPath(); x.ellipse(150, 66, 36, 46, 0, 0, 7); x.fill(); x.fillRect(134, 96, 32, 20);                                // head and neck
+  x.globalCompositeOperation = "destination-out"; x.beginPath(); x.ellipse(135, 80, 8, 3.2, .3, 0, 7); x.ellipse(165, 80, 8, 3.2, -.3, 0, 7); x.fill();     // lowered eyes
+  const d = x.getImageData(0, 0, mw, mh).data, inside = (px, py) => px >= 0 && py >= 0 && px < mw && py < mh && d[(Math.floor(py) * mw + Math.floor(px)) * 4 + 3] > 128;
+  for (let i = 1; GIANT.length < 26000 && i < 500000; i++) {
+    const px = hash(i, 301) * mw, py = hash(i, 302) * mh; if (!inside(px, py)) continue;
+    const edge = !(inside(px - 4, py) && inside(px + 4, py) && inside(px, py - 4) && inside(px, py + 4));
+    if (!edge && hash(i, 303) < .30) continue;
+    GIANT.push({ x: (px - 150) / mh * HG, y: (mh - py) / mh * HG, z: (hash(i, 304) - .5) * 120, edge, h: hash(i, 305), g: hash(i, 306) });
+  }
+}
+
+// ───────── 2D layers ─────────
+let L_GRAIN; const RIDGES = [];
+function buildLayers() {
+  L_GRAIN = off(512, 512); { const x = L_GRAIN.getContext("2d"), d = x.createImageData(512, 512);
+    for (let i = 0; i < 512 * 512; i++) { const v = 128 + (hash(i, 5) - .5) * 80 + (hash(Math.floor(i / 9), 9) - .5) * 34; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+    x.putImageData(d, 0, 0); }
+  // ink ridges against the night: [height, frequency, seed, colour, blur, width of the central gap, growth as we approach]
+  for (const [amp, fr, seed, col, blur, gap, grow] of [[.20, 1.2, 11, "34,40,58", 5, .06, .10], [.17, 1.9, 23, "24,29,44", 4, .08, .22], [.13, 3.0, 37, "14,18,29", 2.5, .11, .45], [.085, 4.4, 51, "6,8,14", 1.5, .14, .9]]) {
+    const c = off(W, 640), x = c.getContext("2d"); x.filter = `blur(${blur}px)`; x.beginPath(); x.moveTo(-20, 660);
+    for (let px = -20; px <= W + 20; px += 5) { const gp = 1 - .93 * Math.exp(-Math.pow((px / W - .5) / gap, 2)); x.lineTo(px, 470 - H * amp * 1.9 * Math.pow(ridged(px / W * fr + seed, seed), 2.1) * gp); }
+    x.lineTo(W + 20, 660); x.closePath();
+    const gr = x.createLinearGradient(0, 470 - H * amp * 1.3, 0, 620); gr.addColorStop(0, `rgba(${col},.97)`); gr.addColorStop(.6, `rgba(${col},.8)`); gr.addColorStop(1, `rgba(${col},0)`);
+    x.fillStyle = gr; x.fill(); RIDGES.push({ c, grow });
+  }
+}
+
+// ───────── timing ─────────
+let TAKES = {}, PH = [], S = [], E = [], DUR = 200, END = 60;
+const LINES = [[0, 1], [2, 3], [4, 5], [6, 7, 8]];
+function setTake(id) { const d = TAKES[id]; PH = d.phrases; S = PH.map((p) => p[0]); DUR = d.duration; E = PH.map((p, i) => Math.min(p[1], p[0] + .6 * p[2].length + 1.6, S[i + 1] ?? DUR)); END = S[9] + 3.5; }
+function Uof(t) { if (t < S[0]) return t / S[0] - 1; for (let i = S.length - 1; i >= 0; i--) if (t >= S[i]) { const n = S[i + 1] ?? DUR; return i + clamp((t - S[i]) / Math.max(.01, n - S[i])); } return -1; }
+
+// ───────── brush writing, stroke by stroke ─────────
+function brush(ch, cx, cy, size, p, col) {
+  const d = window.STROKES[ch]; if (!d) return; const n = d.s.length, sc = size / 1024;
+  g.save(); g.translate(cx - size / 2, cy - size / 2); g.scale(sc, sc); g.transform(1, 0, 0, -1, 0, 900); g.lineCap = "round"; g.lineJoin = "round"; g.strokeStyle = col; g.fillStyle = col;
+  for (let i = 0; i < n; i++) { const q = clamp(p * n - i); if (q <= 0) break; const path = new Path2D(d.s[i]);
+    if (q >= 1) { g.fill(path); continue; }
+    const m = d.m[i]; let total = 0; for (let k = 1; k < m.length; k++) total += Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]);
+    g.save(); g.clip(path); g.lineWidth = 240; g.beginPath(); g.moveTo(m[0][0], m[0][1]); let left = total * (1 - Math.pow(1 - q, 1.6)) + 30;
+    for (let k = 1; k < m.length && left > 0; k++) { const l = Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]), f = Math.min(1, left / l); g.lineTo(lerp(m[k - 1][0], m[k][0], f), lerp(m[k - 1][1], m[k][1], f)); left -= l; }
+    g.stroke(); g.restore(); }
+  g.restore();
+}
+
+// ───────── one frame ─────────
+function render(t) {
+  const u = Uof(t);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = "source-over"; g.shadowBlur = 0; g.filter = "none";
+  // the camera skims the water, climbs, then looks up
+  const cam = { x: 30 * Math.sin(t * .11), y: lerp(lerp(64, 220, sm(.3, 4, u)), 640, sm(3.6, 8.4, u)), z: -260 + 2900 * sm(-.5, 6.4, u) + 1800 * sm(5.0, 9.6, u), p: lerp(-.115, .245, sm(5.4, 8.5, u)) };
+  const horizon = H / 2 + F * Math.tan(cam.p), prog3 = sm(-.4, 9.6, u);
+  const moonUp = sm(1.9, 5.2, u);                           // 造字的那一夜: the moon comes up behind the mountains
+  const form = sm(6.85, 8.8, u);                            // 要汇聚成我: the rivers stand up
+
+  // night sky, a glow where the moon will rise, the ground
+  let gr = g.createLinearGradient(0, 0, 0, H); const hy = clamp(horizon / H, .05, .95);
+  gr.addColorStop(0, "#04060c"); gr.addColorStop(hy * .55, "#0a1020"); gr.addColorStop(hy, "#1b2540"); gr.addColorStop(Math.min(1, hy + .02), "#070a12"); gr.addColorStop(1, "#030407");
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const moon = proj(cam, 0, lerp(-1100, HG * .74, moonUp), ZG + 1500), mr = 1250 * moon[2];
+  g.globalCompositeOperation = "lighter";
+  gr = g.createRadialGradient(W / 2, horizon, 0, W / 2, horizon, 900); gr.addColorStop(0, `rgba(120,110,140,${.25 + .2 * moonUp})`); gr.addColorStop(1, "rgba(120,110,140,0)");
+  g.save(); g.translate(W / 2, horizon); g.scale(1.6, .55); g.translate(-W / 2, -horizon); g.fillStyle = gr; g.fillRect(W / 2 - 900, horizon - 900, 1800, 1800); g.restore();
+  if (moonUp > 0) {
+    gr = g.createRadialGradient(moon[0], moon[1], mr * .7, moon[0], moon[1], mr * 3.2); gr.addColorStop(0, `rgba(255,214,170,${.42 * moonUp})`); gr.addColorStop(.4, `rgba(190,150,170,${.15 * moonUp})`); gr.addColorStop(1, "rgba(120,110,160,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.save(); g.beginPath(); g.rect(0, 0, W, horizon + 6); g.clip();
+    for (let i = 0; i < 46; i++) { const a = hash(i, 71) * Math.PI * 2, len = mr * (1.5 + 3.2 * hash(i, 72)), wd = .012 + .03 * hash(i, 73);      // rays
+      g.globalAlpha = moonUp * (.035 + .05 * hash(i, 74)) * (.7 + .3 * Math.sin(t * .4 + i)); g.fillStyle = "#ffd9b0"; g.beginPath(); g.moveTo(moon[0], moon[1]);
+      g.lineTo(moon[0] + Math.cos(a - wd) * len, moon[1] + Math.sin(a - wd) * len * .8); g.lineTo(moon[0] + Math.cos(a + wd) * len, moon[1] + Math.sin(a + wd) * len * .8); g.fill(); }
+    g.restore();
+    g.globalAlpha = 1; g.globalCompositeOperation = "source-over";
+    gr = g.createRadialGradient(moon[0], moon[1], 0, moon[0], moon[1], mr); gr.addColorStop(0, "#fffaf0"); gr.addColorStop(.72, "#fff0d6"); gr.addColorStop(.93, "#f6c98e"); gr.addColorStop(1, "rgba(240,180,120,0)");
+    g.fillStyle = gr; g.beginPath(); g.arc(moon[0], moon[1], mr, 0, 7); g.fill();
+    g.save(); g.beginPath(); g.arc(moon[0], moon[1], mr * .97, 0, 7); g.clip(); g.globalAlpha = .13 * moonUp; g.fillStyle = "#8a5a36"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `700 ${mr * .15}px ${FONT}`;   // the poem, faint, in the disc
+    ["鬼哭当年缘底事", "早知今夜字成精"].forEach((s, i) => g.fillText(s, moon[0], moon[1] - mr * .62 + i * mr * .22)); g.restore();
+  }
+  g.globalAlpha = 1; g.globalCompositeOperation = "source-over";
+  const ridge = (i) => { const r = RIDGES[i], sc = 1 + r.grow * prog3; g.save(); g.translate(W / 2, horizon); g.scale(sc, sc); g.drawImage(r.c, -W / 2, -470); g.restore(); };
+  ridge(0); ridge(1);
+
+  // the giant: its body blocks the moon, its outline burns
+  if (form > 0) {
+    const sway = Math.sin(t * .22) * 12, each = (edgePass) => { for (let i = 0; i < GIANT.length; i++) { const p = GIANT[i]; if (p.edge !== edgePass) continue;
+      const yn = p.y / HG, arrive = sm(yn * .86 - .06, yn * .86 + .10, form * 1.02); if (arrive <= 0) continue;
+      const rise = 1 - Math.pow(1 - arrive, 2.2);
+      put(lerp(p.x * .1, p.x, rise) + sway * yn, lerp(0, p.y, rise) + fract(p.h + t * .012) * 26, ZG + p.z, edgePass ? 34 : 46 + 26 * p.h, 0, arrive * (edgePass ? .95 : .78), edgePass ? 0 : 3,
+        uvCell(pick(ANY[Math.floor(p.g * ANY.length)], fract(p.h * 7.3 + Math.floor(t * .7 + p.g * 9) * .137)))); } };
+    each(false); flush(cam, { base: [0, 0, 0], hot: [0, 0, 0], fogA: 99998, fogB: 99999, time: t });
+    each(true); flush(cam, { base: [1.0, .80, .56], hot: [1, 1, 1], add: .85, fogA: 99998, fogB: 99999, time: t, bloom: .9 });
+  }
+  ridge(2); ridge(3);
+  // mist on the horizon hides where the rivers end until they are ready
+  const veil = .55 + .45 * (1 - sm(6.0, 7.4, u));
+  gr = g.createLinearGradient(0, horizon - 150, 0, horizon + 130); gr.addColorStop(0, "rgba(40,50,78,0)"); gr.addColorStop(.5, `rgba(40,50,78,${.9 * veil})`); gr.addColorStop(1, "rgba(40,50,78,0)");
+  g.fillStyle = gr; g.fillRect(0, horizon - 150, W, 280);
+
+  // the ghost of that night, on the right-hand ridge, looking up
+  const gh = win(u, 2.4, 5.0, .7);
+  if (gh > .01) { const x = W * .78 + (prog3 - .3) * 420, y = horizon - 30, sw = Math.sin(t * .7) * 5; g.save(); g.translate(x + sw, y); g.rotate(-.09); g.scale(.58, .58); g.globalCompositeOperation = "lighter";
+    for (let i = 0; i < 5; i++) { gr = g.createRadialGradient(0, -30 - i * 44, 0, 0, -30 - i * 44, 112 - i * 13); gr.addColorStop(0, `rgba(190,205,235,${.26 * gh})`); gr.addColorStop(1, "rgba(190,205,235,0)");
+      g.fillStyle = gr; g.save(); g.scale(.5, 1); g.fillRect(-130, -330, 260, 460); g.restore(); }
+    g.globalCompositeOperation = "source-over"; g.globalAlpha = gh * .8; g.fillStyle = "#05070c"; g.beginPath(); g.ellipse(-15, -258, 4.5, 8, 0, 0, 7); g.ellipse(6, -262, 4.5, 8, 0, 0, 7); g.fill(); g.restore(); g.globalAlpha = 1; }
+
+  // the plain: dim characters lying everywhere, like a sea at night
+  const seaA = sm(-.6, -.05, u), gz0 = Math.floor(cam.z / 130);
+  for (let iz = 1; iz < 64; iz++) for (let ix = -44; ix <= 44; ix++) { const zc = gz0 + iz, id = zc * 131 + ix, z = zc * 130 + hash(id, 81) * 130, x = ix * 105 + hash(id, 82) * 105;
+    put(x, 0, z, 26 + 34 * hash(id, 83), (hash(id, 84) - .5) * .5, seaA * (.035 + .09 * hash(id, 85)), 2, uvCell(pick(ANY[Math.floor(hash(id, 86) * ANY.length)], hash(id, 87)))); }
+  // the rivers: every drop a character, each river its own script, all running the same way
+  const era = sm(-.2, 2.2, u);
+  for (let ri = 0; ri < RIVERS.length; ri++) { const r = RIVERS[ri], rA = ri ? sm(.1 + ri * .1, 1.5 + ri * .1, u) : sm(-.6, -.1, u); if (rA <= 0) continue;
+    const reach = cam.z + 400 + 9000 * (ri ? sm(.1, 2.3, u) : sm(-.6, .7, u));
+    for (let i = 0; i < r.n; i++) { const id = ri * 20000 + i, q = fract(hash(id, 21) + t * (.0060 + .0045 * hash(id, 22))), z = -300 + q * (ZG + 300);
+      if (z < cam.z + 20 || z > reach) continue;
+      const fil = Math.floor(hash(id, 23) * 13), lat = clamp(((fil + .5) / 13 * 2 - 1) + .10 * Math.sin(z * .004 + fil * 2.1 - t * .3) + (hash(id, 27) - .5) * .13, -1.05, 1.05);
+      const narrow = 1 - .55 * sm(ZG - 2600, ZG - 200, z), k = hash(id, 25), flat = hash(id, 29) < .55;
+      const nm = r.seq[clamp(Math.floor((z + 300) / (ZG + 300) * r.seq.length + (hash(id, 28) - .5) * .9), 0, r.seq.length - 1)];
+      put(riverX(r, z) + lat * r.w * narrow, flat ? 1 : 3 + 5 * Math.sin(t * 1.3 + id), z, (flat ? 24 : 14) + 18 * hash(id, 24), flat ? (hash(id, 30) - .5) * .6 : 0, rA * (.10 + .62 * k * k) * sm(reach, reach - 500, z), flat ? 2 : 0, uvCell(pick(nm, hash(id, 26))));
+    } }
+  // what writing was written on, falling in with it: shell and bone, slips, silk, clay, papyrus, parchment, paper, screens
+  const fall = win(u, -.42, 2.3, .3);
+  if (fall > .01) {
+    for (let i = 0; i < 2200; i++) { const r = RIVERS[hash(i, 46) < .45 ? 0 : Math.floor(hash(i, 41) * 7)];
+      const z = cam.z + 180 + Math.pow(hash(i, 42), 1.4) * 3600, q = fract(hash(i, 43) + t * (.22 + .2 * hash(i, 44)));
+      const nm = r.seq[clamp(Math.floor(clamp(era + (hash(i, 47) - .5) * .5) * r.seq.length), 0, r.seq.length - 1)];
+      put(riverX(r, z) + (hash(i, 45) - .5) * 520, (1 - q) * (1 - q) * 1500 + 60, z, 18 + 22 * hash(i, 48), 0, fall * (.3 + .7 * hash(i, 49)) * sm(0, .08, q) * (1 - sm(.92, 1, q)), 0, uvCell(pick(nm, hash(i, 50)))); }
+    for (let i = 0; i < 260; i++) { const ri = hash(i, 51) < .42 ? 0 : 1 + Math.floor(hash(i, 52) * 6), r = RIVERS[ri], list = CARRIERS_BY_RIVER[ri];
+      const z = cam.z + 520 + Math.pow(hash(i, 53), 1.2) * 4200, q = fract(hash(i, 54) + t * (.085 + .06 * hash(i, 55)));
+      const type = list[clamp(Math.floor(clamp(era + (hash(i, 56) - .5) * .45) * list.length), 0, list.length - 1)];
+      put(riverX(r, z) + (hash(i, 57) - .5) * 460, (1 - q) * 1250 + 60, z, 70 + 60 * hash(i, 58), (hash(i, 59) - .5) * 1.2 + t * (hash(i, 60) - .5) * .8, fall * sm(0, .1, q) * (1 - sm(.9, 1, q)), 1, uvCarrier(type)); }
+  }
+  flush(cam, { base: [.62, .58, .68], hot: [1.0, .84, .58], add: .30, dim: .62, glint: .15 + 1.25 * moonUp, time: t, fogA: 4300 + 2700 * sm(5.5, 8, u), fogB: 7700 + 1200 * sm(5.5, 8, u), bloom: .30 + .25 * moonUp });
+
+  // a thin bright line across the horizon, as a lens would draw it
+  if (moonUp > .05) { g.globalCompositeOperation = "lighter"; gr = g.createLinearGradient(0, 0, W, 0); gr.addColorStop(0, "rgba(255,220,180,0)"); gr.addColorStop(.5, `rgba(255,220,180,${.30 * moonUp})`); gr.addColorStop(1, "rgba(255,220,180,0)");
+    g.fillStyle = gr; g.fillRect(0, moon[1] - 2, W, 4); g.globalCompositeOperation = "source-over"; }
+  // vignette
+  gr = g.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * 1.05); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,.6)"); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+
+  // before the first word: one character written with a brush on paper; then its ink spreads and becomes the night
+  if (u < .1) { const cover = 1 - sm(-.25, -.13, u), wr = sm(-.93, -.52, u), spread = sm(-.37, -.22, u);
+    if (cover > 0) { g.globalAlpha = cover; g.fillStyle = PAPER; g.fillRect(0, 0, W, H);
+      g.save(); g.globalAlpha = .14 * cover; g.globalCompositeOperation = "multiply"; g.fillStyle = g.createPattern(L_GRAIN, "repeat"); g.fillRect(0, 0, W, H); g.restore();
+      g.globalAlpha = cover; g.shadowColor = "rgba(23,23,26,.5)"; g.shadowBlur = 16 * (1 - wr) + 2; brush("字", W / 2, H * .47, 560, wr, INK); g.shadowBlur = 0;
+      if (spread > 0) { const R = 40 + 1500 * spread * spread; for (let k = 0; k < 9; k++) { const a = k / 9 * 6.283, rr = R * (.72 + .5 * hash(k, 91)), ox = Math.cos(a) * R * .22, oy = Math.sin(a) * R * .16;
+          gr = g.createRadialGradient(W / 2 + ox, H * .47 + oy, rr * .55, W / 2 + ox, H * .47 + oy, rr); gr.addColorStop(0, "rgba(6,7,11,1)"); gr.addColorStop(1, "rgba(6,7,11,0)"); g.fillStyle = gr; g.fillRect(0, 0, W, H); } }
+      g.globalAlpha = 1; } }
+
+  // the lyric, inscribed down the right margin
+  const idx = Math.floor(u);
+  if (idx >= 0 && idx < 9) { const line = LINES.find((l) => l.includes(idx)), last = line[line.length - 1], out = 1 - sm(E[last] + .5, E[last] + 1.8, t);
+    if (out > 0) { g.save(); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `500 46px ${FONT}`; g.shadowColor = "rgba(3,5,10,.95)"; g.shadowBlur = 20;
+      line.forEach((i, n) => { const e = sm(S[i] - .12, S[i] + .6, t); if (e <= 0) return;
+        [...PH[i][2]].forEach((c, j) => { const ce = sm(0, 1, e * (PH[i][2].length + 1) - j * .8); g.fillStyle = `rgba(240,234,220,${ce * out})`; const x = W * (.928 - n * .042), y = H * .13 + j * 58 - 6 * (1 - ce); g.fillText(c, x, y); g.fillText(c, x, y); }); });
+      g.restore(); } }
+
+  // in from blank paper; out to dark, with a note that this is only the first verse
+  if (t < 1.6) { g.globalAlpha = 1 - sm(0, 1.6, t); g.fillStyle = PAPER; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+  const fin = sm(END - 3.2, END - .4, t);
+  if (fin > 0) { g.globalAlpha = fin; g.fillStyle = "#04050a"; g.fillRect(0, 0, W, H); g.globalAlpha = fin * sm(END - 1.6, END - .5, t); g.fillStyle = "#cfd3da"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `500 34px ${FONT}`; g.fillText("第一段 · 样片", W / 2, H / 2); g.globalAlpha = 1; }
+}
+
+// ───────── player ─────────
+const au = document.getElementById("au"), ui = document.getElementById("ui"), startEl = document.getElementById("start");
+const q = new URLSearchParams(location.search);
+function load(id) { setTake(id); const was = !au.paused; au.src = "../" + TAKES[id].file; au.load(); if (was) au.play(); try { localStorage.setItem("zcj-mv1-take", id); } catch {} }
+function tick() {
+  let t = au.currentTime || 0; if (t >= END) { au.pause(); au.currentTime = 0; t = 0; }
+  au.volume = clamp(1 - sm(END - 3, END - .2, t));
+  render(t); const f = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  document.querySelector("#bar b").style.width = (t / END * 100) + "%"; document.getElementById("tm").textContent = f(t) + " / " + f(END);
+  requestAnimationFrame(tick);
+}
+async function init() {
+  TAKES = await (await fetch("timing.json", { cache: "no-cache" })).json();
+  try { await Promise.race([document.fonts.load(`700 50px ${FONT}`, "河水不回答字"), new Promise((r) => setTimeout(r, 800))]); } catch {}
+  buildAtlas(); initGL(); buildGiant(); buildLayers();
+  const ids = Object.keys(TAKES); let saved = null; try { saved = localStorage.getItem("zcj-mv1-take"); } catch {}
+  const first = ids.includes(q.get("take")) ? q.get("take") : ids.includes(saved) ? saved : ids[0];
+  if (q.has("t")) { setTake(first); startEl.remove(); window.renderAt = render; window.DUR = END; render(+q.get("t")); document.title = "ready"; return; }   // still-frame mode for checks and export
+  const sel = document.getElementById("take");
+  ids.forEach((id) => { const o = document.createElement("option"); o.value = id; o.textContent = TAKES[id].label || id; sel.append(o); });
+  sel.value = first; sel.onchange = () => load(sel.value);
+  load(first); render(S[0] * .62);
+  const pp = document.getElementById("pp");
+  startEl.onclick = () => { startEl.remove(); ui.classList.remove("hide"); au.play(); requestAnimationFrame(tick); };
+  pp.onclick = () => au.paused ? au.play() : au.pause();
+  au.onplay = () => pp.textContent = "暂停"; au.onpause = () => pp.textContent = "播放";
+  document.getElementById("bar").onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); au.currentTime = clamp((e.clientX - r.left) / r.width) * END; };
+  document.getElementById("fs").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  let idle; const wake = () => { ui.classList.remove("hide"); clearTimeout(idle); idle = setTimeout(() => !au.paused && ui.classList.add("hide"), 2600); };
+  addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+  addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); pp.onclick(); } if (e.code === "ArrowRight") au.currentTime += 5; if (e.code === "ArrowLeft") au.currentTime -= 5; });
+}
+init().catch((e) => { document.title = "error: " + (e && (e.stack || e.message)); });
+})();
+</script>
+</body>
+</html>

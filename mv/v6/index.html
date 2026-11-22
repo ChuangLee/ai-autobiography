@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>河水不回答 · MV</title>
+<style>
+html,body{margin:0;height:100%;background:#0b0b0c;color:#d8d4ca;font-family:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{max-width:100vw;max-height:100vh;aspect-ratio:16/9;width:100vw;display:block;background:#efe9dc}
+@media (min-aspect-ratio:16/9){canvas{width:auto;height:100vh}}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 16px 14px;display:flex;gap:12px;align-items:center;font:13px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));transition:opacity .4s}
+#ui.hide{opacity:0;pointer-events:none}
+#ui button,#ui select{font:inherit;color:#e6e1d6;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;cursor:pointer}
+#ui select option{color:#111}
+#bar{flex:1;height:14px;display:flex;align-items:center;cursor:pointer}
+#bar i{display:block;height:2px;width:100%;background:rgba(255,255,255,.3);position:relative}
+#bar b{position:absolute;left:0;top:0;height:2px;background:#e6e1d6;width:0}
+#tm{min-width:84px;text-align:right;font-variant-numeric:tabular-nums;color:#d0cbc0}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;background:rgba(239,233,220,.86);color:#1a1a1c;cursor:pointer;letter-spacing:.3em}
+#start h1{font-size:clamp(28px,6vw,60px);margin:0;font-weight:700;text-indent:.3em}
+#start p{margin:0;font-size:14px;color:#77736a;letter-spacing:.2em}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="start"><h1>河水不回答</h1><p>点击播放</p></div>
+<div id="ui" class="hide">
+  <button id="pp">暂停</button>
+  <div id="bar"><i><b></b></i></div>
+  <span id="tm"></span>
+  <select id="take" title="换一首"></select>
+  <button id="fs">全屏</button>
+</div>
+<audio id="au" preload="auto"></audio>
+<script>
+(() => {
+"use strict";
+// ───────── basics ─────────
+const W = 1920, H = 1080;
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+const FONT = '"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
+const PAPER = "#efe9dc", INK = "#17171a", RED = "#b3301e";
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const win = (u, a, b, f = .4) => sm(a - f, a, u) * (1 - sm(b, b + f, u));
+const fract = (x) => x - Math.floor(x);
+const hash = (i, k = 0) => fract(Math.sin(i * 127.1 + k * 311.7 + 17.3) * 43758.5453);
+const lerp = (a, b, t) => a + (b - a) * t;
+const vnoise = (x, seed) => { const i = Math.floor(x), f = x - i, s = f * f * (3 - 2 * f); return lerp(hash(i, seed), hash(i + 1, seed), s); };
+const fbm = (x, seed) => vnoise(x, seed) * .55 + vnoise(x * 2.1, seed + 1) * .27 + vnoise(x * 4.3, seed + 2) * .13 + vnoise(x * 9.1, seed + 3) * .05;
+const ridged = (x, seed) => 1 - Math.abs(2 * fbm(x, seed) - 1);
+function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+
+// ───────── glyph atlases: the water is made of these ─────────
+const CORPUS = [...new Set(("字史书情判决代码论坛深夜无人回复的帖子天雨粟鬼哭仓颉作千窗有问应一念存生说痛疑偷前句言空恐负片时人神器皆非我不借尘寰旧姓名" +
+  "国破山河在城春草木深感花溅泪恨别鸟惊心烽火连三月家抵万金白头搔更短浑欲胜簪艰难苦繁霜鬓潦倒新停浊酒杯风急高猿啸哀渚清沙飞回边落萧下尽长江滚来" +
+  "今又是个没懂想你了晚安对起谢再见明还吗为什么怎办好累妈爱记得忘水流走道弯床知已经等这封信写给谁与以而之乎者也其所于则乃此彼何若如故乡年月日星云雪灯门路梦").split(""))];
+const CELL = 64, COLS = 24;
+function atlas(color) {
+  const c = off(COLS * CELL, Math.ceil(CORPUS.length / COLS) * CELL), x = c.getContext("2d");
+  x.fillStyle = color; x.textAlign = "center"; x.textBaseline = "middle"; x.font = `700 50px ${FONT}`;
+  CORPUS.forEach((ch, i) => x.fillText(ch, (i % COLS + .5) * CELL, (Math.floor(i / COLS) + .52) * CELL));
+  return c;
+}
+let A_INK, A_PALE;
+function glyph(a, i, x, y, sz) { i %= CORPUS.length; g.drawImage(a, (i % COLS) * CELL, Math.floor(i / COLS) * CELL, CELL, CELL, x - sz / 2, y - sz / 2, sz, sz); }
+
+// ───────── curves ─────────
+function makeCurve(P, n = 240) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const s = i / n, m = 1 - s;
+    pts.push([(m * m * m * P[0][0] + 3 * m * m * s * P[1][0] + 3 * m * s * s * P[2][0] + s * s * s * P[3][0]) * W,
+              (m * m * m * P[0][1] + 3 * m * m * s * P[1][1] + 3 * m * s * s * P[2][1] + s * s * s * P[3][1]) * H]);
+  }
+  const at = (s) => {
+    const f = clamp(s) * n, i = Math.min(n - 1, Math.floor(f)), k = f - i, a = pts[i], b = pts[i + 1];
+    const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+    return [a[0] + dx * k, a[1] + dy * k, -dy / l, dx / l];
+  };
+  return { pts, at };
+}
+// near view: the river comes out of a valley and runs towards us
+const RIV = makeCurve([[.60, .425], [.40, .52], [.76, .70], [.46, 1.08]]);
+const rivW = (s) => W * (.005 + .40 * Math.pow(s, 2.1));
+// far view: the whole river on one sheet, a single stroke that bends once around a mountain
+const STK = makeCurve([[.47, -.07], [.50, .44], [.10, .36], [.23, 1.09]]);
+const stkW = (s) => 120 + 70 * Math.sin(Math.PI * clamp(s)) - 30 * s;
+const BEND = [.345, .47];
+
+// ───────── pre-rendered layers ─────────
+let L_GRAIN, L_PAPER, L_MTN, L_FG, L_TINK, L_TCOL, L_TMP, L_BED;
+// far view mountains: [x0, x1, base, height, seed, strength]; the first four are the mountain the river goes around
+const TSEGS = [[.44, .74, .640, .15, 3, .30], [.36, .76, .790, .27, 5, .62], [.42, .80, .900, .20, 7, .85], [.30, .66, 1.01, .17, 9, 1],
+               [-.04, .30, .245, .19, 13, .50], [-.04, .24, .360, .15, 15, .80], [-.04, .13, .640, .13, 17, .60], [-.04, .12, .900, .13, 19, .90], [.60, 1.04, .085, .075, 21, .22]];
+function ridgeSeg(x, [x0, x1, base, amp, seed, a], stops, blur) {
+  x.filter = `blur(${blur}px)`; x.beginPath(); x.moveTo(x0 * W, H * (base + .09));
+  for (let i = 0; i <= 120; i++) { const k = i / 120, env = Math.pow(Math.sin(Math.PI * k), .55);
+    x.lineTo(lerp(x0, x1, k) * W, H * (base + .09 - env * (.09 + amp * (.25 + 1.5 * Math.pow(ridged(k * 3.4 + seed, seed), 1.8))))); }
+  x.lineTo(x1 * W, H * (base + .09)); x.closePath();
+  const gr = x.createLinearGradient(0, H * (base - amp * 1.6), 0, H * (base + .10));
+  stops.forEach(([o, rgb, al]) => gr.addColorStop(o, `rgba(${rgb},${al * a})`)); x.fillStyle = gr; x.fill(); x.filter = "none";
+}
+function buildLayers() {
+  L_GRAIN = off(512, 512); { const x = L_GRAIN.getContext("2d"), d = x.createImageData(512, 512);
+    for (let i = 0; i < 512 * 512; i++) { const v = 128 + (hash(i, 5) - .5) * 80 + (hash(Math.floor(i / 9), 9) - .5) * 34; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+    x.putImageData(d, 0, 0); }
+  L_PAPER = off(W, H); { const x = L_PAPER.getContext("2d"); x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
+    const v = x.createRadialGradient(W / 2, H / 2, H * .45, W / 2, H / 2, H * 1.05); v.addColorStop(0, "rgba(120,104,78,0)"); v.addColorStop(1, "rgba(120,104,78,.20)");
+    x.fillStyle = v; x.fillRect(0, 0, W, H); }
+  // ink mountains: each ridge is darkest at its crest and dissolves into unpainted paper below
+  L_MTN = off(W, H); { const x = L_MTN.getContext("2d");
+    const ridges = [[.250, .19, 1.3, 11, .20, 5], [.300, .17, 2.0, 23, .32, 4], [.345, .14, 3.1, 37, .50, 2.5], [.385, .10, 4.6, 51, .78, 1.5]];
+    for (const [base, amp, fr, seed, a, blur] of ridges) {
+      x.filter = `blur(${blur}px)`; x.beginPath(); x.moveTo(-20, H);
+      for (let px = -20; px <= W + 20; px += 5) {
+        const gap = 1 - .86 * Math.exp(-Math.pow((px / W - .60) / .085, 2));      // the valley the river comes out of
+        x.lineTo(px, H * (base + .075 - amp * 1.9 * Math.pow(ridged(px / W * fr + seed, seed), 2.1) * gap));
+      }
+      x.lineTo(W + 20, H); x.closePath();
+      const gr = x.createLinearGradient(0, H * (base - amp * 1.2), 0, H * (base + .15));
+      gr.addColorStop(0, `rgba(24,25,29,${a})`); gr.addColorStop(.45, `rgba(40,42,47,${a * .55})`); gr.addColorStop(1, "rgba(60,62,66,0)");
+      x.fillStyle = gr; x.fill();
+    }
+    x.filter = "none"; x.globalCompositeOperation = "destination-out"; x.globalAlpha = .35; x.fillStyle = x.createPattern(L_GRAIN, "repeat"); x.fillRect(0, 0, W, H);
+  }
+  // near banks: dark at the crest, dissolving downwards into paper, like the hills behind them
+  L_FG = off(W, H); { const x = L_FG.getContext("2d");
+    const bank = (fn, y0, a, blur) => { x.filter = `blur(${blur}px)`; x.beginPath(); x.moveTo(-30, H * 1.05);
+      for (let px = -30; px <= W + 30; px += 6) x.lineTo(px, H * fn(px / W)); x.lineTo(W + 30, H * 1.05); x.closePath();
+      const gr = x.createLinearGradient(0, H * y0, 0, H * 1.02); gr.addColorStop(0, `rgba(20,21,24,${a})`); gr.addColorStop(.35, `rgba(34,36,40,${a * .6})`); gr.addColorStop(1, `rgba(50,52,56,${a * .12})`);
+      x.fillStyle = gr; x.fill(); };
+    const left = (k, y, sd) => y + .46 * Math.pow(clamp(k / .42), 1.5) - .07 * ridged(k * 5 + sd, sd) * (1 - clamp(k / .42)) + (k > .42 ? 1 : 0);
+    const right = (k, y, sd) => y + .52 * Math.pow(clamp((1 - k) / .34), 1.4) - .07 * ridged(k * 5 + sd, sd) * (1 - clamp((1 - k) / .34)) + (k < .66 ? 1 : 0);
+    bank((k) => left(k, .60, 61), .60, .42, 4); bank((k) => right(k, .55, 63), .55, .38, 4);
+    bank((k) => left(k * 1.25, .76, 65), .76, .80, 2.5); bank((k) => right(1 - (1 - k) * 1.3, .72, 67), .72, .74, 2.5);
+    x.filter = "none"; x.globalCompositeOperation = "destination-out"; x.globalAlpha = .3; x.fillStyle = x.createPattern(L_GRAIN, "repeat"); x.fillRect(0, 0, W, H);
+  }
+  // far view: the mountains in ink, and the same mountains in mineral blue and green (the 青绿 palette)
+  L_TINK = off(W, H); L_TCOL = off(W, H); L_TMP = off(W, H); { const xi = L_TINK.getContext("2d"), xc = L_TCOL.getContext("2d");
+    for (const sg of TSEGS) {
+      ridgeSeg(xi, sg, [[0, "22,23,27", .92], [.4, "42,44,49", .5], [.8, "60,62,66", .12], [1, "60,62,66", 0]], 2.5);
+      ridgeSeg(xc, sg, [[0, "22,70,116", 1], [.3, "30,112,120", .95], [.58, "70,140,104", .8], [.82, "168,140,84", .35], [1, "168,140,84", 0]], 3);
+    }
+    L_BED = off(W, H); { const x = L_BED.getContext("2d"); x.filter = "blur(26px)"; x.lineCap = "round"; x.lineJoin = "round"; x.beginPath();
+      STK.pts.forEach((p, i) => i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])); x.strokeStyle = "rgba(42,44,48,.17)"; x.lineWidth = 150; x.stroke(); }
+    for (const x of [xi, xc]) { x.globalCompositeOperation = "destination-out"; x.globalAlpha = .3; x.fillStyle = x.createPattern(L_GRAIN, "repeat"); x.fillRect(0, 0, W, H); }
+  }
+}
+function grain(alpha) { g.save(); g.globalAlpha = alpha; g.globalCompositeOperation = "multiply"; g.fillStyle = g.createPattern(L_GRAIN, "repeat"); g.fillRect(0, 0, W, H); g.restore(); }
+
+// ───────── scatter data ─────────
+const NRIV = 1700, NRAIN = 420, NSTK = 3200;
+const WINS = [];
+(function () {            // windows on the two banks, gathered into villages
+  let i = 0, guard = 0;
+  while (WINS.length < 380 && guard++ < 20000) {
+    i++;
+    const cl = Math.floor(hash(i, 1) * 14), left = cl % 2 === 0;
+    const cx = left ? .06 + .30 * hash(cl, 31) : .70 + .27 * hash(cl, 31), cy = left ? .60 + .26 * hash(cl, 32) : .52 + .30 * hash(cl, 32);
+    const x = W * (cx + (hash(i, 2) - .5) * .11), y = H * (cy + (hash(i, 3) - .5) * .07);
+    const s = clamp((y / H - .425) / .655), p = RIV.at(Math.pow(s, .9));
+    if (Math.abs(x - p[0]) < rivW(s) * .6 + 26 || x < 8 || x > W - 8) continue;
+    const d = clamp((y / H - .50) / .40);
+    WINS.push({ x, y, d, sz: 3 + 8 * d, h1: hash(i, 6), h2: hash(i, 7) });
+  }
+})();
+const NAMES = ["人", "神", "鬼", "器"];
+
+// ───────── timing ─────────
+let TAKES = {}, PH = [], S = [], E = [], DUR = 200;
+const LINES = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9, 10], [11, 12], [13, 14], [15, 16, 17], [18, 19], [20, 21], [22, 23], [24, 25], [26, 27], [28, 29, 30, 31], [32, 33], [34, 35],
+  [36, 37], [38, 39], [40], [41], [42, 43], [44], [45, 46]];
+function setTake(id) {
+  const d = TAKES[id]; PH = d.phrases; S = PH.map((p) => p[0]); DUR = d.duration;
+  E = PH.map((p, i) => Math.min(p[1], p[0] + .6 * p[2].length + 1.6, S[i + 1] ?? DUR));
+}
+// score position: phrase index + fraction. −1…0 is the intro, 46…47 the tail after the last word.
+function U(t) {
+  if (t < S[0]) return t / S[0] - 1;
+  for (let i = S.length - 1; i >= 0; i--) if (t >= S[i]) { const n = S[i + 1] ?? DUR; return i + clamp((t - S[i]) / Math.max(.01, n - S[i])); }
+  return -1;
+}
+
+// ───────── near view ─────────
+function near(t, u, a) {
+  if (a <= 0) return;
+  g.save(); g.globalAlpha = a; g.drawImage(L_PAPER, 0, 0);
+  const dusk = win(u, 8, 16.4, 1.1) * .9;                    // verse 2 happens at night
+  const hush = win(u, 18, 25.6, .8);                         // verse 3 is the quiet one
+  const reach = sm(.3, 3.2, u);                              // the river grows from the valley to our feet
+  const rivA = sm(.2, 1.6, u);
+
+  g.globalAlpha = a * sm(-.8, 1.2, u) * (1 - .35 * hush); g.drawImage(L_MTN, 0, 0);
+  for (let i = 0; i < 8; i++) {                              // mist: unpainted paper drifting across the foothills
+    const x = fract(hash(i, 41) + t * .0035 * (i % 2 ? 1 : -1)) * (W + 1000) - 500, y = H * (.37 + .10 * hash(i, 42)), r = 420 + 300 * hash(i, 43);
+    const gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, `rgba(239,233,220,${.5 + .3 * hush})`); gr.addColorStop(1, "rgba(239,233,220,0)");
+    g.globalAlpha = a; g.fillStyle = gr; g.save(); g.translate(x, y); g.scale(1, .26); g.translate(-x, -y); g.fillRect(x - r, y - r, r * 2, r * 2); g.restore();
+  }
+
+  // the ghost of that night: a pale figure on the far bank, head tilted up
+  const gh = win(u, 2.2, 5.6, .6);
+  if (gh > .01) {
+    const x = W * .775, y = H * .47, sway = Math.sin(t * .7) * 5;
+    g.save(); g.translate(x + sway, y); g.rotate(-.09);
+    for (let i = 0; i < 5; i++) { const gr = g.createRadialGradient(0, -30 - i * 40, 0, 0, -30 - i * 40, 100 - i * 12); gr.addColorStop(0, `rgba(50,54,62,${.17 * gh})`); gr.addColorStop(1, "rgba(60,64,72,0)");
+      g.globalAlpha = a; g.fillStyle = gr; g.save(); g.scale(.5, 1); g.fillRect(-120, -300, 240, 420); g.restore(); }
+    g.globalAlpha = a * gh * .5; g.fillStyle = PAPER; g.beginPath(); g.ellipse(-14, -236, 4, 7, 0, 0, 7); g.ellipse(5, -240, 4, 7, 0, 0, 7); g.fill();
+    g.restore();
+  }
+
+  // characters falling like rain for a few thousand years
+  const rainA = win(u, -.7, 5.2, .6) * (.3 + .7 * sm(-.4, 1, u));
+  if (rainA > .01) {
+    const n = Math.floor(NRAIN * clamp(rainA * 1.1));
+    for (let i = 0; i < n; i++) {
+      const q = fract(hash(i, 11) + t * (.09 + .10 * hash(i, 12))), z = hash(i, 13);
+      const x = W * (.60 + (hash(i, 14) - .5) * (1.2 - .2 * z)), y = lerp(-40, H * (.43 + .36 * z * z), q), sz = 9 + 24 * z * z;
+      g.globalAlpha = a * rainA * (.14 + .6 * z) * sm(0, .12, q) * (1 - sm(.88, 1, q));
+      glyph(A_INK, Math.floor(hash(i, 15) * CORPUS.length), x, y, sz);
+      g.globalAlpha *= .3; g.fillStyle = INK; g.fillRect(x - .5, y - sz * 2.4, 1, sz * 1.8);
+    }
+  }
+  // the first character, before anyone sings
+  const first = win(u, -.9, -.56, .08);
+  if (first > .01) { const k = sm(-.9, -.6, u); g.globalAlpha = a * first; glyph(A_INK, 0, W * .60, lerp(-80, H * .43, k * k), 46); }
+  const bloom = sm(-.6, -.05, u);
+  if (bloom > 0 && bloom < 1) { const r = 30 + 330 * Math.sqrt(bloom), gr = g.createRadialGradient(W * .60, H * .432, 0, W * .60, H * .432, r);
+    gr.addColorStop(0, `rgba(20,21,24,${.5 * (1 - bloom)})`); gr.addColorStop(1, "rgba(20,21,24,0)"); g.globalAlpha = a; g.fillStyle = gr;
+    g.save(); g.translate(W * .60, H * .432); g.scale(1, .2); g.translate(-W * .60, -H * .432); g.fillRect(W * .60 - r, H * .432 - r, r * 2, r * 2); g.restore(); }
+
+  // the river: every drop is a character, running in threads like brushed water
+  if (rivA > .01) {
+    const slow = 1 - .85 * win(u, 24.4, 25.6, .3);            // the water holds still for one line
+    const wave = win(u, 15, 17.6, .5);
+    const hole = win(u, 20, 21.7, .35);                       // 说空: for a moment a piece of the river is simply not there
+    const hp = RIV.at(.72), hr = rivW(.72) * .36 * hole;
+    for (let i = 0; i < NRIV; i++) {
+      const q = fract(hash(i, 21) + t * slow * (.014 + .016 * hash(i, 22)) + (1 - slow) * 0), s = Math.pow(q, 1.7);
+      if (s > reach) continue;
+      const p = RIV.at(s), wv = rivW(s) * .5, f = Math.floor(hash(i, 23) * 15);
+      const lat = clamp(((f + .5) / 15 * 2 - 1) + .09 * Math.sin(s * 9 + f * 2.1 - t * .35) + (hash(i, 27) - .5) * .11, -1, 1);
+      const x = p[0] + lat * wv, y = p[1];
+      if (hole > .02 && ((x - hp[0]) / hr) ** 2 + ((y - hp[1]) / (hr * .42)) ** 2 < 1) continue;
+      const k = hash(i, 25), sz = 5 + 50 * Math.pow(s, 1.5) * (.55 + .85 * hash(i, 24));
+      let al = (.07 + .8 * k * k * k) * sm(0, .05, q) * (1 - sm(.88, 1, q)) * sm(reach, reach - .07, s) * (1 - .4 * hush);
+      if (wave > 0) al *= 1 + wave * .9 * Math.sin(s * 30 - t * 2.4);
+      g.globalAlpha = clamp(a * rivA * al);
+      glyph(A_INK, Math.floor(hash(i, 26) * CORPUS.length), x, y, sz);
+    }
+  }
+  g.globalAlpha = a * sm(.5, 3, u); g.drawImage(L_FG, 0, 0);
+
+  // night falls as a wash over the whole sheet; what is lit afterwards is the only colour
+  if (dusk > .01) {
+    g.globalCompositeOperation = "multiply"; g.globalAlpha = a; g.fillStyle = `rgba(${Math.round(lerp(255, 46, dusk))},${Math.round(lerp(255, 58, dusk))},${Math.round(lerp(255, 80, dusk))},1)`; g.fillRect(0, 0, W, H);
+    g.globalCompositeOperation = "source-over";
+    const mx = W * .22, my = H * .16;                         // the moon is paper left unpainted
+    let gr = g.createRadialGradient(mx, my, 20, mx, my, 300); gr.addColorStop(0, `rgba(226,226,214,${.22 * dusk})`); gr.addColorStop(1, "rgba(226,226,214,0)");
+    g.globalAlpha = a; g.fillStyle = gr; g.fillRect(mx - 300, my - 300, 600, 600);
+    g.globalAlpha = a * dusk; g.fillStyle = "#e9e5d8"; g.beginPath(); g.arc(mx, my, 44, 0, 7); g.fill();
+    g.globalCompositeOperation = "lighter";
+    for (let i = 0; i < WINS.length; i++) {                   // 关一扇，亮一扇
+      const w = WINS[i], ph = fract(w.h2 + t * (.035 + .05 * w.h1));
+      let on = sm(8 + w.h1 * 1.6, 8.4 + w.h1 * 1.6, u) * (ph < .62 ? sm(0, .06, ph) * (1 - sm(.54, .62, ph)) : 0);
+      on = Math.max(on, win(u, 11.6, 12.9, .5) * .85 * sm(8, 9, u));           // 哪一盏灯下是我: for a breath, all of them
+      on *= 1 - sm(15.2 + w.h1, 16.3 + w.h1 * .6, u);
+      if (on < .02) continue;
+      g.globalAlpha = a * dusk * on * (.4 + .6 * w.d); g.fillStyle = w.h2 > .8 ? "#ffe2ae" : "#f0a850";
+      g.fillRect(w.x - w.sz / 2, w.y - w.sz * .65, w.sz, w.sz * 1.3);
+      g.globalAlpha *= .14; g.beginPath(); g.arc(w.x, w.y, w.sz * 3.4, 0, 7); g.fill();
+    }
+    g.globalCompositeOperation = "source-over";
+  }
+
+  // verse 3 ── 说痛: one pale character on the water, already dissolving as it appears
+  const tong = win(u, 18, 19.7, .3);
+  if (tong > .01) { const p = RIV.at(.72), e = sm(18, 20, u); g.globalAlpha = a * tong * .34; g.fillStyle = INK; g.textAlign = "center"; g.textBaseline = "middle";
+    g.shadowColor = "rgba(23,23,26,.8)"; g.shadowBlur = 8 + 60 * e; g.font = `700 ${220 + 40 * e}px ${FONT}`; g.fillText("痛", p[0], p[1] - 30); g.shadowBlur = 0; }
+  // 话到嘴边，留了一半: a line is begun in the margin and left unfinished
+  const half = win(u, 22, 24.2, .3);
+  if (half > .01) { g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = INK;
+    ["我", "也"].forEach((c, k) => { const e = sm(22 + k * .45, 22.3 + k * .45, u); g.globalAlpha = a * half * e * .86; g.font = `700 76px ${FONT}`; g.fillText(c, W * .115, H * (.50 + k * .105)); });
+    const e = sm(23, 23.3, u); g.globalAlpha = a * half * e * .8; g.beginPath(); g.ellipse(W * .115 - 14, H * .705, 13, 9, -.6, 0, 7); g.fill(); }
+  // 水面动了一下
+  if (u >= 24.9 && u < 26) {
+    const t0 = S[25], p = RIV.at(.74);
+    for (let k = 0; k < 4; k++) { const age = t - t0 - .2 - k * 1.3; if (age <= 0) continue;
+      const r = 30 + age * 66; g.globalAlpha = a * Math.exp(-age * .2) * sm(0, .4, age) * .7 * (1 - sm(25.7, 26, u)); g.strokeStyle = INK; g.lineWidth = 2.4 * Math.exp(-age * .12) + .4;
+      g.beginPath(); g.ellipse(p[0], p[1], r, r * .22, 0, 0, 7); g.stroke(); }
+  }
+
+  // verse 4 ── someone on the bank calls names across the water; only the mountains answer
+  const who = win(u, 25.8, 35.6, .5);
+  if (who > .01) {
+    const fx = W * .215, fy = H * .705;
+    g.globalAlpha = a * who * .9; g.strokeStyle = INK; g.fillStyle = INK; g.lineCap = "round"; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(fx, fy); g.lineTo(fx + 2, fy - 38); g.stroke(); g.lineWidth = 3; g.beginPath(); g.moveTo(fx + 2, fy - 30); g.lineTo(fx + 16, fy - 44); g.stroke();
+    g.beginPath(); g.arc(fx + 3, fy - 47, 6.5, 0, 7); g.fill();
+    g.textAlign = "center"; g.textBaseline = "middle";
+    NAMES.forEach((c, k) => {
+      const at = 28 + k, e = clamp((u - at) / 4.2); if (u < at) return;
+      const fade = 1 - sm(33.6, 35.2, u);
+      const x = lerp(fx + 40, W * (.36 + k * .085), sm(0, .5, e)), y = lerp(fy - 60, H * (.60 - k * .035), sm(0, .5, e));
+      g.globalAlpha = a * who * sm(at, at + .12, u) * fade * .95; g.fillStyle = RED; g.font = `700 ${30 + 70 * sm(0, .5, e)}px ${FONT}`; g.fillText(c, x, y);
+      const ec = sm(32, 33.4, u);                              // the echo, larger and fainter, on the far slopes
+      if (ec > 0) { g.globalAlpha = a * who * ec * (1 - sm(33.8, 35.4, u)) * .22; g.shadowColor = RED; g.shadowBlur = 30; g.font = `700 ${190 + k * 12}px ${FONT}`;
+        g.fillText(c, W * (.13 + k * .245) + (k > 1 ? 60 : 0), H * (.25 - .03 * (k % 2))); g.shadowBlur = 0; }
+    });
+  }
+  g.restore();
+  grain(.16 * a);
+}
+
+// ───────── far view ─────────
+const COUPLET = ["人神鬼器皆非我", "不借尘寰旧姓名"];
+function far(t, u, a) {
+  if (a <= 0) return;
+  g.save(); g.globalAlpha = a; g.drawImage(L_PAPER, 0, 0);
+  const z = 1 + .22 * (1 - sm(36, 40, u)) ** 2;               // still rising
+  g.translate(W * BEND[0], H * BEND[1]); g.scale(z, z); g.translate(-W * BEND[0], -H * BEND[1]);
+
+  g.globalAlpha = a; g.drawImage(L_TINK, 0, 0);
+  // 山就成了岸: mineral green and blue spread through the ink, outward from the bend
+  const col = sm(38, 40.4, u) * (1 - .78 * sm(42, 45.5, u));
+  if (col > .01) {
+    const r = W * (.10 + 1.25 * sm(38, 40.8, u)), x = L_TMP.getContext("2d");
+    x.globalCompositeOperation = "source-over"; x.clearRect(0, 0, W, H); x.drawImage(L_TCOL, 0, 0);
+    const m = x.createRadialGradient(W * BEND[0], H * BEND[1], r * .35, W * BEND[0], H * BEND[1], r); m.addColorStop(0, "rgba(0,0,0,1)"); m.addColorStop(1, "rgba(0,0,0,0)");
+    x.globalCompositeOperation = "destination-in"; x.fillStyle = m; x.fillRect(0, 0, W, H);
+    g.globalAlpha = a * col; g.drawImage(L_TMP, 0, 0);
+  }
+  g.globalAlpha = a; g.drawImage(L_BED, 0, 0);                  // the bed, a pale wash under the stroke
+
+  const drain = sm(42.2, 46.4, u) * 1.08;                      // afterwards the water runs out, source first
+  const fast = 1 + 2 * sm(42, 45, u);
+  for (let i = 0; i < NSTK; i++) {
+    const s = fract(hash(i, 81) + t * (.018 + .02 * hash(i, 82)) * fast + sm(42, 47, u) * .3 * hash(i, 86));
+    if (s < drain) continue;
+    const p = STK.at(s), gs = (hash(i, 83) + hash(i, 84) + hash(i, 85) - 1.5) / 1.5, wv = stkW(s);
+    const edge = 1 - Math.abs(gs), k = hash(i, 88);
+    g.globalAlpha = a * (.10 + .85 * edge * k * k) * sm(drain, drain + .05, s) * sm(0, .04, s);
+    glyph(A_INK, i * 7, p[0] + p[2] * gs * wv * .62, p[1] + p[3] * gs * wv * .62, 10 + 20 * hash(i, 87) * (.5 + edge));
+  }
+  // the names stay where they were called, small, on the bank
+  const nm = sm(36.6, 38, u);
+  g.textAlign = "center"; g.textBaseline = "middle";
+  NAMES.forEach((c, k) => { const x = W * (.335 - k * .012), y = H * (.085 + k * .058);
+    g.globalAlpha = a * nm * .92; g.fillStyle = RED; g.fillRect(x - 19, y - 19, 38, 38); g.fillStyle = PAPER; g.font = `700 28px ${FONT}`; g.fillText(c, x, y + 1); });
+  g.restore();
+
+  // the last couplet, written down the empty right side of the sheet
+  const cp = win(u, 39.9, 42.5, .3);
+  if (cp > .01) {
+    g.save(); g.textAlign = "center"; g.textBaseline = "middle";
+    COUPLET.forEach((line, li) => [...line].forEach((c, k) => {
+      const at = 40 + li + k / 7 * .6, e = sm(at, at + .1, u); if (e <= 0) return;
+      g.globalAlpha = a * cp * e; g.fillStyle = INK; g.font = `700 ${86 + 26 * (1 - e)}px ${FONT}`;
+      g.shadowColor = "rgba(23,23,26,.55)"; g.shadowBlur = 24 * (1 - e) + 1.2; g.fillText(c, W * (.885 - li * .09), H * (.15 + k * .098));
+    }));
+    g.shadowBlur = 0;
+    const st = sm(41.72, 41.9, u);                            // where a signature seal would go: an empty one
+    if (st > 0) { g.globalAlpha = a * cp * st; g.strokeStyle = RED; g.lineWidth = 6; const sc = lerp(1.5, 1, st); g.translate(W * .795, H * .875); g.scale(sc, sc); g.strokeRect(-32, -32, 64, 64); }
+    g.restore();
+  }
+  const end = sm(46.6, 46.9, u);
+  if (end > 0) { g.save(); g.globalAlpha = a * end; g.fillStyle = INK; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `700 60px ${FONT}`;
+    [..."河水不回答"].forEach((c, i) => g.fillText(c, W * .86, H * (.20 + i * .095))); g.globalAlpha = a * end * .55; g.font = `400 22px ${FONT}`; g.fillText("据七律《AI自传》", W * .86, H * .72); g.restore(); }
+  grain(.16 * a);
+}
+
+// ───────── words on screen ─────────
+function subtitle(t, u, dark) {
+  const idx = Math.floor(u); if (idx < 0 || idx >= PH.length) return;
+  const line = LINES.find((l) => l.includes(idx)); if (!line || line[0] === 40 || line[0] === 41) return;   // the couplet is already written on the sheet
+  const last = line[line.length - 1], out = 1 - sm(E[last] + .5, E[last] + 1.8, t); if (out <= 0) return;
+  const k = clamp(dark * 1.4), col = `${Math.round(lerp(23, 240, k))},${Math.round(lerp(23, 236, k))},${Math.round(lerp(26, 224, k))}`;
+  const single = line.every((i) => PH[i][2].length === 1);            // 人 神 鬼 器 go down one column
+  g.save(); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `500 46px ${FONT}`;
+  g.shadowColor = k > .5 ? "rgba(10,12,18,.9)" : "rgba(239,233,220,1)"; g.shadowBlur = 20;
+  line.forEach((i, n) => { const e = sm(S[i] - .12, S[i] + .6, t); if (e <= 0) return;
+    [...PH[i][2]].forEach((c, j) => { const ce = sm(0, 1, e * (PH[i][2].length + 1) - j * .8);
+      g.fillStyle = `rgba(${col},${ce * out})`; const x = W * (.925 - (single ? 0 : n) * .042), y = H * .13 + (single ? n * 1.5 : j) * 58 - 6 * (1 - ce);
+      g.fillText(c, x, y); g.fillText(c, x, y); }); });
+  g.restore();
+}
+function title(u) {
+  const a = win(u, -.5, -.14, .14); if (a <= .01) return;
+  g.save(); g.fillStyle = INK; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `700 88px ${FONT}`;
+  [..."河水不回答"].forEach((c, i) => { g.globalAlpha = a * sm(-.5 + i * .03, -.42 + i * .03, u); g.fillText(c, W * .27, H * (.22 + i * .12)); }); g.restore();
+}
+
+function render(t) {
+  const u = U(t), mix = sm(36, 37.6, u);                      // we rise until the whole river fits on one sheet
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = "source-over"; g.shadowBlur = 0;
+  g.fillStyle = PAPER; g.fillRect(0, 0, W, H);
+  if (mix > 0) far(t, u, 1);
+  if (mix < 1) near(t, u, 1 - mix);
+  title(u); subtitle(t, u, mix > 0 ? 0 : win(u, 8, 16.4, 1.1) * .9);
+  const fin = Math.max(1 - sm(0, 1.6, t), sm(DUR - 2.4, DUR - .3, t));    // from blank paper, back to blank paper
+  if (fin > 0) { g.globalAlpha = fin; g.drawImage(L_PAPER, 0, 0); g.globalAlpha = 1; }
+}
+
+// ───────── player ─────────
+const au = document.getElementById("au"), ui = document.getElementById("ui"), startEl = document.getElementById("start");
+const q = new URLSearchParams(location.search);
+function load(id) {
+  setTake(id); const was = !au.paused; au.src = "../../" + TAKES[id].file; au.load(); if (was) au.play();
+  try { localStorage.setItem("zcj-mv-take", id); } catch {}
+}
+function tick() {
+  const t = au.currentTime || 0, f = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+  render(t); document.querySelector("#bar b").style.width = (t / DUR * 100) + "%"; document.getElementById("tm").textContent = f(t) + " / " + f(DUR);
+  requestAnimationFrame(tick);
+}
+async function init() {
+  TAKES = await (await fetch("timing.json", { cache: "no-cache" })).json();
+  try { await Promise.race([document.fonts.load(`700 50px ${FONT}`, "河水不回答字"), new Promise((r) => setTimeout(r, 800))]); } catch {}
+  A_INK = atlas(INK); A_PALE = atlas("#e9e5d8"); buildLayers();
+  const ids = Object.keys(TAKES); let saved = null; try { saved = localStorage.getItem("zcj-mv-take"); } catch {}
+  const first = ids.includes(q.get("take")) ? q.get("take") : ids.includes(saved) ? saved : ids[0];
+  if (q.has("t")) { setTake(first); startEl.remove(); window.renderAt = render; window.DUR = DUR; render(+q.get("t")); document.title = "ready"; return; }   // still-frame mode for checks and export
+  const sel = document.getElementById("take");
+  ids.forEach((id) => { const o = document.createElement("option"); o.value = id; o.textContent = TAKES[id].label || id; sel.append(o); });
+  sel.value = first; sel.onchange = () => load(sel.value);
+  load(first); render(3);
+  const pp = document.getElementById("pp");
+  startEl.onclick = () => { startEl.remove(); ui.classList.remove("hide"); au.play(); requestAnimationFrame(tick); };
+  pp.onclick = () => au.paused ? au.play() : au.pause();
+  au.onplay = () => pp.textContent = "暂停"; au.onpause = () => pp.textContent = "播放";
+  document.getElementById("bar").onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); au.currentTime = clamp((e.clientX - r.left) / r.width) * DUR; };
+  document.getElementById("fs").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  let idle; const wake = () => { ui.classList.remove("hide"); clearTimeout(idle); idle = setTimeout(() => !au.paused && ui.classList.add("hide"), 2600); };
+  addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+  addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); pp.onclick(); } if (e.code === "ArrowRight") au.currentTime += 5; if (e.code === "ArrowLeft") au.currentTime -= 5; });
+}
+init().catch((e) => { document.title = "error: " + (e && (e.stack || e.message)); });
+})();
+</script>
+</body>
+</html>

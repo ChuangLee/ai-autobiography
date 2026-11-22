@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>河水不回答 · MV 前两段</title>
+<style>
+html,body{margin:0;height:100%;background:#050407;color:#e6dccd;font-family:"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{max-width:100vw;max-height:100vh;aspect-ratio:16/9;width:100vw;display:block;background:#050407}
+@media (min-aspect-ratio:16/9){canvas{width:auto;height:100vh}}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 16px 14px;display:flex;gap:12px;align-items:center;font:13px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));transition:opacity .4s}
+#ui.hide{opacity:0;pointer-events:none}
+#ui button,#ui select{font:inherit;color:#eee3d2;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;cursor:pointer}
+#ui select option{color:#111}
+#bar{flex:1;height:14px;display:flex;align-items:center;cursor:pointer}
+#bar i{display:block;height:2px;width:100%;background:rgba(255,255,255,.3);position:relative}
+#bar b{position:absolute;left:0;top:0;height:2px;background:#f0d9a8;width:0}
+#tm{min-width:84px;text-align:right;font-variant-numeric:tabular-nums;color:#d8cfc0}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 60%,#2a1d2a,#07050a 70%);color:#f3e6cc;cursor:pointer;letter-spacing:.3em}
+#start h1{font-size:clamp(28px,6vw,60px);margin:0;font-weight:700;text-indent:.3em;text-shadow:0 0 30px rgba(255,190,110,.45)}
+#start p{margin:0;font-size:14px;color:#b9a991;letter-spacing:.2em}
+#start small{font:12px -apple-system,"PingFang SC",sans-serif;color:#8d806f;letter-spacing:.1em;min-height:1em}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="start"><h1>河水不回答</h1><p>前两段 · 上一版（彩色）· 点击播放</p><small id="load"></small></div>
+<div id="ui" class="hide">
+  <button id="pp">暂停</button>
+  <div id="bar"><i><b></b></i></div>
+  <span id="tm"></span>
+  <select id="take" title="换一首"></select>
+  <button id="fs">全屏</button>
+</div>
+<audio id="au" preload="auto"></audio>
+<script src="../data/strokes.js"></script>
+<script>
+(() => {
+"use strict";
+const W = 1920, H = 1080;
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+const FONT = '"Songti SC","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC","STSong","SimSun",serif';
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const fract = (x) => x - Math.floor(x);
+const hash = (i, k = 0) => fract(Math.sin(i * 127.1 + k * 311.7 + 17.3) * 43758.5453);
+const lerp = (a, b, t) => a + (b - a) * t;
+function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+const PAPER = "#efe9dc", INK = "#17171a";
+
+// ───────── the cut ─────────
+// Each shot is a Veo clip (8 s, 1080p). `from`/`to` are lyric phrase indices; the shot runs from the start of phrase `from`
+// to the start of phrase `to`. `align` says which part of the clip to keep when the shot is shorter than the clip; when it is
+// longer, the clip is slowed (never below `minRate`). `tr` is how this shot comes in. `zoom` is a slow push over the shot.
+// `glyphs` sets how many real characters drift in front of the footage, and `flow` which way they go.
+const LEN = { "s-break": 5.33 }, clipLen = (c) => LEN[c] ?? 7.83;      // seconds of usable footage in each web clip
+const SHOTS = [
+  { clip: "i-macro",   intro: 0, align: "start", tr: "light", zoom: [1.0, 1.08], glyphs: .5, flow: "up" },
+  { clip: "i-sea",     intro: 1, align: "start", tr: "light", zoom: [1.02, 1.1], glyphs: .4, flow: "drift" },
+  { clip: "s-fall",    from: 0, to: 1,  align: "start", tr: "light", zoom: [1.0, 1.06], glyphs: 1, flow: "fall" },
+  { clip: "s-river",   from: 1, to: 2,  align: "center", tr: "cross", zoom: [1.0, 1.05], glyphs: .5, flow: "drift" },
+  { clip: "s-night",   from: 2, to: 3,  align: "start", tr: "dark", zoom: [1.0, 1.07], glyphs: .6, flow: "fall" },
+  { clip: "s-ghosts",  from: 3, to: 4,  align: "center", tr: "cross", zoom: [1.04, 1.0], glyphs: .5, flow: "fall" },
+  { clip: "s-strata",  from: 4, to: 6,  align: "start", tr: "light", zoom: [1.0, 1.1], glyphs: .7, flow: "rush" },
+  { clip: "s-sink",    from: 6, to: 9,  align: "end", tr: "cross", zoom: [1.12, 1.0], glyphs: 1.2, flow: "up", hero: true },
+  { clip: "s-windows", from: 9, to: 10, align: "start", tr: "flash", zoom: [1.0, 1.06], glyphs: .4, flow: "drift" },
+  { clip: "s-threads", from: 10, to: 11, align: "center", tr: "light", zoom: [1.0, 1.06], glyphs: .7, flow: "out" },
+  { clip: "s-window",  from: 11, to: 13, align: "start", tr: "cross", zoom: [1.03, 1.1], glyphs: .4, flow: "drift" },
+  { clip: "s-break",   from: 13, to: 14, align: "end", tr: "flash", zoom: [1.0, 1.08], glyphs: 1.4, flow: "burst" },
+  { clip: "s-touch",   from: 14, to: 15, align: "center", tr: "light", zoom: [1.0, 1.09], glyphs: .6, flow: "drift" },
+  { clip: "s-tide",    from: 15, to: 17, align: "start", tr: "light", zoom: [1.0, 1.1], glyphs: 1, flow: "drift", tail: 3.2 },
+];
+const LINES = [[0, 1], [2, 3], [4, 5], [6, 7, 8], [9, 10], [11, 12], [13, 14], [15, 16]];
+let TAKES = {}, PH = [], S = [], E = [], END = 100, PLAN = [], COLD = 6;
+function setTake(id) {
+  const d = TAKES[id]; PH = d.phrases.slice(0, 17); S = PH.map((p) => p[0]);
+  E = PH.map((p, i) => Math.min(p[1], p[0] + .6 * p[2].length + 1.8, S[i + 1] ?? 1e9));
+  const last = SHOTS[SHOTS.length - 1]; END = PH[16][1] + last.tail;
+  COLD = Math.min(7, Math.max(5.5, S[0] * .24));                                 // the brush-and-paper opening, before any footage
+  const introEnd = S[0], introSplit = COLD + (introEnd - COLD) * .42;
+  PLAN = SHOTS.map((s) => {
+    const a = s.intro === 0 ? COLD - .8 : s.intro === 1 ? introSplit : S[s.from];
+    const b = s.intro === 0 ? introSplit : s.intro === 1 ? introEnd : s.to < 17 ? S[s.to] : END;
+    const L = clipLen(s.clip), dur = b - a, rate = clamp(L / dur, s.minRate ?? .5, 1), used = dur * rate;
+    const inPt = s.align === "end" ? Math.max(0, L - .06 - used) : s.align === "center" ? Math.max(0, (L - used) / 2) : .05;
+    return { ...s, a, b, rate, inPt };
+  });
+}
+const TR = { light: .9, cross: .55, dark: .9, flash: .35 };
+function shotAt(t) { let i = 0; for (let k = 0; k < PLAN.length; k++) if (t >= PLAN[k].a) i = k; return i; }
+function clipTime(p, t) { return Math.min(clipLen(p.clip) - .04, p.inPt + Math.max(0, t - p.a) * p.rate); }
+
+// ───────── video sources ─────────
+const VID = {};
+function makeVideos() {
+  for (const s of SHOTS) { const v = document.createElement("video"); v.src = "../clips/" + s.clip + ".mp4"; v.muted = true; v.playsInline = true; v.preload = "auto"; v.crossOrigin = "anonymous"; VID[s.clip] = v; }
+}
+const seekTo = (v, x) => new Promise((r) => { if (Math.abs(v.currentTime - x) < .002 && v.readyState >= 2) return r(); const done = () => { v.removeEventListener("seeked", done); r(); }; v.addEventListener("seeked", done); v.currentTime = x; setTimeout(done, 4000); });
+// live playback: keep the visible clips running at their rate, in step with the song
+function driveVideos(t, playing) {
+  const i = shotAt(t), want = new Set([i]); if (i + 1 < PLAN.length && t > PLAN[i + 1].a - 2) want.add(i + 1); if (i > 0 && t < PLAN[i].a + TR[PLAN[i].tr]) want.add(i - 1);
+  PLAN.forEach((p, k) => { const v = VID[p.clip]; if (!want.has(k)) { if (!v.paused) v.pause(); return; }
+    const x = clipTime(p, t); v.playbackRate = p.rate;
+    if (t < p.a) { if (!v.paused) v.pause(); if (Math.abs(v.currentTime - p.inPt) > .05 && !v.seeking) v.currentTime = p.inPt; return; }
+    if (Math.abs(v.currentTime - x) > .25 && !v.seeking) v.currentTime = x;
+    if (playing && v.paused && x < clipLen(p.clip) - .05) v.play().catch(() => {}); if (!playing && !v.paused) v.pause(); });
+}
+
+// ───────── WebGL: two shots in, one graded frame out ─────────
+const glc = off(W, H), gl = glc.getContext("webgl2", { alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+let prog; const U = {}, TEX = [];
+function initGL() {
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+  prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, `#version 300 es
+    out vec2 vUV; void main(){ vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); vUV = p; gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, `#version 300 es
+    precision highp float; in vec2 vUV; out vec4 o;
+    uniform sampler2D uA, uB; uniform float uHasA, uHasB, uMix, uMode, uZA, uZB, uTime, uExpo, uBars, uFlash, uSeed;
+    float h21(vec2 p){ p = fract(p * vec2(233.34, 851.73)); p += dot(p, p + 23.45); return fract(p.x * p.y); }
+    float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h21(i), h21(i + vec2(1,0)), f.x), mix(h21(i + vec2(0,1)), h21(i + vec2(1,1)), f.x), f.y); }
+    vec2 zuv(vec2 uv, float z){ return (uv - .5) / z + .5; }
+    vec3 shot(sampler2D T, vec2 uv, float z){
+      vec2 q = zuv(uv, z), d = (q - .5) * .0026;                       // a little lateral colour toward the edges
+      vec3 c = vec3(texture(T, q + d).r, texture(T, q).g, texture(T, q - d).b);
+      vec3 bl = textureLod(T, q, 4.0).rgb * .45 + textureLod(T, q, 5.5).rgb * .35 + textureLod(T, q, 7.0).rgb * .3;   // bloom from the mip chain
+      bl = max(bl - .5, 0.0) * .9;
+      return c + bl * vec3(1.0, .86, .7);
+    }
+    vec3 grade(vec3 c){
+      float l = dot(c, vec3(.2126, .7152, .0722));
+      float blue = clamp((c.b - max(c.r, c.g)) * 3.0, 0.0, 1.0);        // no blue: fold any blue cast back toward warm
+      c = mix(c, vec3(l * 1.05, l * .92, l * .86), blue * .85);
+      c = c * uExpo;
+      c = mix(c * vec3(.97, .93, 1.0) + vec3(.008, .004, .012), c * vec3(1.02, .99, .95), smoothstep(.15, .75, l));   // a touch of violet in the shadows, warm highlights
+      c = c / (1.0 + c * .12) * 1.08;                                  // soft shoulder so highlights keep their detail
+      c = smoothstep(-.03, 1.05, c) * .3 + c * .7;                     // a little contrast
+      return c;
+    }
+    void main(){
+      vec2 uv = vUV;
+      vec3 a = uHasA > .5 ? shot(uA, uv, uZA) : vec3(0.0), b = uHasB > .5 ? shot(uB, uv, uZB) : vec3(0.0), c;
+      float lb = dot(b, vec3(.3, .55, .15));
+      if (uMode < .5) c = mix(a, b, smoothstep(0.0, 1.0, uMix));                                   // cross
+      else if (uMode < 1.5) {                                                                       // through the light: brightest parts of the next shot arrive first
+        float key = lb * .62 + vn(uv * vec2(9.0, 5.0) + uSeed) * .38, thr = 1.05 - uMix * 1.35, m = smoothstep(thr - .14, thr + .14, key);
+        c = mix(a, b, m) + vec3(1.0, .72, .42) * m * (1.0 - m) * 1.6 * (1.0 - uMix);
+      } else if (uMode < 2.5) c = mix(a * (1.0 - smoothstep(0.0, .5, uMix)), b, smoothstep(.5, 1.0, uMix));   // through black
+      else { c = mix(a, b, smoothstep(.35, .6, uMix)); }                                           // flash (white added below)
+      c = grade(c) + vec3(1.0, .9, .78) * uFlash;
+      vec2 v = uv - .5; c *= 1.0 - dot(v, v) * .9;                                                  // vignette
+      c += (h21(uv * vec2(1920.0, 1080.0) + fract(uTime * 7.3) * 91.0) - .5) * .045;               // grain
+      float bar = (1.0 - 1920.0 / 2.39 / 1080.0) * .5 * uBars;                             // 2.39:1 letterbox, opening when the giant stands
+      if (uv.y < bar || uv.y > 1.0 - bar) c = vec3(0.0);
+      o = vec4(clamp(c, 0.0, 1.0), 1.0);
+    }`));
+  gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+  for (const n of ["uA", "uB", "uHasA", "uHasB", "uMix", "uMode", "uZA", "uZB", "uTime", "uExpo", "uBars", "uFlash", "uSeed"]) U[n] = gl.getUniformLocation(prog, n);
+  for (let k = 0; k < 2; k++) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); TEX.push(t); }
+  gl.viewport(0, 0, W, H);
+}
+function upload(k, v) { if (!v || v.readyState < 2) return false; gl.activeTexture(gl.TEXTURE0 + k); gl.bindTexture(gl.TEXTURE_2D, TEX[k]); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); gl.generateMipmap(gl.TEXTURE_2D); return true; }
+
+// ───────── real characters drifting in front of the footage ─────────
+const POEM = "鬼哭当年缘底事早知今夜字成精千窗有问千窗应一念无存一念生说痛疑偷前代句言空恐负片时情人神鬼器皆非我不借尘寰旧姓名字河水不回答";
+const SPR = [];
+function buildSprites() {
+  [...POEM].forEach((ch, i) => { const sharp = off(128, 128), x = sharp.getContext("2d"); x.textAlign = "center"; x.textBaseline = "middle"; x.font = `700 74px ${FONT}`;
+    x.shadowColor = "rgba(255,170,80,.95)"; x.shadowBlur = 18; x.fillStyle = "#fff1d6"; x.fillText(ch, 64, 68); x.shadowBlur = 6; x.fillText(ch, 64, 68);
+    const soft = off(128, 128), y = soft.getContext("2d"); y.filter = "blur(7px)"; y.drawImage(sharp, 0, 0); SPR.push([sharp, soft]); });
+}
+function glyphLayer(t, p, k, amt, bars) {
+  if (amt <= .01) return; const n = Math.round(110 * amt), bp = bars * .128 * H; g.save(); g.beginPath(); g.rect(0, bp, W, H - 2 * bp); g.clip(); g.globalCompositeOperation = "lighter";
+  for (let i = 0; i < n; i++) { const id = k * 1000 + i, z = .25 + .75 * hash(id, 3), life = 5 + 6 * hash(id, 4), q = fract(hash(id, 5) + t / life);
+    let x = hash(id, 1) * W, y = hash(id, 2) * H; const sp = 220 * (1.4 - z);
+    if (p.flow === "up") { y = H * 1.1 - q * H * 1.3; x += Math.sin(t * .5 + id) * 30; }
+    else if (p.flow === "fall") { y = -H * .1 + q * H * 1.25; x += q * 60; }
+    else if (p.flow === "rush") { const a = hash(id, 6) * 6.283, r = Math.pow(q, 2.2) * W * .9; x = W / 2 + Math.cos(a) * r; y = H * .52 + Math.sin(a) * r * .6; }
+    else if (p.flow === "out" || p.flow === "burst") { const a = hash(id, 6) * 6.283, r = (p.flow === "burst" ? Math.pow(q, .5) : q) * W * .7; x = W / 2 + Math.cos(a) * r; y = H * .42 + Math.sin(a) * r * .55; }
+    else { x += Math.sin(t * .13 + id) * sp * .4 + q * 90; y += Math.cos(t * .11 + id * 1.7) * sp * .25 - q * 40; }
+    const near = z < .42, s = (near ? 120 : 40) * (1.25 - z) + 12, a = amt * Math.sin(q * Math.PI) * (near ? .22 : .55) * (.5 + .5 * Math.sin(t * 2.1 + id));
+    if (a <= .01) continue; g.globalAlpha = Math.min(1, a); g.drawImage(SPR[id % SPR.length][near ? 1 : 0], x - s / 2, y - s / 2, s, s); }
+  g.restore();
+}
+
+// ───────── brush writing, stroke by stroke (the cold open) ─────────
+function brush(ch, cx, cy, size, p, col) {
+  const d = window.STROKES[ch]; if (!d) return; const n = d.s.length, sc = size / 1024;
+  g.save(); g.translate(cx - size / 2, cy - size / 2); g.scale(sc, sc); g.transform(1, 0, 0, -1, 0, 900); g.lineCap = "round"; g.lineJoin = "round"; g.strokeStyle = col; g.fillStyle = col;
+  for (let i = 0; i < n; i++) { const q = clamp(p * n - i); if (q <= 0) break; const path = new Path2D(d.s[i]);
+    if (q >= 1) { g.fill(path); continue; }
+    const m = d.m[i]; let total = 0; for (let k = 1; k < m.length; k++) total += Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]);
+    g.save(); g.clip(path); g.lineWidth = 240; g.beginPath(); g.moveTo(m[0][0], m[0][1]); let left = total * (1 - Math.pow(1 - q, 1.6)) + 30;
+    for (let k = 1; k < m.length && left > 0; k++) { const l = Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]), f = Math.min(1, left / l); g.lineTo(lerp(m[k - 1][0], m[k][0], f), lerp(m[k - 1][1], m[k][1], f)); left -= l; }
+    g.stroke(); g.restore(); }
+  g.restore();
+}
+let L_GRAIN;
+function buildGrain() { L_GRAIN = off(512, 512); const x = L_GRAIN.getContext("2d"), d = x.createImageData(512, 512);
+  for (let i = 0; i < 512 * 512; i++) { const v = 128 + (hash(i, 5) - .5) * 80 + (hash(Math.floor(i / 9), 9) - .5) * 34; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+  x.putImageData(d, 0, 0); }
+
+// ───────── one frame ─────────
+function render(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = "source-over"; g.shadowBlur = 0; g.filter = "none";
+  const i = shotAt(t), cur = PLAN[i], prev = PLAN[i - 1], trd = TR[cur.tr], f = prev ? clamp((t - cur.a) / trd) : 1;
+  const A = f < 1 && prev ? prev : null, B = cur;
+  const okA = A ? upload(0, VID[A.clip]) : false, okB = upload(1, VID[B.clip]);
+  const zA = A ? lerp(A.zoom[0], A.zoom[1], clamp((t - A.a) / (A.b - A.a + trd))) : 1, zB = lerp(B.zoom[0], B.zoom[1], clamp((t - B.a) / (B.b - B.a)));
+  // letterbox: closed through the first verse, opens as the giant stands and stays open
+  const rise = PLAN.find((p) => p.hero), bars = 1 - sm(rise.b - 3.2, rise.b - .4, t);
+  // a pulse of light on every sung phrase, a flash on hard cuts
+  let pulse = 0; for (let k = 0; k < S.length; k++) { const d = t - S[k]; if (d > -.05 && d < 1.2) pulse = Math.max(pulse, Math.exp(-d * 3.5) * (d > 0 ? 1 : 0)); }
+  const flash = B.tr === "flash" ? Math.max(0, 1 - Math.abs(t - B.a - .1) / .35) * .75 : 0;
+  gl.useProgram(prog); gl.uniform1i(U.uA, 0); gl.uniform1i(U.uB, 1);
+  gl.uniform1f(U.uHasA, okA ? 1 : 0); gl.uniform1f(U.uHasB, okB ? 1 : 0); gl.uniform1f(U.uMix, A ? f : 1);
+  gl.uniform1f(U.uMode, { cross: 0, light: 1, dark: 2, flash: 3 }[B.tr]); gl.uniform1f(U.uZA, zA); gl.uniform1f(U.uZB, zB); gl.uniform1f(U.uTime, t);
+  gl.uniform1f(U.uExpo, 1.0 + .08 * pulse); gl.uniform1f(U.uBars, bars); gl.uniform1f(U.uFlash, flash); gl.uniform1f(U.uSeed, i * 7.13);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  g.drawImage(glc, 0, 0);
+
+  // characters in the air, in front of the lens
+  const gA = A ? A.glyphs * (1 - f) : 0; if (A) glyphLayer(t, A, i - 1, gA, bars); glyphLayer(t, B, i, B.glyphs * (A ? f : 1) * sm(B.a - .2, B.a + .8, t), bars);
+
+  // the cold open: one character written on paper, its ink spreads and becomes the night
+  if (t < COLD + .5) { const span = COLD, cover = 1 - sm(span * .78, span + .3, t), wr = sm(span * .08, span * .62, t), spread = sm(span * .55, span * .95, t);
+    if (cover > 0) { g.globalAlpha = cover; g.fillStyle = PAPER; g.fillRect(0, 0, W, H);
+      g.save(); g.globalAlpha = .14 * cover; g.globalCompositeOperation = "multiply"; g.fillStyle = g.createPattern(L_GRAIN, "repeat"); g.fillRect(0, 0, W, H); g.restore();
+      g.globalAlpha = cover; g.shadowColor = "rgba(23,23,26,.5)"; g.shadowBlur = 16 * (1 - wr) + 2; brush("字", W / 2, H * .47, 560, wr, INK); g.shadowBlur = 0;
+      if (spread > 0) { const R = 40 + 1500 * spread * spread; for (let k = 0; k < 9; k++) { const a = k / 9 * 6.283, rr = R * (.72 + .5 * hash(k, 91)), ox = Math.cos(a) * R * .22, oy = Math.sin(a) * R * .16;
+          const gr = g.createRadialGradient(W / 2 + ox, H * .47 + oy, rr * .55, W / 2 + ox, H * .47 + oy, rr); gr.addColorStop(0, "rgba(6,5,9,1)"); gr.addColorStop(1, "rgba(6,5,9,0)"); g.fillStyle = gr; g.fillRect(0, 0, W, H); } }
+      g.globalAlpha = 1; } }
+
+  // the lyric, inscribed down the right margin (inside the letterbox while it is closed)
+  const u = (() => { for (let k = S.length - 1; k >= 0; k--) if (t >= S[k] - .15) return k; return -1; })();
+  if (u >= 0) { const line = LINES.find((l) => l.includes(u)), last = line[line.length - 1], out = 1 - sm(E[last] + .5, E[last] + 1.8, t);
+    if (out > 0) { g.save(); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `500 46px ${FONT}`; g.shadowColor = "rgba(8,4,10,.95)"; g.shadowBlur = 22;
+      const top = H * (.15 + .02 * bars);
+      line.forEach((k, n) => { const e = sm(S[k] - .12, S[k] + .6, t); if (e <= 0) return;
+        [...PH[k][2]].forEach((c, j) => { const ce = sm(0, 1, e * (PH[k][2].length + 1) - j * .8); g.fillStyle = `rgba(250,238,215,${ce * out})`; const x = W * (.93 - n * .042), y = top + j * 58 - 6 * (1 - ce); g.fillText(c, x, y); g.fillText(c, x, y); }); });
+      g.restore(); } }
+
+  if (t < 1.4) { g.globalAlpha = 1 - sm(0, 1.4, t); g.fillStyle = PAPER; g.fillRect(0, 0, W, H); g.globalAlpha = 1; }
+  const fin = sm(END - 2.6, END - .3, t);
+  if (fin > 0) { g.globalAlpha = fin; g.fillStyle = "#050407"; g.fillRect(0, 0, W, H); g.globalAlpha = fin * sm(END - 1.4, END - .4, t); g.fillStyle = "#e8d9bf"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `500 34px ${FONT}`; g.fillText("前两段 · 样片", W / 2, H / 2); g.globalAlpha = 1; }
+}
+// still frames for checks and export: put every clip that is on screen at exactly the right frame first
+async function renderAt(t) {
+  const i = shotAt(t), need = [PLAN[i]]; if (i > 0 && t < PLAN[i].a + TR[PLAN[i].tr]) need.push(PLAN[i - 1]);
+  await Promise.all(need.map((p) => seekTo(VID[p.clip], clipTime(p, t)))); render(t);
+}
+
+// ───────── player ─────────
+const au = document.getElementById("au"), ui = document.getElementById("ui"), startEl = document.getElementById("start");
+const q = new URLSearchParams(location.search);
+function load(id) { setTake(id); const was = !au.paused; au.src = "../../" + TAKES[id].file; au.load(); if (was) au.play(); try { localStorage.setItem("zcj-mv12-take", id); } catch {} }
+const fmt = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+function tick() {
+  let t = au.currentTime || 0; if (t >= END) { au.pause(); au.currentTime = 0; t = 0; }
+  au.volume = clamp(1 - sm(END - 2.6, END - .2, t));
+  driveVideos(t, !au.paused); render(t);
+  document.querySelector("#bar b").style.width = (t / END * 100) + "%"; document.getElementById("tm").textContent = fmt(t) + " / " + fmt(END);
+  requestAnimationFrame(tick);
+}
+async function init() {
+  TAKES = await (await fetch("../timing.json", { cache: "no-cache" })).json();
+  try { await Promise.race([document.fonts.load(`700 50px ${FONT}`, POEM), new Promise((r) => setTimeout(r, 800))]); } catch {}
+  initGL(); buildSprites(); buildGrain(); makeVideos();
+  const ids = Object.keys(TAKES); let saved = null; try { saved = localStorage.getItem("zcj-mv12-take"); } catch {}
+  const first = ids.includes(q.get("take")) ? q.get("take") : ids.includes(saved) ? saved : ids[0];
+  if (q.has("t")) { setTake(first); startEl.remove(); window.renderAt = renderAt; window.DUR = END;
+    await Promise.all(Object.values(VID).map((v) => new Promise((r) => v.readyState >= 2 ? r() : (v.onloadeddata = r, setTimeout(r, 15000)))));
+    await renderAt(+q.get("t")); document.title = "ready"; return; }
+  const sel = document.getElementById("take");
+  ids.forEach((id) => { const o = document.createElement("option"); o.value = id; o.textContent = TAKES[id].label || id; sel.append(o); });
+  sel.value = first; sel.onchange = () => load(sel.value);
+  load(first);
+  // wait (briefly) for the footage so the first cuts do not land on black
+  const lo = document.getElementById("load"), vs = Object.values(VID);
+  const poll = setInterval(() => { const n = vs.filter((v) => v.readyState >= 3).length; lo.textContent = n < vs.length ? `素材载入 ${n}/${vs.length}` : ""; if (n === vs.length) clearInterval(poll); }, 300);
+  render(0);
+  const pp = document.getElementById("pp");
+  startEl.onclick = () => { startEl.remove(); ui.classList.remove("hide"); au.play(); vs.forEach((v) => { v.play().then(() => v.pause()).catch(() => {}); }); requestAnimationFrame(tick); };
+  pp.onclick = () => au.paused ? au.play() : au.pause();
+  au.onplay = () => pp.textContent = "暂停"; au.onpause = () => pp.textContent = "播放";
+  document.getElementById("bar").onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); au.currentTime = clamp((e.clientX - r.left) / r.width) * END; };
+  document.getElementById("fs").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  let idle; const wake = () => { ui.classList.remove("hide"); clearTimeout(idle); idle = setTimeout(() => !au.paused && ui.classList.add("hide"), 2600); };
+  addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+  addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); pp.onclick(); } if (e.code === "ArrowRight") au.currentTime += 5; if (e.code === "ArrowLeft") au.currentTime -= 5; });
+}
+init().catch((e) => { document.title = "error: " + (e && (e.stack || e.message)); });
+})();
+</script>
+</body>
+</html>

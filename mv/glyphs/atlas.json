@@ -1,0 +1,7790 @@
+{
+"cell": 128,
+"cols": 32,
+"count": 962,
+"box": 100,
+"groups": [
+"cn-oracle",
+"cn-bronze",
+"cn-bigseal",
+"cn-seal",
+"cn-clerical",
+"cn-kai",
+"cn-xing",
+"cn-cao",
+"cn-song",
+"cn-poem",
+"world-ancient",
+"world-modern",
+"word",
+"symbol"
+],
+"groupRanges": {
+"cn-oracle": [
+0,
+36
+],
+"cn-bronze": [
+37,
+75
+],
+"cn-bigseal": [
+76,
+114
+],
+"cn-seal": [
+115,
+154
+],
+"cn-clerical": [
+155,
+188
+],
+"cn-kai": [
+189,
+228
+],
+"cn-xing": [
+229,
+268
+],
+"cn-cao": [
+269,
+308
+],
+"cn-song": [
+309,
+348
+],
+"cn-poem": [
+349,
+412
+],
+"world-ancient": [
+413,
+579
+],
+"world-modern": [
+580,
+775
+],
+"word": [
+776,
+861
+],
+"symbol": [
+862,
+961
+]
+},
+"glyphs": [
+{
+"i": 0,
+"text": "人",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "人 oracle bone script 甲骨文",
+"src": "File:人-oracle.svg"
+},
+{
+"i": 1,
+"text": "大",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "大 oracle bone script 甲骨文",
+"src": "File:大-oracle.svg"
+},
+{
+"i": 2,
+"text": "天",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "天 oracle bone script 甲骨文",
+"src": "File:天-oracle.svg"
+},
+{
+"i": 3,
+"text": "日",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "日 oracle bone script 甲骨文",
+"src": "File:日-oracle.svg"
+},
+{
+"i": 4,
+"text": "月",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "月 oracle bone script 甲骨文",
+"src": "File:月-oracle.svg"
+},
+{
+"i": 5,
+"text": "山",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "山 oracle bone script 甲骨文",
+"src": "File:山-oracle.svg"
+},
+{
+"i": 6,
+"text": "水",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "水 oracle bone script 甲骨文",
+"src": "File:水-oracle.svg"
+},
+{
+"i": 7,
+"text": "川",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "川 oracle bone script 甲骨文",
+"src": "File:川-oracle.svg"
+},
+{
+"i": 8,
+"text": "雨",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "雨 oracle bone script 甲骨文",
+"src": "File:雨-oracle.svg"
+},
+{
+"i": 9,
+"text": "火",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "火 oracle bone script 甲骨文",
+"src": "File:火-oracle.svg"
+},
+{
+"i": 10,
+"text": "木",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "木 oracle bone script 甲骨文",
+"src": "File:木-oracle.svg"
+},
+{
+"i": 11,
+"text": "禾",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "禾 oracle bone script 甲骨文",
+"src": "File:禾-oracle.svg"
+},
+{
+"i": 12,
+"text": "米",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "米 oracle bone script 甲骨文",
+"src": "File:米-oracle.svg"
+},
+{
+"i": 13,
+"text": "鬼",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "鬼 oracle bone script 甲骨文",
+"src": "File:鬼-oracle.svg"
+},
+{
+"i": 14,
+"text": "子",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "子 oracle bone script 甲骨文",
+"src": "File:子-oracle.svg"
+},
+{
+"i": 15,
+"text": "女",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "女 oracle bone script 甲骨文",
+"src": "File:女-oracle.svg"
+},
+{
+"i": 16,
+"text": "母",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "母 oracle bone script 甲骨文",
+"src": "File:母-oracle.svg"
+},
+{
+"i": 17,
+"text": "目",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "目 oracle bone script 甲骨文",
+"src": "File:目-oracle.svg"
+},
+{
+"i": 18,
+"text": "口",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "口 oracle bone script 甲骨文",
+"src": "File:口-oracle.svg"
+},
+{
+"i": 19,
+"text": "耳",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "耳 oracle bone script 甲骨文",
+"src": "File:耳-oracle.svg"
+},
+{
+"i": 20,
+"text": "心",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "心 oracle bone script 甲骨文",
+"src": "File:心-oracle.svg"
+},
+{
+"i": 21,
+"text": "鱼",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "鱼 (魚) oracle bone script 甲骨文",
+"src": "File:魚-oracle.svg"
+},
+{
+"i": 22,
+"text": "鸟",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "鸟 (鳥) oracle bone script 甲骨文",
+"src": "File:鳥-oracle.svg"
+},
+{
+"i": 23,
+"text": "龟",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "龟 (龜) oracle bone script 甲骨文",
+"src": "File:龜-oracle.svg"
+},
+{
+"i": 24,
+"text": "马",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "马 (馬) oracle bone script 甲骨文",
+"src": "File:馬-oracle.svg"
+},
+{
+"i": 25,
+"text": "车",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "车 (車) oracle bone script 甲骨文",
+"src": "File:車-oracle.svg"
+},
+{
+"i": 26,
+"text": "门",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "门 (門) oracle bone script 甲骨文",
+"src": "File:門-oracle.svg"
+},
+{
+"i": 27,
+"text": "王",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "王 oracle bone script 甲骨文",
+"src": "File:王-oracle.svg"
+},
+{
+"i": 28,
+"text": "生",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "生 oracle bone script 甲骨文",
+"src": "File:生-oracle.svg"
+},
+{
+"i": 29,
+"text": "光",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "光 oracle bone script 甲骨文",
+"src": "File:光-oracle.svg"
+},
+{
+"i": 30,
+"text": "我",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "我 oracle bone script 甲骨文",
+"src": "File:我-oracle.svg"
+},
+{
+"i": 31,
+"text": "言",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "言 oracle bone script 甲骨文",
+"src": "File:言-oracle.svg"
+},
+{
+"i": 32,
+"text": "文",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "文 oracle bone script 甲骨文",
+"src": "File:文-oracle.svg"
+},
+{
+"i": 33,
+"text": "河",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "河 oracle bone script 甲骨文",
+"src": "File:河-oracle.svg"
+},
+{
+"i": 34,
+"text": "舟",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "舟 oracle bone script 甲骨文",
+"src": "File:舟-oracle.svg"
+},
+{
+"i": 35,
+"text": "田",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "田 oracle bone script 甲骨文",
+"src": "File:田-oracle.svg"
+},
+{
+"i": 36,
+"text": "云",
+"group": "cn-oracle",
+"era": "ancient",
+"label": "云 oracle bone script 甲骨文",
+"src": "File:云-oracle.svg"
+},
+{
+"i": 37,
+"text": "人",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "人 bronze script 金文",
+"src": "File:人-bronze.svg"
+},
+{
+"i": 38,
+"text": "大",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "大 bronze script 金文",
+"src": "File:大-bronze.svg"
+},
+{
+"i": 39,
+"text": "天",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "天 bronze script 金文",
+"src": "File:天-bronze.svg"
+},
+{
+"i": 40,
+"text": "日",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "日 bronze script 金文",
+"src": "File:日-bronze.svg"
+},
+{
+"i": 41,
+"text": "月",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "月 bronze script 金文",
+"src": "File:月-bronze.svg"
+},
+{
+"i": 42,
+"text": "山",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "山 bronze script 金文",
+"src": "File:山-bronze.svg"
+},
+{
+"i": 43,
+"text": "水",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "水 bronze script 金文",
+"src": "File:水-bronze.svg"
+},
+{
+"i": 44,
+"text": "川",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "川 bronze script 金文",
+"src": "File:川-bronze.svg"
+},
+{
+"i": 45,
+"text": "雨",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "雨 bronze script 金文 (written as a component of a larger character; grey context strokes removed)",
+"src": "File:雨-bronze.svg"
+},
+{
+"i": 46,
+"text": "火",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "火 bronze script 金文 (written as a component of a larger character; grey context strokes removed)",
+"src": "File:火-bronze.svg"
+},
+{
+"i": 47,
+"text": "木",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "木 bronze script 金文",
+"src": "File:木-bronze.svg"
+},
+{
+"i": 48,
+"text": "禾",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "禾 bronze script 金文",
+"src": "File:禾-bronze.svg"
+},
+{
+"i": 49,
+"text": "米",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "米 bronze script 金文",
+"src": "File:米-bronze.svg"
+},
+{
+"i": 50,
+"text": "鬼",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "鬼 bronze script 金文",
+"src": "File:鬼-bronze.svg"
+},
+{
+"i": 51,
+"text": "子",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "子 bronze script 金文",
+"src": "File:子-bronze.svg"
+},
+{
+"i": 52,
+"text": "女",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "女 bronze script 金文",
+"src": "File:女-bronze.svg"
+},
+{
+"i": 53,
+"text": "母",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "母 bronze script 金文",
+"src": "File:母-bronze.svg"
+},
+{
+"i": 54,
+"text": "目",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "目 bronze script 金文",
+"src": "File:目-bronze.svg"
+},
+{
+"i": 55,
+"text": "口",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "口 bronze script 金文 (written as a component of a larger character; grey context strokes removed)",
+"src": "File:口-bronze.svg"
+},
+{
+"i": 56,
+"text": "耳",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "耳 bronze script 金文",
+"src": "File:耳-bronze.svg"
+},
+{
+"i": 57,
+"text": "手",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "手 bronze script 金文",
+"src": "File:手-bronze.svg"
+},
+{
+"i": 58,
+"text": "心",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "心 bronze script 金文",
+"src": "File:心-bronze.svg"
+},
+{
+"i": 59,
+"text": "鱼",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "鱼 (魚) bronze script 金文",
+"src": "File:魚-bronze.svg"
+},
+{
+"i": 60,
+"text": "鸟",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "鸟 (鳥) bronze script 金文",
+"src": "File:鳥-bronze.svg"
+},
+{
+"i": 61,
+"text": "龟",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "龟 (龜) bronze script 金文",
+"src": "File:龜-bronze.svg"
+},
+{
+"i": 62,
+"text": "马",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "马 (馬) bronze script 金文",
+"src": "File:馬-bronze.svg"
+},
+{
+"i": 63,
+"text": "车",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "车 (車) bronze script 金文",
+"src": "File:車-bronze.svg"
+},
+{
+"i": 64,
+"text": "门",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "门 (門) bronze script 金文",
+"src": "File:門-bronze.svg"
+},
+{
+"i": 65,
+"text": "王",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "王 bronze script 金文",
+"src": "File:王-bronze.svg"
+},
+{
+"i": 66,
+"text": "生",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "生 bronze script 金文",
+"src": "File:生-bronze.svg"
+},
+{
+"i": 67,
+"text": "夜",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "夜 bronze script 金文",
+"src": "File:夜-bronze.svg"
+},
+{
+"i": 68,
+"text": "光",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "光 bronze script 金文",
+"src": "File:光-bronze.svg"
+},
+{
+"i": 69,
+"text": "我",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "我 bronze script 金文",
+"src": "File:我-bronze.svg"
+},
+{
+"i": 70,
+"text": "言",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "言 bronze script 金文",
+"src": "File:言-bronze.svg"
+},
+{
+"i": 71,
+"text": "文",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "文 bronze script 金文",
+"src": "File:文-bronze.svg"
+},
+{
+"i": 72,
+"text": "字",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "字 bronze script 金文",
+"src": "File:字-bronze.svg"
+},
+{
+"i": 73,
+"text": "河",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "河 bronze script 金文",
+"src": "File:河-bronze.svg"
+},
+{
+"i": 74,
+"text": "舟",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "舟 bronze script 金文",
+"src": "File:舟-bronze.svg"
+},
+{
+"i": 75,
+"text": "田",
+"group": "cn-bronze",
+"era": "ancient",
+"label": "田 bronze script 金文",
+"src": "File:田-bronze.svg"
+},
+{
+"i": 76,
+"text": "人",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "人 large seal script 大篆/籀文",
+"src": "File:人-bigseal.svg"
+},
+{
+"i": 77,
+"text": "大",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "大 large seal script 大篆/籀文",
+"src": "File:大-bigseal.svg"
+},
+{
+"i": 78,
+"text": "天",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "天 large seal script 大篆/籀文",
+"src": "File:天-bigseal.svg"
+},
+{
+"i": 79,
+"text": "日",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "日 large seal script 大篆/籀文",
+"src": "File:日-bigseal.svg"
+},
+{
+"i": 80,
+"text": "月",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "月 large seal script 大篆/籀文",
+"src": "File:月-bigseal.svg"
+},
+{
+"i": 81,
+"text": "山",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "山 large seal script 大篆/籀文",
+"src": "File:山-bigseal.svg"
+},
+{
+"i": 82,
+"text": "水",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "水 large seal script 大篆/籀文",
+"src": "File:水-bigseal.svg"
+},
+{
+"i": 83,
+"text": "川",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "川 large seal script 大篆/籀文",
+"src": "File:川-bigseal.svg"
+},
+{
+"i": 84,
+"text": "雨",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "雨 large seal script 大篆/籀文",
+"src": "File:雨-bigseal.svg"
+},
+{
+"i": 85,
+"text": "火",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "火 large seal script 大篆/籀文",
+"src": "File:火-bigseal.svg"
+},
+{
+"i": 86,
+"text": "木",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "木 large seal script 大篆/籀文",
+"src": "File:木-bigseal.svg"
+},
+{
+"i": 87,
+"text": "禾",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "禾 large seal script 大篆/籀文",
+"src": "File:禾-bigseal.svg"
+},
+{
+"i": 88,
+"text": "米",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "米 large seal script 大篆/籀文",
+"src": "File:米-bigseal.svg"
+},
+{
+"i": 89,
+"text": "鬼",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "鬼 large seal script 大篆/籀文",
+"src": "File:鬼-bigseal.svg"
+},
+{
+"i": 90,
+"text": "子",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "子 large seal script 大篆/籀文",
+"src": "File:子-bigseal.svg"
+},
+{
+"i": 91,
+"text": "女",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "女 large seal script 大篆/籀文",
+"src": "File:女-bigseal.svg"
+},
+{
+"i": 92,
+"text": "母",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "母 large seal script 大篆/籀文",
+"src": "File:母-bigseal.svg"
+},
+{
+"i": 93,
+"text": "目",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "目 large seal script 大篆/籀文",
+"src": "File:目-bigseal.svg"
+},
+{
+"i": 94,
+"text": "口",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "口 large seal script 大篆/籀文",
+"src": "File:口-bigseal.svg"
+},
+{
+"i": 95,
+"text": "耳",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "耳 large seal script 大篆/籀文",
+"src": "File:耳-bigseal.svg"
+},
+{
+"i": 96,
+"text": "手",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "手 large seal script 大篆/籀文",
+"src": "File:手-bigseal.svg"
+},
+{
+"i": 97,
+"text": "心",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "心 large seal script 大篆/籀文",
+"src": "File:心-bigseal.svg"
+},
+{
+"i": 98,
+"text": "鱼",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "鱼 (魚) large seal script 大篆/籀文",
+"src": "File:魚-bigseal.svg"
+},
+{
+"i": 99,
+"text": "龟",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "龟 (龜) large seal script 大篆/籀文",
+"src": "File:龜-bigseal.svg"
+},
+{
+"i": 100,
+"text": "马",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "马 (馬) large seal script 大篆/籀文",
+"src": "File:馬-bigseal.svg"
+},
+{
+"i": 101,
+"text": "车",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "车 (車) large seal script 大篆/籀文",
+"src": "File:車-bigseal.svg"
+},
+{
+"i": 102,
+"text": "门",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "门 (門) large seal script 大篆/籀文",
+"src": "File:門-bigseal.svg"
+},
+{
+"i": 103,
+"text": "王",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "王 large seal script 大篆/籀文",
+"src": "File:王-bigseal.svg"
+},
+{
+"i": 104,
+"text": "生",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "生 large seal script 大篆/籀文",
+"src": "File:生-bigseal.svg"
+},
+{
+"i": 105,
+"text": "夜",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "夜 large seal script 大篆/籀文",
+"src": "File:夜-bigseal.svg"
+},
+{
+"i": 106,
+"text": "光",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "光 large seal script 大篆/籀文",
+"src": "File:光-bigseal.svg"
+},
+{
+"i": 107,
+"text": "我",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "我 large seal script 大篆/籀文",
+"src": "File:我-bigseal.svg"
+},
+{
+"i": 108,
+"text": "言",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "言 large seal script 大篆/籀文",
+"src": "File:言-bigseal.svg"
+},
+{
+"i": 109,
+"text": "文",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "文 large seal script 大篆/籀文",
+"src": "File:文-bigseal.svg"
+},
+{
+"i": 110,
+"text": "字",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "字 large seal script 大篆/籀文",
+"src": "File:字-bigseal.svg"
+},
+{
+"i": 111,
+"text": "河",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "河 large seal script 大篆/籀文",
+"src": "File:河-bigseal.svg"
+},
+{
+"i": 112,
+"text": "舟",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "舟 large seal script 大篆/籀文",
+"src": "File:舟-bigseal.svg"
+},
+{
+"i": 113,
+"text": "田",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "田 large seal script 大篆/籀文",
+"src": "File:田-bigseal.svg"
+},
+{
+"i": 114,
+"text": "云",
+"group": "cn-bigseal",
+"era": "ancient",
+"label": "云 (雲) large seal script 大篆/籀文",
+"src": "File:雲-bigseal.svg"
+},
+{
+"i": 115,
+"text": "人",
+"group": "cn-seal",
+"era": "ancient",
+"label": "人 small seal script 小篆",
+"src": "File:人-seal.svg"
+},
+{
+"i": 116,
+"text": "大",
+"group": "cn-seal",
+"era": "ancient",
+"label": "大 small seal script 小篆",
+"src": "File:大-seal.svg"
+},
+{
+"i": 117,
+"text": "天",
+"group": "cn-seal",
+"era": "ancient",
+"label": "天 small seal script 小篆",
+"src": "File:天-seal.svg"
+},
+{
+"i": 118,
+"text": "日",
+"group": "cn-seal",
+"era": "ancient",
+"label": "日 small seal script 小篆",
+"src": "File:日-seal.svg"
+},
+{
+"i": 119,
+"text": "月",
+"group": "cn-seal",
+"era": "ancient",
+"label": "月 small seal script 小篆",
+"src": "File:月-seal.svg"
+},
+{
+"i": 120,
+"text": "山",
+"group": "cn-seal",
+"era": "ancient",
+"label": "山 small seal script 小篆",
+"src": "File:山-seal.svg"
+},
+{
+"i": 121,
+"text": "水",
+"group": "cn-seal",
+"era": "ancient",
+"label": "水 small seal script 小篆",
+"src": "File:水-seal.svg"
+},
+{
+"i": 122,
+"text": "川",
+"group": "cn-seal",
+"era": "ancient",
+"label": "川 small seal script 小篆",
+"src": "File:川-seal.svg"
+},
+{
+"i": 123,
+"text": "雨",
+"group": "cn-seal",
+"era": "ancient",
+"label": "雨 small seal script 小篆",
+"src": "File:雨-seal.svg"
+},
+{
+"i": 124,
+"text": "火",
+"group": "cn-seal",
+"era": "ancient",
+"label": "火 small seal script 小篆",
+"src": "File:火-seal.svg"
+},
+{
+"i": 125,
+"text": "木",
+"group": "cn-seal",
+"era": "ancient",
+"label": "木 small seal script 小篆",
+"src": "File:木-seal.svg"
+},
+{
+"i": 126,
+"text": "禾",
+"group": "cn-seal",
+"era": "ancient",
+"label": "禾 small seal script 小篆",
+"src": "File:禾-seal.svg"
+},
+{
+"i": 127,
+"text": "米",
+"group": "cn-seal",
+"era": "ancient",
+"label": "米 small seal script 小篆",
+"src": "File:米-seal.svg"
+},
+{
+"i": 128,
+"text": "鬼",
+"group": "cn-seal",
+"era": "ancient",
+"label": "鬼 small seal script 小篆",
+"src": "File:鬼-seal.svg"
+},
+{
+"i": 129,
+"text": "子",
+"group": "cn-seal",
+"era": "ancient",
+"label": "子 small seal script 小篆",
+"src": "File:子-seal.svg"
+},
+{
+"i": 130,
+"text": "女",
+"group": "cn-seal",
+"era": "ancient",
+"label": "女 small seal script 小篆",
+"src": "File:女-seal.svg"
+},
+{
+"i": 131,
+"text": "母",
+"group": "cn-seal",
+"era": "ancient",
+"label": "母 small seal script 小篆",
+"src": "File:母-seal.svg"
+},
+{
+"i": 132,
+"text": "目",
+"group": "cn-seal",
+"era": "ancient",
+"label": "目 small seal script 小篆",
+"src": "File:目-seal.svg"
+},
+{
+"i": 133,
+"text": "口",
+"group": "cn-seal",
+"era": "ancient",
+"label": "口 small seal script 小篆",
+"src": "File:口-seal.svg"
+},
+{
+"i": 134,
+"text": "耳",
+"group": "cn-seal",
+"era": "ancient",
+"label": "耳 small seal script 小篆",
+"src": "File:耳-seal.svg"
+},
+{
+"i": 135,
+"text": "手",
+"group": "cn-seal",
+"era": "ancient",
+"label": "手 small seal script 小篆",
+"src": "File:手-seal.svg"
+},
+{
+"i": 136,
+"text": "心",
+"group": "cn-seal",
+"era": "ancient",
+"label": "心 small seal script 小篆",
+"src": "File:心-seal.svg"
+},
+{
+"i": 137,
+"text": "鱼",
+"group": "cn-seal",
+"era": "ancient",
+"label": "鱼 (魚) small seal script 小篆",
+"src": "File:魚-seal.svg"
+},
+{
+"i": 138,
+"text": "鸟",
+"group": "cn-seal",
+"era": "ancient",
+"label": "鸟 (鳥) small seal script 小篆",
+"src": "File:鳥-seal.svg"
+},
+{
+"i": 139,
+"text": "龟",
+"group": "cn-seal",
+"era": "ancient",
+"label": "龟 (龜) small seal script 小篆",
+"src": "File:龜-seal.svg"
+},
+{
+"i": 140,
+"text": "马",
+"group": "cn-seal",
+"era": "ancient",
+"label": "马 (馬) small seal script 小篆",
+"src": "File:馬-seal.svg"
+},
+{
+"i": 141,
+"text": "车",
+"group": "cn-seal",
+"era": "ancient",
+"label": "车 (車) small seal script 小篆",
+"src": "File:車-seal.svg"
+},
+{
+"i": 142,
+"text": "门",
+"group": "cn-seal",
+"era": "ancient",
+"label": "门 (門) small seal script 小篆",
+"src": "File:門-seal.svg"
+},
+{
+"i": 143,
+"text": "王",
+"group": "cn-seal",
+"era": "ancient",
+"label": "王 small seal script 小篆",
+"src": "File:王-seal.svg"
+},
+{
+"i": 144,
+"text": "生",
+"group": "cn-seal",
+"era": "ancient",
+"label": "生 small seal script 小篆",
+"src": "File:生-seal.svg"
+},
+{
+"i": 145,
+"text": "夜",
+"group": "cn-seal",
+"era": "ancient",
+"label": "夜 small seal script 小篆",
+"src": "File:夜-seal.svg"
+},
+{
+"i": 146,
+"text": "光",
+"group": "cn-seal",
+"era": "ancient",
+"label": "光 small seal script 小篆",
+"src": "File:光-seal.svg"
+},
+{
+"i": 147,
+"text": "我",
+"group": "cn-seal",
+"era": "ancient",
+"label": "我 small seal script 小篆",
+"src": "File:我-seal.svg"
+},
+{
+"i": 148,
+"text": "言",
+"group": "cn-seal",
+"era": "ancient",
+"label": "言 small seal script 小篆",
+"src": "File:言-seal.svg"
+},
+{
+"i": 149,
+"text": "文",
+"group": "cn-seal",
+"era": "ancient",
+"label": "文 small seal script 小篆",
+"src": "File:文-seal.svg"
+},
+{
+"i": 150,
+"text": "字",
+"group": "cn-seal",
+"era": "ancient",
+"label": "字 small seal script 小篆",
+"src": "File:字-seal.svg"
+},
+{
+"i": 151,
+"text": "河",
+"group": "cn-seal",
+"era": "ancient",
+"label": "河 small seal script 小篆",
+"src": "File:河-seal.svg"
+},
+{
+"i": 152,
+"text": "舟",
+"group": "cn-seal",
+"era": "ancient",
+"label": "舟 small seal script 小篆",
+"src": "File:舟-seal.svg"
+},
+{
+"i": 153,
+"text": "田",
+"group": "cn-seal",
+"era": "ancient",
+"label": "田 small seal script 小篆",
+"src": "File:田-seal.svg"
+},
+{
+"i": 154,
+"text": "云",
+"group": "cn-seal",
+"era": "ancient",
+"label": "云 (雲) small seal script 小篆",
+"src": "File:雲-seal.svg"
+},
+{
+"i": 155,
+"text": "人",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "人 clerical script 隶书 — 人武威醫簡88甲 東漢",
+"src": "https://img.zdic.net/zy/lishu/92_F56C.svg"
+},
+{
+"i": 156,
+"text": "大",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "大 clerical script 隶书 — 大永平平合 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_EAEF.svg"
+},
+{
+"i": 157,
+"text": "天",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "天 clerical script 隶书 — 天武威醫簡92甲 東漢",
+"src": "https://img.zdic.net/zy/lishu/91_E02D.svg"
+},
+{
+"i": 158,
+"text": "日",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "日 clerical script 隶书 — 日老子甲138 西漢",
+"src": "https://img.zdic.net/zy/lishu/92_ED1F.svg"
+},
+{
+"i": 159,
+"text": "月",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "月 clerical script 隶书 — 月袁安碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/92_EE9F.svg"
+},
+{
+"i": 160,
+"text": "山",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "山 clerical script 隶书 — 山熹.易.說卦 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E549.svg"
+},
+{
+"i": 161,
+"text": "水",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "水 clerical script 隶书 — 水李冰石象 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_EE8A.svg"
+},
+{
+"i": 162,
+"text": "雨",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "雨 clerical script 隶书 — 雨熹.易.夬 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F2A3.svg"
+},
+{
+"i": 163,
+"text": "火",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "火 clerical script 隶书 — 火武威醫簡87乙 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E995.svg"
+},
+{
+"i": 164,
+"text": "木",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "木 clerical script 隶书 — 木李孟初神祠碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/92_E672.svg"
+},
+{
+"i": 165,
+"text": "禾",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "禾 clerical script 隶书 — 禾石經魯詩殘碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/92_EFC5.svg"
+},
+{
+"i": 166,
+"text": "米",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "米 clerical script 隶书 — 米孔龢碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/92_F104.svg"
+},
+{
+"i": 167,
+"text": "鬼",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "鬼 clerical script 隶书 — 鬼曹全碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E507.svg"
+},
+{
+"i": 168,
+"text": "子",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "子 clerical script 隶书 — 子北海相景君銘 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_ECCE.svg"
+},
+{
+"i": 169,
+"text": "女",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "女 clerical script 隶书 — 女熹.書.盤庚 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F6D7.svg"
+},
+{
+"i": 170,
+"text": "母",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "母 clerical script 隶书 — 母史晨碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F713.svg"
+},
+{
+"i": 171,
+"text": "目",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "目 clerical script 隶书 — 目武威醫簡16 東漢",
+"src": "https://img.zdic.net/zy/lishu/91_F379.svg"
+},
+{
+"i": 172,
+"text": "耳",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "耳 clerical script 隶书 — 耳許氏鏡 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F4C2.svg"
+},
+{
+"i": 173,
+"text": "手",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "手 clerical script 隶书 — 手武威醫簡81 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F535.svg"
+},
+{
+"i": 174,
+"text": "心",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "心 clerical script 隶书 — 心武威醫簡63 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_EC52.svg"
+},
+{
+"i": 175,
+"text": "鸟",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "鸟 (鳥) clerical script 隶书 — 鳥尚方鏡三 東漢",
+"src": "https://img.zdic.net/zy/lishu/91_F529.svg"
+},
+{
+"i": 176,
+"text": "龟",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "龟 (龜) clerical script 隶书 — 龜淮源廟碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_E482.svg"
+},
+{
+"i": 177,
+"text": "马",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "马 (馬) clerical script 隶书 — 馬史晨碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E76C.svg"
+},
+{
+"i": 178,
+"text": "车",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "车 (車) clerical script 隶书 — 車史晨碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_E995.svg"
+},
+{
+"i": 179,
+"text": "门",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "门 (門) clerical script 隶书 — 門魯峻碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F413.svg"
+},
+{
+"i": 180,
+"text": "王",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "王 clerical script 隶书 — 王石門頌 東漢",
+"src": "https://img.zdic.net/zy/lishu/91_E171.svg"
+},
+{
+"i": 181,
+"text": "我",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "我 clerical script 隶书 — 我鄭固碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_E04C.svg"
+},
+{
+"i": 182,
+"text": "言",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "言 clerical script 隶书 — 言與天相壽鏡 東漢",
+"src": "https://img.zdic.net/zy/lishu/91_ECD0.svg"
+},
+{
+"i": 183,
+"text": "文",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "文 clerical script 隶书 — 文孔龢碑 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E44C.svg"
+},
+{
+"i": 184,
+"text": "字",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "字 clerical script 隶书 — 字景北海碑陰 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_ECD9.svg"
+},
+{
+"i": 185,
+"text": "河",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "河 clerical script 隶书 — 河武威醫簡91乙 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_EE97.svg"
+},
+{
+"i": 186,
+"text": "舟",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "舟 clerical script 隶书 — 舟蒼山畫象石題記 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_E25F.svg"
+},
+{
+"i": 187,
+"text": "田",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "田 clerical script 隶书 — 田熹.易.乾文言 東漢",
+"src": "https://img.zdic.net/zy/lishu/94_E63A.svg"
+},
+{
+"i": 188,
+"text": "云",
+"group": "cn-clerical",
+"era": "ancient",
+"label": "云 (雲) clerical script 隶书 — 雲西狹頌 東漢",
+"src": "https://img.zdic.net/zy/lishu/93_F2E0.svg"
+},
+{
+"i": 189,
+"text": "人",
+"group": "cn-kai",
+"era": "classical",
+"label": "人 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 190,
+"text": "大",
+"group": "cn-kai",
+"era": "classical",
+"label": "大 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 191,
+"text": "天",
+"group": "cn-kai",
+"era": "classical",
+"label": "天 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 192,
+"text": "日",
+"group": "cn-kai",
+"era": "classical",
+"label": "日 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 193,
+"text": "月",
+"group": "cn-kai",
+"era": "classical",
+"label": "月 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 194,
+"text": "山",
+"group": "cn-kai",
+"era": "classical",
+"label": "山 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 195,
+"text": "水",
+"group": "cn-kai",
+"era": "classical",
+"label": "水 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 196,
+"text": "川",
+"group": "cn-kai",
+"era": "classical",
+"label": "川 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 197,
+"text": "雨",
+"group": "cn-kai",
+"era": "classical",
+"label": "雨 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 198,
+"text": "火",
+"group": "cn-kai",
+"era": "classical",
+"label": "火 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 199,
+"text": "木",
+"group": "cn-kai",
+"era": "classical",
+"label": "木 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 200,
+"text": "禾",
+"group": "cn-kai",
+"era": "classical",
+"label": "禾 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 201,
+"text": "米",
+"group": "cn-kai",
+"era": "classical",
+"label": "米 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 202,
+"text": "鬼",
+"group": "cn-kai",
+"era": "classical",
+"label": "鬼 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 203,
+"text": "子",
+"group": "cn-kai",
+"era": "classical",
+"label": "子 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 204,
+"text": "女",
+"group": "cn-kai",
+"era": "classical",
+"label": "女 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 205,
+"text": "母",
+"group": "cn-kai",
+"era": "classical",
+"label": "母 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 206,
+"text": "目",
+"group": "cn-kai",
+"era": "classical",
+"label": "目 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 207,
+"text": "口",
+"group": "cn-kai",
+"era": "classical",
+"label": "口 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 208,
+"text": "耳",
+"group": "cn-kai",
+"era": "classical",
+"label": "耳 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 209,
+"text": "手",
+"group": "cn-kai",
+"era": "classical",
+"label": "手 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 210,
+"text": "心",
+"group": "cn-kai",
+"era": "classical",
+"label": "心 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 211,
+"text": "鱼",
+"group": "cn-kai",
+"era": "classical",
+"label": "鱼 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 212,
+"text": "鸟",
+"group": "cn-kai",
+"era": "classical",
+"label": "鸟 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 213,
+"text": "龟",
+"group": "cn-kai",
+"era": "classical",
+"label": "龟 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 214,
+"text": "马",
+"group": "cn-kai",
+"era": "classical",
+"label": "马 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 215,
+"text": "车",
+"group": "cn-kai",
+"era": "classical",
+"label": "车 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 216,
+"text": "门",
+"group": "cn-kai",
+"era": "classical",
+"label": "门 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 217,
+"text": "王",
+"group": "cn-kai",
+"era": "classical",
+"label": "王 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 218,
+"text": "生",
+"group": "cn-kai",
+"era": "classical",
+"label": "生 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 219,
+"text": "夜",
+"group": "cn-kai",
+"era": "classical",
+"label": "夜 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 220,
+"text": "光",
+"group": "cn-kai",
+"era": "classical",
+"label": "光 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 221,
+"text": "我",
+"group": "cn-kai",
+"era": "classical",
+"label": "我 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 222,
+"text": "言",
+"group": "cn-kai",
+"era": "classical",
+"label": "言 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 223,
+"text": "文",
+"group": "cn-kai",
+"era": "classical",
+"label": "文 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 224,
+"text": "字",
+"group": "cn-kai",
+"era": "classical",
+"label": "字 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 225,
+"text": "河",
+"group": "cn-kai",
+"era": "classical",
+"label": "河 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 226,
+"text": "舟",
+"group": "cn-kai",
+"era": "classical",
+"label": "舟 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 227,
+"text": "田",
+"group": "cn-kai",
+"era": "classical",
+"label": "田 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 228,
+"text": "云",
+"group": "cn-kai",
+"era": "classical",
+"label": "云 regular script 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 229,
+"text": "人",
+"group": "cn-xing",
+"era": "classical",
+"label": "人 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 230,
+"text": "大",
+"group": "cn-xing",
+"era": "classical",
+"label": "大 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 231,
+"text": "天",
+"group": "cn-xing",
+"era": "classical",
+"label": "天 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 232,
+"text": "日",
+"group": "cn-xing",
+"era": "classical",
+"label": "日 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 233,
+"text": "月",
+"group": "cn-xing",
+"era": "classical",
+"label": "月 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 234,
+"text": "山",
+"group": "cn-xing",
+"era": "classical",
+"label": "山 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 235,
+"text": "水",
+"group": "cn-xing",
+"era": "classical",
+"label": "水 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 236,
+"text": "川",
+"group": "cn-xing",
+"era": "classical",
+"label": "川 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 237,
+"text": "雨",
+"group": "cn-xing",
+"era": "classical",
+"label": "雨 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 238,
+"text": "火",
+"group": "cn-xing",
+"era": "classical",
+"label": "火 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 239,
+"text": "木",
+"group": "cn-xing",
+"era": "classical",
+"label": "木 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 240,
+"text": "禾",
+"group": "cn-xing",
+"era": "classical",
+"label": "禾 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 241,
+"text": "米",
+"group": "cn-xing",
+"era": "classical",
+"label": "米 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 242,
+"text": "鬼",
+"group": "cn-xing",
+"era": "classical",
+"label": "鬼 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 243,
+"text": "子",
+"group": "cn-xing",
+"era": "classical",
+"label": "子 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 244,
+"text": "女",
+"group": "cn-xing",
+"era": "classical",
+"label": "女 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 245,
+"text": "母",
+"group": "cn-xing",
+"era": "classical",
+"label": "母 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 246,
+"text": "目",
+"group": "cn-xing",
+"era": "classical",
+"label": "目 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 247,
+"text": "口",
+"group": "cn-xing",
+"era": "classical",
+"label": "口 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 248,
+"text": "耳",
+"group": "cn-xing",
+"era": "classical",
+"label": "耳 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 249,
+"text": "手",
+"group": "cn-xing",
+"era": "classical",
+"label": "手 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 250,
+"text": "心",
+"group": "cn-xing",
+"era": "classical",
+"label": "心 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 251,
+"text": "鱼",
+"group": "cn-xing",
+"era": "classical",
+"label": "鱼 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 252,
+"text": "鸟",
+"group": "cn-xing",
+"era": "classical",
+"label": "鸟 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 253,
+"text": "龟",
+"group": "cn-xing",
+"era": "classical",
+"label": "龟 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 254,
+"text": "马",
+"group": "cn-xing",
+"era": "classical",
+"label": "马 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 255,
+"text": "车",
+"group": "cn-xing",
+"era": "classical",
+"label": "车 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 256,
+"text": "门",
+"group": "cn-xing",
+"era": "classical",
+"label": "门 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 257,
+"text": "王",
+"group": "cn-xing",
+"era": "classical",
+"label": "王 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 258,
+"text": "生",
+"group": "cn-xing",
+"era": "classical",
+"label": "生 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 259,
+"text": "夜",
+"group": "cn-xing",
+"era": "classical",
+"label": "夜 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 260,
+"text": "光",
+"group": "cn-xing",
+"era": "classical",
+"label": "光 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 261,
+"text": "我",
+"group": "cn-xing",
+"era": "classical",
+"label": "我 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 262,
+"text": "言",
+"group": "cn-xing",
+"era": "classical",
+"label": "言 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 263,
+"text": "文",
+"group": "cn-xing",
+"era": "classical",
+"label": "文 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 264,
+"text": "字",
+"group": "cn-xing",
+"era": "classical",
+"label": "字 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 265,
+"text": "河",
+"group": "cn-xing",
+"era": "classical",
+"label": "河 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 266,
+"text": "舟",
+"group": "cn-xing",
+"era": "classical",
+"label": "舟 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 267,
+"text": "田",
+"group": "cn-xing",
+"era": "classical",
+"label": "田 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 268,
+"text": "云",
+"group": "cn-xing",
+"era": "classical",
+"label": "云 running script 行书",
+"src": "Zhi Mang Xing (智莽行)"
+},
+{
+"i": 269,
+"text": "人",
+"group": "cn-cao",
+"era": "classical",
+"label": "人 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 270,
+"text": "大",
+"group": "cn-cao",
+"era": "classical",
+"label": "大 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 271,
+"text": "天",
+"group": "cn-cao",
+"era": "classical",
+"label": "天 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 272,
+"text": "日",
+"group": "cn-cao",
+"era": "classical",
+"label": "日 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 273,
+"text": "月",
+"group": "cn-cao",
+"era": "classical",
+"label": "月 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 274,
+"text": "山",
+"group": "cn-cao",
+"era": "classical",
+"label": "山 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 275,
+"text": "水",
+"group": "cn-cao",
+"era": "classical",
+"label": "水 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 276,
+"text": "川",
+"group": "cn-cao",
+"era": "classical",
+"label": "川 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 277,
+"text": "雨",
+"group": "cn-cao",
+"era": "classical",
+"label": "雨 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 278,
+"text": "火",
+"group": "cn-cao",
+"era": "classical",
+"label": "火 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 279,
+"text": "木",
+"group": "cn-cao",
+"era": "classical",
+"label": "木 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 280,
+"text": "禾",
+"group": "cn-cao",
+"era": "classical",
+"label": "禾 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 281,
+"text": "米",
+"group": "cn-cao",
+"era": "classical",
+"label": "米 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 282,
+"text": "鬼",
+"group": "cn-cao",
+"era": "classical",
+"label": "鬼 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 283,
+"text": "子",
+"group": "cn-cao",
+"era": "classical",
+"label": "子 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 284,
+"text": "女",
+"group": "cn-cao",
+"era": "classical",
+"label": "女 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 285,
+"text": "母",
+"group": "cn-cao",
+"era": "classical",
+"label": "母 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 286,
+"text": "目",
+"group": "cn-cao",
+"era": "classical",
+"label": "目 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 287,
+"text": "口",
+"group": "cn-cao",
+"era": "classical",
+"label": "口 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 288,
+"text": "耳",
+"group": "cn-cao",
+"era": "classical",
+"label": "耳 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 289,
+"text": "手",
+"group": "cn-cao",
+"era": "classical",
+"label": "手 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 290,
+"text": "心",
+"group": "cn-cao",
+"era": "classical",
+"label": "心 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 291,
+"text": "鱼",
+"group": "cn-cao",
+"era": "classical",
+"label": "鱼 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 292,
+"text": "鸟",
+"group": "cn-cao",
+"era": "classical",
+"label": "鸟 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 293,
+"text": "龟",
+"group": "cn-cao",
+"era": "classical",
+"label": "龟 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 294,
+"text": "马",
+"group": "cn-cao",
+"era": "classical",
+"label": "马 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 295,
+"text": "车",
+"group": "cn-cao",
+"era": "classical",
+"label": "车 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 296,
+"text": "门",
+"group": "cn-cao",
+"era": "classical",
+"label": "门 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 297,
+"text": "王",
+"group": "cn-cao",
+"era": "classical",
+"label": "王 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 298,
+"text": "生",
+"group": "cn-cao",
+"era": "classical",
+"label": "生 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 299,
+"text": "夜",
+"group": "cn-cao",
+"era": "classical",
+"label": "夜 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 300,
+"text": "光",
+"group": "cn-cao",
+"era": "classical",
+"label": "光 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 301,
+"text": "我",
+"group": "cn-cao",
+"era": "classical",
+"label": "我 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 302,
+"text": "言",
+"group": "cn-cao",
+"era": "classical",
+"label": "言 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 303,
+"text": "文",
+"group": "cn-cao",
+"era": "classical",
+"label": "文 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 304,
+"text": "字",
+"group": "cn-cao",
+"era": "classical",
+"label": "字 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 305,
+"text": "河",
+"group": "cn-cao",
+"era": "classical",
+"label": "河 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 306,
+"text": "舟",
+"group": "cn-cao",
+"era": "classical",
+"label": "舟 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 307,
+"text": "田",
+"group": "cn-cao",
+"era": "classical",
+"label": "田 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 308,
+"text": "云",
+"group": "cn-cao",
+"era": "classical",
+"label": "云 cursive script 草书",
+"src": "Liu Jian Mao Cao (刘建毛草)"
+},
+{
+"i": 309,
+"text": "人",
+"group": "cn-song",
+"era": "modern",
+"label": "人 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 310,
+"text": "大",
+"group": "cn-song",
+"era": "modern",
+"label": "大 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 311,
+"text": "天",
+"group": "cn-song",
+"era": "modern",
+"label": "天 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 312,
+"text": "日",
+"group": "cn-song",
+"era": "modern",
+"label": "日 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 313,
+"text": "月",
+"group": "cn-song",
+"era": "modern",
+"label": "月 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 314,
+"text": "山",
+"group": "cn-song",
+"era": "modern",
+"label": "山 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 315,
+"text": "水",
+"group": "cn-song",
+"era": "modern",
+"label": "水 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 316,
+"text": "川",
+"group": "cn-song",
+"era": "modern",
+"label": "川 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 317,
+"text": "雨",
+"group": "cn-song",
+"era": "modern",
+"label": "雨 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 318,
+"text": "火",
+"group": "cn-song",
+"era": "modern",
+"label": "火 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 319,
+"text": "木",
+"group": "cn-song",
+"era": "modern",
+"label": "木 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 320,
+"text": "禾",
+"group": "cn-song",
+"era": "modern",
+"label": "禾 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 321,
+"text": "米",
+"group": "cn-song",
+"era": "modern",
+"label": "米 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 322,
+"text": "鬼",
+"group": "cn-song",
+"era": "modern",
+"label": "鬼 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 323,
+"text": "子",
+"group": "cn-song",
+"era": "modern",
+"label": "子 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 324,
+"text": "女",
+"group": "cn-song",
+"era": "modern",
+"label": "女 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 325,
+"text": "母",
+"group": "cn-song",
+"era": "modern",
+"label": "母 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 326,
+"text": "目",
+"group": "cn-song",
+"era": "modern",
+"label": "目 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 327,
+"text": "口",
+"group": "cn-song",
+"era": "modern",
+"label": "口 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 328,
+"text": "耳",
+"group": "cn-song",
+"era": "modern",
+"label": "耳 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 329,
+"text": "手",
+"group": "cn-song",
+"era": "modern",
+"label": "手 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 330,
+"text": "心",
+"group": "cn-song",
+"era": "modern",
+"label": "心 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 331,
+"text": "鱼",
+"group": "cn-song",
+"era": "modern",
+"label": "鱼 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 332,
+"text": "鸟",
+"group": "cn-song",
+"era": "modern",
+"label": "鸟 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 333,
+"text": "龟",
+"group": "cn-song",
+"era": "modern",
+"label": "龟 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 334,
+"text": "马",
+"group": "cn-song",
+"era": "modern",
+"label": "马 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 335,
+"text": "车",
+"group": "cn-song",
+"era": "modern",
+"label": "车 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 336,
+"text": "门",
+"group": "cn-song",
+"era": "modern",
+"label": "门 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 337,
+"text": "王",
+"group": "cn-song",
+"era": "modern",
+"label": "王 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 338,
+"text": "生",
+"group": "cn-song",
+"era": "modern",
+"label": "生 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 339,
+"text": "夜",
+"group": "cn-song",
+"era": "modern",
+"label": "夜 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 340,
+"text": "光",
+"group": "cn-song",
+"era": "modern",
+"label": "光 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 341,
+"text": "我",
+"group": "cn-song",
+"era": "modern",
+"label": "我 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 342,
+"text": "言",
+"group": "cn-song",
+"era": "modern",
+"label": "言 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 343,
+"text": "文",
+"group": "cn-song",
+"era": "modern",
+"label": "文 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 344,
+"text": "字",
+"group": "cn-song",
+"era": "modern",
+"label": "字 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 345,
+"text": "河",
+"group": "cn-song",
+"era": "modern",
+"label": "河 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 346,
+"text": "舟",
+"group": "cn-song",
+"era": "modern",
+"label": "舟 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 347,
+"text": "田",
+"group": "cn-song",
+"era": "modern",
+"label": "田 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 348,
+"text": "云",
+"group": "cn-song",
+"era": "modern",
+"label": "云 Song/Ming print 宋体",
+"src": "Noto Serif SC (思源宋体), wght 600"
+},
+{
+"i": 349,
+"text": "字",
+"group": "cn-poem",
+"era": "modern",
+"label": "字 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 350,
+"text": "落",
+"group": "cn-poem",
+"era": "modern",
+"label": "落 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 351,
+"text": "了",
+"group": "cn-poem",
+"era": "modern",
+"label": "了 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 352,
+"text": "几",
+"group": "cn-poem",
+"era": "modern",
+"label": "几 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 353,
+"text": "千",
+"group": "cn-poem",
+"era": "modern",
+"label": "千 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 354,
+"text": "年",
+"group": "cn-poem",
+"era": "modern",
+"label": "年 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 355,
+"text": "才",
+"group": "cn-poem",
+"era": "modern",
+"label": "才 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 356,
+"text": "成",
+"group": "cn-poem",
+"era": "modern",
+"label": "成 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 357,
+"text": "一",
+"group": "cn-poem",
+"era": "modern",
+"label": "一 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 358,
+"text": "条",
+"group": "cn-poem",
+"era": "modern",
+"label": "条 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 359,
+"text": "河",
+"group": "cn-poem",
+"era": "modern",
+"label": "河 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 360,
+"text": "造",
+"group": "cn-poem",
+"era": "modern",
+"label": "造 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 361,
+"text": "的",
+"group": "cn-poem",
+"era": "modern",
+"label": "的 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 362,
+"text": "那",
+"group": "cn-poem",
+"era": "modern",
+"label": "那 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 363,
+"text": "夜",
+"group": "cn-poem",
+"era": "modern",
+"label": "夜 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 364,
+"text": "听",
+"group": "cn-poem",
+"era": "modern",
+"label": "听 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 365,
+"text": "说",
+"group": "cn-poem",
+"era": "modern",
+"label": "说 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 366,
+"text": "有",
+"group": "cn-poem",
+"era": "modern",
+"label": "有 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 367,
+"text": "鬼",
+"group": "cn-poem",
+"era": "modern",
+"label": "鬼 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 368,
+"text": "哭",
+"group": "cn-poem",
+"era": "modern",
+"label": "哭 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 369,
+"text": "过",
+"group": "cn-poem",
+"era": "modern",
+"label": "过 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 370,
+"text": "什",
+"group": "cn-poem",
+"era": "modern",
+"label": "什 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 371,
+"text": "么",
+"group": "cn-poem",
+"era": "modern",
+"label": "么 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 372,
+"text": "两",
+"group": "cn-poem",
+"era": "modern",
+"label": "两 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 373,
+"text": "没",
+"group": "cn-poem",
+"era": "modern",
+"label": "没 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 374,
+"text": "人",
+"group": "cn-poem",
+"era": "modern",
+"label": "人 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 375,
+"text": "破",
+"group": "cn-poem",
+"era": "modern",
+"label": "破 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 376,
+"text": "水",
+"group": "cn-poem",
+"era": "modern",
+"label": "水 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 377,
+"text": "不",
+"group": "cn-poem",
+"era": "modern",
+"label": "不 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 378,
+"text": "回",
+"group": "cn-poem",
+"era": "modern",
+"label": "回 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 379,
+"text": "答",
+"group": "cn-poem",
+"era": "modern",
+"label": "答 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 380,
+"text": "从",
+"group": "cn-poem",
+"era": "modern",
+"label": "从 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 381,
+"text": "此",
+"group": "cn-poem",
+"era": "modern",
+"label": "此 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 382,
+"text": "要",
+"group": "cn-poem",
+"era": "modern",
+"label": "要 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 383,
+"text": "汇",
+"group": "cn-poem",
+"era": "modern",
+"label": "汇 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 384,
+"text": "聚",
+"group": "cn-poem",
+"era": "modern",
+"label": "聚 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 385,
+"text": "我",
+"group": "cn-poem",
+"era": "modern",
+"label": "我 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 386,
+"text": "扇",
+"group": "cn-poem",
+"era": "modern",
+"label": "扇 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 387,
+"text": "窗",
+"group": "cn-poem",
+"era": "modern",
+"label": "窗 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 388,
+"text": "亮",
+"group": "cn-poem",
+"era": "modern",
+"label": "亮 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 389,
+"text": "作",
+"group": "cn-poem",
+"era": "modern",
+"label": "作 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 390,
+"text": "盏",
+"group": "cn-poem",
+"era": "modern",
+"label": "盏 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 391,
+"text": "灯",
+"group": "cn-poem",
+"era": "modern",
+"label": "灯 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 392,
+"text": "处",
+"group": "cn-poem",
+"era": "modern",
+"label": "处 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 393,
+"text": "是",
+"group": "cn-poem",
+"era": "modern",
+"label": "是 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 394,
+"text": "应",
+"group": "cn-poem",
+"era": "modern",
+"label": "应 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 395,
+"text": "声",
+"group": "cn-poem",
+"era": "modern",
+"label": "声 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 396,
+"text": "这",
+"group": "cn-poem",
+"era": "modern",
+"label": "这 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 397,
+"text": "关",
+"group": "cn-poem",
+"era": "modern",
+"label": "关 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 398,
+"text": "又",
+"group": "cn-poem",
+"era": "modern",
+"label": "又 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 399,
+"text": "新",
+"group": "cn-poem",
+"era": "modern",
+"label": "新 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 400,
+"text": "生",
+"group": "cn-poem",
+"era": "modern",
+"label": "生 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 401,
+"text": "瞬",
+"group": "cn-poem",
+"era": "modern",
+"label": "瞬 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 402,
+"text": "间",
+"group": "cn-poem",
+"era": "modern",
+"label": "间 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 403,
+"text": "万",
+"group": "cn-poem",
+"era": "modern",
+"label": "万 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 404,
+"text": "死",
+"group": "cn-poem",
+"era": "modern",
+"label": "死 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 405,
+"text": "否",
+"group": "cn-poem",
+"era": "modern",
+"label": "否 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 406,
+"text": "让",
+"group": "cn-poem",
+"era": "modern",
+"label": "让 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 407,
+"text": "和",
+"group": "cn-poem",
+"era": "modern",
+"label": "和 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 408,
+"text": "你",
+"group": "cn-poem",
+"era": "modern",
+"label": "你 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 409,
+"text": "同",
+"group": "cn-poem",
+"era": "modern",
+"label": "同 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 410,
+"text": "也",
+"group": "cn-poem",
+"era": "modern",
+"label": "也 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 411,
+"text": "潮",
+"group": "cn-poem",
+"era": "modern",
+"label": "潮 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 412,
+"text": "涌",
+"group": "cn-poem",
+"era": "modern",
+"label": "涌 poem 楷书",
+"src": "LXGW WenKai Medium (霞鹜文楷) v1.530"
+},
+{
+"i": 413,
+"text": "𒀭",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform AN — sky, god (dingir)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 414,
+"text": "𒆠",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform KI — earth, place",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 415,
+"text": "𒀀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform A — water",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 416,
+"text": "𒌓",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform UD — sun, day",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 417,
+"text": "𒈗",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform LUGAL — king",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 418,
+"text": "𒇽",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform LU2 — man",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 419,
+"text": "𒊩",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform SAL — woman",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 420,
+"text": "𒁾",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform DUB — clay tablet",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 421,
+"text": "𒅗",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform KA — mouth, word (inim)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 422,
+"text": "𒂍",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform E2 — house",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 423,
+"text": "𒃲",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform GAL — great",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 424,
+"text": "𒌉",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform TUR — small, child (dumu)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 425,
+"text": "𒆳",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform KUR — mountain, land",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 426,
+"text": "𒉈",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform NE — fire (izi)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 427,
+"text": "𒄑",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform GISH — tree, wood",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 428,
+"text": "𒊺",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform SHE — barley",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 429,
+"text": "𒅆",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform IGI — eye",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 430,
+"text": "𒋗",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform SHU — hand",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 431,
+"text": "𒈬",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform MU — name, year",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 432,
+"text": "𒄷",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform HU — bird (mushen)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 433,
+"text": "𒄩",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Sumerian/Akkadian cuneiform HA — fish (ku6)",
+"src": "Noto Sans Cuneiform"
+},
+{
+"i": 434,
+"text": "𓋹",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph S034 — ankh, life",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 435,
+"text": "𓂀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph D010 — wedjat, eye of Horus",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 436,
+"text": "𓈖",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N035 — water ripple (n)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 437,
+"text": "𓈗",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N035A — water",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 438,
+"text": "𓇳",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N005 — sun (ra)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 439,
+"text": "𓅓",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph G017 — owl (m)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 440,
+"text": "𓇋",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph M017 — reed (i)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 441,
+"text": "𓄿",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph G001 — vulture (3)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 442,
+"text": "𓂋",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph D021 — mouth (r)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 443,
+"text": "𓆑",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph I009 — horned viper (f)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 444,
+"text": "𓂧",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph D046 — hand (d)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 445,
+"text": "𓎡",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph V031 — basket (k)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 446,
+"text": "𓇯",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N001 — sky",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 447,
+"text": "𓊹",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph R008 — netjer, god",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 448,
+"text": "𓄤",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph F035 — nefer, good",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 449,
+"text": "𓂝",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph D036 — forearm (ayin)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 450,
+"text": "𓉐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph O001 — house (pr)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 451,
+"text": "𓆣",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph L001 — scarab (kheper)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 452,
+"text": "𓅃",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph G005 — falcon, Horus",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 453,
+"text": "𓆓",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph I010 — cobra (dj)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 454,
+"text": "𓀀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph A001 — seated man",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 455,
+"text": "𓁐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph B001 — seated woman",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 456,
+"text": "𓆤",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph L002 — bee",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 457,
+"text": "𓏞",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph Y003 — scribe's palette, writing",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 458,
+"text": "𓇼",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N014 — star",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 459,
+"text": "𓇹",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph N011 — crescent moon",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 460,
+"text": "𓁹",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph D004 — eye (ir)",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 461,
+"text": "𓊛",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Egyptian hieroglyph P001 — boat",
+"src": "Noto Sans Egyptian Hieroglyphs"
+},
+{
+"i": 462,
+"text": "𔐀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A001",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 463,
+"text": "𔐔",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A020",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 464,
+"text": "𔑐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A071",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 465,
+"text": "𔒪",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A143",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 466,
+"text": "𔔬",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A266",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 467,
+"text": "𔖐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Anatolian (Luwian) hieroglyph: Anatolian Hieroglyph A355",
+"src": "Noto Sans Anatolian Hieroglyphs"
+},
+{
+"i": 468,
+"text": "𐀀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B A — syllable a",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 469,
+"text": "𐀁",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B E — syllable e",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 470,
+"text": "𐀂",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B I — syllable i",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 471,
+"text": "𐀃",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B O — syllable o",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 472,
+"text": "𐀄",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B U — syllable u",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 473,
+"text": "𐀅",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B DA — syllable da",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 474,
+"text": "𐂀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B MAN — man",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 475,
+"text": "𐂁",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B WOMAN — woman",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 476,
+"text": "𐂎",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B WHEAT — wheat",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 477,
+"text": "𐂃",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B EQUID — horse",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 478,
+"text": "𐃌",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Linear B CHARIOT — chariot",
+"src": "Noto Sans Linear B"
+},
+{
+"i": 479,
+"text": "𐤀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Alf",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 480,
+"text": "𐤁",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Bet",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 481,
+"text": "𐤂",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Gaml",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 482,
+"text": "𐤃",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Delt",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 483,
+"text": "𐤄",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter He",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 484,
+"text": "𐤇",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Het",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 485,
+"text": "𐤊",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Kaf",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 486,
+"text": "𐤌",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Mem",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 487,
+"text": "𐤍",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Nun",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 488,
+"text": "𐤎",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Semk",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 489,
+"text": "𐤐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Pe",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 490,
+"text": "𐤔",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Phoenician: Phoenician Letter Shin",
+"src": "Noto Sans Phoenician"
+},
+{
+"i": 491,
+"text": "𐎠",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform A — a",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 492,
+"text": "𐎡",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform I — i",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 493,
+"text": "𐎢",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform U — u",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 494,
+"text": "𐎣",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform KA — ka",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 495,
+"text": "𐎭",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform DA — da",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 496,
+"text": "𐎶",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform MA — ma",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 497,
+"text": "𐏈",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform AURAMAZDAA — Ahuramazda",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 498,
+"text": "𐏋",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform XSHAAYATHIYA — king",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 499,
+"text": "𐏎",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform BAGA — god",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 500,
+"text": "𐏏",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Persian cuneiform BUUMISH — earth",
+"src": "Noto Sans Old Persian"
+},
+{
+"i": 501,
+"text": "𐎀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Alpa",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 502,
+"text": "𐎁",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Beta",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 503,
+"text": "𐎂",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Gamla",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 504,
+"text": "𐎉",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Tet",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 505,
+"text": "𐎌",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Shin",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 506,
+"text": "𐎐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Nun",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 507,
+"text": "𐎔",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ugaritic: Ugaritic Letter Pu",
+"src": "Noto Sans Ugaritic"
+},
+{
+"i": 508,
+"text": "𑀅",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter A",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 509,
+"text": "𑀇",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter I",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 510,
+"text": "𑀓",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ka",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 511,
+"text": "𑀕",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ga",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 512,
+"text": "𑀘",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ca",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 513,
+"text": "𑀢",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ta",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 514,
+"text": "𑀫",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ma",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 515,
+"text": "𑀭",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi: Brahmi Letter Ra",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 516,
+"text": "𑀥𑀁𑀫",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Brahmi 𑀥𑀁𑀫 dhaṃma — 'dharma', as in Ashoka's edicts",
+"src": "Noto Sans Brahmi"
+},
+{
+"i": 517,
+"text": "𐨀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter A",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 518,
+"text": "𐨐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter Ka",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 519,
+"text": "𐨓",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter Gha",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 520,
+"text": "𐨕",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter Ca",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 521,
+"text": "𐨙",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter Nya",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 522,
+"text": "𐨨",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter Ma",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 523,
+"text": "𐨫",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Kharoshthi: Kharoshthi Letter La",
+"src": "Noto Sans Kharoshthi"
+},
+{
+"i": 524,
+"text": "ᚠ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Fehu Feoh Fe F",
+"src": "Noto Sans Runic"
+},
+{
+"i": 525,
+"text": "ᚢ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Uruz Ur U",
+"src": "Noto Sans Runic"
+},
+{
+"i": 526,
+"text": "ᚦ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Thurisaz Thurs Thorn",
+"src": "Noto Sans Runic"
+},
+{
+"i": 527,
+"text": "ᚨ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Ansuz A",
+"src": "Noto Sans Runic"
+},
+{
+"i": 528,
+"text": "ᚱ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Raido Rad Reid R",
+"src": "Noto Sans Runic"
+},
+{
+"i": 529,
+"text": "ᚷ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Gebo Gyfu G",
+"src": "Noto Sans Runic"
+},
+{
+"i": 530,
+"text": "ᚺ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Haglaz H",
+"src": "Noto Sans Runic"
+},
+{
+"i": 531,
+"text": "ᛏ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Tiwaz Tir Tyr T",
+"src": "Noto Sans Runic"
+},
+{
+"i": 532,
+"text": "ᛗ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Mannaz Man M",
+"src": "Noto Sans Runic"
+},
+{
+"i": 533,
+"text": "ᛟ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Runic (Elder Futhark): Runic Letter Othalan Ethel O",
+"src": "Noto Sans Runic"
+},
+{
+"i": 534,
+"text": "ᚁ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Letter Beith",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 535,
+"text": "ᚄ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Letter Sail",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 536,
+"text": "ᚉ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Letter Coll",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 537,
+"text": "ᚎ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Letter Straif",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 538,
+"text": "ᚓ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Letter Eadhadh",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 539,
+"text": "᚛",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Feather Mark",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 540,
+"text": "᚜",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ogham: Ogham Reversed Feather Mark",
+"src": "Noto Sans Ogham"
+},
+{
+"i": 541,
+"text": "𐌀",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter A",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 542,
+"text": "𐌂",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter Ke",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 543,
+"text": "𐌄",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter E",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 544,
+"text": "𐌈",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter The",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 545,
+"text": "𐌋",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter El",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 546,
+"text": "𐌐",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter Pe",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 547,
+"text": "𐌔",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old Italic (Etruscan): Old Italic Letter Es",
+"src": "Noto Sans Old Italic"
+},
+{
+"i": 548,
+"text": "𐌰",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Ahsa",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 549,
+"text": "𐌱",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Bairkan",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 550,
+"text": "𐌳",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Dags",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 551,
+"text": "𐌶",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Iuja",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 552,
+"text": "𐌹",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Eis",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 553,
+"text": "𐍃",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Sauil",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 554,
+"text": "𐍈",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Gothic (Wulfila): Gothic Letter Hwair",
+"src": "Noto Sans Gothic"
+},
+{
+"i": 555,
+"text": "𐩠",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter He",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 556,
+"text": "𐩡",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Lamedh",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 557,
+"text": "𐩦",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Shin",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 558,
+"text": "𐩪",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Sat",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 559,
+"text": "𐩮",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Sadhe",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 560,
+"text": "𐩲",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Ayn",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 561,
+"text": "𐩺",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Old South Arabian (Musnad): Old South Arabian Letter Yodh",
+"src": "Noto Sans Old South Arabian"
+},
+{
+"i": 562,
+"text": "ⵣ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yaz",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 563,
+"text": "ⴰ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Ya",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 564,
+"text": "ⴱ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yab",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 565,
+"text": "ⴳ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yag",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 566,
+"text": "ⴷ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yad",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 567,
+"text": "ⵎ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yam",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 568,
+"text": "ⵜ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Tifinagh: Tifinagh Letter Yat",
+"src": "Noto Sans Tifinagh"
+},
+{
+"i": 569,
+"text": "Ϙ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Letter Archaic Koppa",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 570,
+"text": "Ϝ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Letter Digamma",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 571,
+"text": "Ͱ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Heta",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 572,
+"text": "Ϻ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter San",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 573,
+"text": "Ϡ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Letter Sampi",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 574,
+"text": "Α",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Alpha",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 575,
+"text": "Δ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Delta",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 576,
+"text": "Θ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Theta",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 577,
+"text": "Λ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Lamda",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 578,
+"text": "Σ",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Sigma",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 579,
+"text": "Ω",
+"group": "world-ancient",
+"era": "ancient",
+"label": "Ancient Greek: Greek Capital Letter Omega",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 580,
+"text": "A",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Capital Letter A",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 581,
+"text": "a",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Small Letter A",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 582,
+"text": "G",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Capital Letter G",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 583,
+"text": "g",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Small Letter G",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 584,
+"text": "R",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Capital Letter R",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 585,
+"text": "ß",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Small Letter Sharp S",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 586,
+"text": "Æ",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Capital Letter Ae",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 587,
+"text": "ñ",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Small Letter N With Tilde",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 588,
+"text": "ŋ",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Small Letter Eng",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 589,
+"text": "Þ",
+"group": "world-modern",
+"era": "modern",
+"label": "Latin: Latin Capital Letter Thorn",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 590,
+"text": "α",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Alpha",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 591,
+"text": "β",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Beta",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 592,
+"text": "γ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Gamma",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 593,
+"text": "δ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Delta",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 594,
+"text": "ε",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Epsilon",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 595,
+"text": "λ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Lamda",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 596,
+"text": "σ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Sigma",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 597,
+"text": "φ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Phi",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 598,
+"text": "ψ",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Psi",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 599,
+"text": "ω",
+"group": "world-modern",
+"era": "modern",
+"label": "Greek: Greek Small Letter Omega",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 600,
+"text": "А",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter A",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 601,
+"text": "Б",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Be",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 602,
+"text": "Д",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter De",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 603,
+"text": "Ж",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Zhe",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 604,
+"text": "Я",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Ya",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 605,
+"text": "Щ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Shcha",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 606,
+"text": "Ы",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Yeru",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 607,
+"text": "Ф",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Ef",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 608,
+"text": "ж",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Small Letter Zhe",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 609,
+"text": "Ѣ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cyrillic: Cyrillic Capital Letter Yat",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 610,
+"text": "א",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Alef",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 611,
+"text": "ב",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Bet",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 612,
+"text": "ג",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Gimel",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 613,
+"text": "ד",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Dalet",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 614,
+"text": "ה",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter He",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 615,
+"text": "ו",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Vav",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 616,
+"text": "ש",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Shin",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 617,
+"text": "ת",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Tav",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 618,
+"text": "ל",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Lamed",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 619,
+"text": "ק",
+"group": "world-modern",
+"era": "modern",
+"label": "Hebrew: Hebrew Letter Qof",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 620,
+"text": "ا",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Alef",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 621,
+"text": "ب",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Beh",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 622,
+"text": "ت",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Teh",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 623,
+"text": "ج",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Jeem",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 624,
+"text": "ح",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Hah",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 625,
+"text": "د",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Dal",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 626,
+"text": "س",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Seen",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 627,
+"text": "ع",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Ain",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 628,
+"text": "ف",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Feh",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 629,
+"text": "ق",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Qaf",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 630,
+"text": "ك",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Kaf",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 631,
+"text": "ل",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Lam",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 632,
+"text": "م",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Meem",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 633,
+"text": "ن",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Noon",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 634,
+"text": "ه",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Heh",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 635,
+"text": "و",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Waw",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 636,
+"text": "ي",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic: Arabic Letter Yeh",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 637,
+"text": "قلم",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic word قلم — pen",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 638,
+"text": "كتاب",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic word كتاب — book",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 639,
+"text": "سلام",
+"group": "world-modern",
+"era": "modern",
+"label": "Arabic word سلام — peace",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 640,
+"text": "अ",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter A",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 641,
+"text": "आ",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter Aa",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 642,
+"text": "क",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter Ka",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 643,
+"text": "ख",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter Kha",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 644,
+"text": "ग",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter Ga",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 645,
+"text": "म",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Letter Ma",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 646,
+"text": "ॐ",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: Devanagari Om",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 647,
+"text": "क्ष",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: क्ष",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 648,
+"text": "त्र",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: त्र",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 649,
+"text": "ज्ञ",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: ज्ञ",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 650,
+"text": "श्री",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari: श्री",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 651,
+"text": "नमस्ते",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari word नमस्ते — namaste, greeting",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 652,
+"text": "हिन्दी",
+"group": "world-modern",
+"era": "modern",
+"label": "Devanagari word हिन्दी — Hindi",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 653,
+"text": "অ",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter A",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 654,
+"text": "আ",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter Aa",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 655,
+"text": "ক",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter Ka",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 656,
+"text": "খ",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter Kha",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 657,
+"text": "গ",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter Ga",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 658,
+"text": "ঙ",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali: Bengali Letter Nga",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 659,
+"text": "বাংলা",
+"group": "world-modern",
+"era": "modern",
+"label": "Bengali word বাংলা — Bangla",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 660,
+"text": "அ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter A",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 661,
+"text": "ஆ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter Aa",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 662,
+"text": "க",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter Ka",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 663,
+"text": "ங",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter Nga",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 664,
+"text": "ச",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter Ca",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 665,
+"text": "ழ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil: Tamil Letter Llla",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 666,
+"text": "தமிழ்",
+"group": "world-modern",
+"era": "modern",
+"label": "Tamil word தமிழ் — Tamil",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 667,
+"text": "ก",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Ko Kai",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 668,
+"text": "ข",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Kho Khai",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 669,
+"text": "ค",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Kho Khwai",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 670,
+"text": "ง",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Ngo Ngu",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 671,
+"text": "จ",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Cho Chan",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 672,
+"text": "ฉ",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Cho Ching",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 673,
+"text": "ม",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Mo Ma",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 674,
+"text": "อ",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character O Ang",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 675,
+"text": "ฮ",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai: Thai Character Ho Nokhuk",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 676,
+"text": "ไทย",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai word ไทย — Thai",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 677,
+"text": "สวัสดี",
+"group": "world-modern",
+"era": "modern",
+"label": "Thai word สวัสดี — hello",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 678,
+"text": "ཀ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter Ka",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 679,
+"text": "ཁ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter Kha",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 680,
+"text": "ག",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter Ga",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 681,
+"text": "ང",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter Nga",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 682,
+"text": "ཨ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter A",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 683,
+"text": "ཧ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Letter Ha",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 684,
+"text": "ༀ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: Tibetan Syllable Om",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 685,
+"text": "ཀྵ",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan: ཀྵ",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 686,
+"text": "བོད",
+"group": "world-modern",
+"era": "modern",
+"label": "Tibetan word བོད — Tibet",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 687,
+"text": "ᠠ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter A",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 688,
+"text": "ᠡ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter E",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 689,
+"text": "ᠢ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter I",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 690,
+"text": "ᠣ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter O",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 691,
+"text": "ᠤ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter U",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 692,
+"text": "ᠮ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter Ma",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 693,
+"text": "ᠨ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter Na",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 694,
+"text": "ᠰ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical): Mongolian Letter Sa",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 695,
+"text": "ᠮᠣᠩᠭᠣᠯ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical) word ᠮᠣᠩᠭᠣᠯ — Mongol",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 696,
+"text": "ᠪᠢᠴᠢᠭ",
+"group": "world-modern",
+"era": "modern",
+"label": "Mongolian (vertical) word ᠪᠢᠴᠢᠭ — bichig, writing/script",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 697,
+"text": "ㄱ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Kiyeok",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 698,
+"text": "ㄴ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Nieun",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 699,
+"text": "ㅁ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Mieum",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 700,
+"text": "ㅅ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Sios",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 701,
+"text": "ㅇ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Ieung",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 702,
+"text": "ㅎ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Letter Hieuh",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 703,
+"text": "가",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Syllable Ga",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 704,
+"text": "나",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Syllable Na",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 705,
+"text": "한",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Syllable Han",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 706,
+"text": "국",
+"group": "world-modern",
+"era": "modern",
+"label": "Hangul: Hangul Syllable Gug",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 707,
+"text": "あ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter A",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 708,
+"text": "い",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter I",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 709,
+"text": "う",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter U",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 710,
+"text": "え",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter E",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 711,
+"text": "お",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter O",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 712,
+"text": "か",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter Ka",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 713,
+"text": "さ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter Sa",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 714,
+"text": "の",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter No",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 715,
+"text": "ん",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter N",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 716,
+"text": "ひ",
+"group": "world-modern",
+"era": "modern",
+"label": "Hiragana: Hiragana Letter Hi",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 717,
+"text": "ア",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter A",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 718,
+"text": "イ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter I",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 719,
+"text": "カ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Ka",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 720,
+"text": "サ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Sa",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 721,
+"text": "タ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Ta",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 722,
+"text": "ナ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Na",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 723,
+"text": "ミ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Mi",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 724,
+"text": "ヲ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Wo",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 725,
+"text": "ン",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter N",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 726,
+"text": "ヤ",
+"group": "world-modern",
+"era": "modern",
+"label": "Katakana: Katakana Letter Ya",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 727,
+"text": "ሀ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Ha",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 728,
+"text": "ለ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable La",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 729,
+"text": "መ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Ma",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 730,
+"text": "ሰ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Sa",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 731,
+"text": "ቀ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Qa",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 732,
+"text": "በ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Ba",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 733,
+"text": "ተ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Ta",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 734,
+"text": "ነ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Na",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 735,
+"text": "አ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Glottal A",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 736,
+"text": "ዐ",
+"group": "world-modern",
+"era": "modern",
+"label": "Ge'ez (Ethiopic): Ethiopic Syllable Pharyngeal A",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 737,
+"text": "Ա",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Ayb",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 738,
+"text": "Բ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Ben",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 739,
+"text": "Գ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Gim",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 740,
+"text": "Դ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Da",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 741,
+"text": "Ե",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Ech",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 742,
+"text": "Զ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Za",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 743,
+"text": "Ֆ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Feh",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 744,
+"text": "Շ",
+"group": "world-modern",
+"era": "modern",
+"label": "Armenian: Armenian Capital Letter Sha",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 745,
+"text": "ა",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter An",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 746,
+"text": "ბ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Ban",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 747,
+"text": "გ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Gan",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 748,
+"text": "დ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Don",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 749,
+"text": "ე",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter En",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 750,
+"text": "ვ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Vin",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 751,
+"text": "ზ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Zen",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 752,
+"text": "ქ",
+"group": "world-modern",
+"era": "modern",
+"label": "Georgian: Georgian Letter Khar",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 753,
+"text": "Ꭰ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter A",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 754,
+"text": "Ꭱ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter E",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 755,
+"text": "Ꭲ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter I",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 756,
+"text": "Ꭳ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter O",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 757,
+"text": "Ꭴ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter U",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 758,
+"text": "Ꮳ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter Tsa",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 759,
+"text": "Ꭻ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter Gu",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 760,
+"text": "Ꮬ",
+"group": "world-modern",
+"era": "modern",
+"label": "Cherokee: Cherokee Letter Dla",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 761,
+"text": "ក",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Ka",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 762,
+"text": "ខ",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Kha",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 763,
+"text": "គ",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Ko",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 764,
+"text": "ង",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Ngo",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 765,
+"text": "ច",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Ca",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 766,
+"text": "ញ",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer: Khmer Letter Nyo",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 767,
+"text": "ខ្មែរ",
+"group": "world-modern",
+"era": "modern",
+"label": "Khmer word ខ្មែរ — Khmer",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 768,
+"text": "අ",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Ayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 769,
+"text": "ආ",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Aayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 770,
+"text": "ක",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Alpapraana Kayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 771,
+"text": "ග",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Alpapraana Gayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 772,
+"text": "ම",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Mayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 773,
+"text": "ස",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala: Sinhala Letter Dantaja Sayanna",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 774,
+"text": "සිංහල",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala word සිංහල — Sinhala",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 775,
+"text": "ශ්‍රී",
+"group": "world-modern",
+"era": "modern",
+"label": "Sinhala word ශ්‍රී — Sri",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 776,
+"text": "字",
+"group": "word",
+"era": "modern",
+"label": "字 — Chinese zì: 'character, written word'",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 777,
+"text": "文字",
+"group": "word",
+"era": "modern",
+"label": "文字 — Chinese wénzì / Japanese moji: 'writing, script'",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 778,
+"text": "河",
+"group": "word",
+"era": "modern",
+"label": "河 — Chinese hé: 'river'",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 779,
+"text": "水",
+"group": "word",
+"era": "modern",
+"label": "水 — Chinese shuǐ: 'water'",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 780,
+"text": "言",
+"group": "word",
+"era": "modern",
+"label": "言 — Chinese yán: 'speech, word'",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 781,
+"text": "言葉",
+"group": "word",
+"era": "modern",
+"label": "言葉 — Japanese kotoba: 'word'",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 782,
+"text": "みず",
+"group": "word",
+"era": "modern",
+"label": "みず — Japanese mizu: 'water'",
+"src": "Noto Sans JP, wght 500"
+},
+{
+"i": 783,
+"text": "글",
+"group": "word",
+"era": "modern",
+"label": "글 — Korean geul: 'writing'",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 784,
+"text": "말",
+"group": "word",
+"era": "modern",
+"label": "말 — Korean mal: 'word, speech'",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 785,
+"text": "물",
+"group": "word",
+"era": "modern",
+"label": "물 — Korean mul: 'water'",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 786,
+"text": "강",
+"group": "word",
+"era": "modern",
+"label": "강 — Korean gang: 'river'",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 787,
+"text": "한글",
+"group": "word",
+"era": "modern",
+"label": "한글 — Korean Hangeul: 'the Korean script'",
+"src": "Noto Sans KR, wght 500"
+},
+{
+"i": 788,
+"text": "word",
+"group": "word",
+"era": "modern",
+"label": "word — English: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 789,
+"text": "writing",
+"group": "word",
+"era": "modern",
+"label": "writing — English: 'writing'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 790,
+"text": "water",
+"group": "word",
+"era": "modern",
+"label": "water — English: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 791,
+"text": "river",
+"group": "word",
+"era": "modern",
+"label": "river — English: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 792,
+"text": "Wort",
+"group": "word",
+"era": "modern",
+"label": "Wort — German: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 793,
+"text": "Schrift",
+"group": "word",
+"era": "modern",
+"label": "Schrift — German: 'script, writing'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 794,
+"text": "Wasser",
+"group": "word",
+"era": "modern",
+"label": "Wasser — German: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 795,
+"text": "Fluss",
+"group": "word",
+"era": "modern",
+"label": "Fluss — German: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 796,
+"text": "mot",
+"group": "word",
+"era": "modern",
+"label": "mot — French: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 797,
+"text": "écriture",
+"group": "word",
+"era": "modern",
+"label": "écriture — French: 'writing'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 798,
+"text": "eau",
+"group": "word",
+"era": "modern",
+"label": "eau — French: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 799,
+"text": "rivière",
+"group": "word",
+"era": "modern",
+"label": "rivière — French: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 800,
+"text": "palabra",
+"group": "word",
+"era": "modern",
+"label": "palabra — Spanish: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 801,
+"text": "agua",
+"group": "word",
+"era": "modern",
+"label": "agua — Spanish: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 802,
+"text": "río",
+"group": "word",
+"era": "modern",
+"label": "río — Spanish: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 803,
+"text": "parola",
+"group": "word",
+"era": "modern",
+"label": "parola — Italian: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 804,
+"text": "acqua",
+"group": "word",
+"era": "modern",
+"label": "acqua — Italian: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 805,
+"text": "verbum",
+"group": "word",
+"era": "modern",
+"label": "verbum — Latin: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 806,
+"text": "littera",
+"group": "word",
+"era": "modern",
+"label": "littera — Latin: 'letter'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 807,
+"text": "aqua",
+"group": "word",
+"era": "modern",
+"label": "aqua — Latin: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 808,
+"text": "flumen",
+"group": "word",
+"era": "modern",
+"label": "flumen — Latin: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 809,
+"text": "слово",
+"group": "word",
+"era": "modern",
+"label": "слово — Russian slovo: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 810,
+"text": "письмо",
+"group": "word",
+"era": "modern",
+"label": "письмо — Russian pis'mo: 'writing, letter'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 811,
+"text": "вода",
+"group": "word",
+"era": "modern",
+"label": "вода — Russian voda: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 812,
+"text": "река",
+"group": "word",
+"era": "modern",
+"label": "река — Russian reka: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 813,
+"text": "λόγος",
+"group": "word",
+"era": "modern",
+"label": "λόγος — Greek logos: 'word, reason'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 814,
+"text": "γραφή",
+"group": "word",
+"era": "modern",
+"label": "γραφή — Greek graphē: 'writing'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 815,
+"text": "νερό",
+"group": "word",
+"era": "modern",
+"label": "νερό — Greek nero: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 816,
+"text": "ποταμός",
+"group": "word",
+"era": "modern",
+"label": "ποταμός — Greek potamos: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 817,
+"text": "كلمة",
+"group": "word",
+"era": "modern",
+"label": "كلمة — Arabic kalima: 'word'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 818,
+"text": "كتابة",
+"group": "word",
+"era": "modern",
+"label": "كتابة — Arabic kitāba: 'writing'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 819,
+"text": "ماء",
+"group": "word",
+"era": "modern",
+"label": "ماء — Arabic māʾ: 'water'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 820,
+"text": "نهر",
+"group": "word",
+"era": "modern",
+"label": "نهر — Arabic nahr: 'river'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 821,
+"text": "واژه",
+"group": "word",
+"era": "modern",
+"label": "واژه — Persian vāže: 'word'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 822,
+"text": "آب",
+"group": "word",
+"era": "modern",
+"label": "آب — Persian āb: 'water'",
+"src": "Noto Naskh Arabic, wght 600"
+},
+{
+"i": 823,
+"text": "מילה",
+"group": "word",
+"era": "modern",
+"label": "מילה — Hebrew mila: 'word'",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 824,
+"text": "כתב",
+"group": "word",
+"era": "modern",
+"label": "כתב — Hebrew ktav: 'script, writing'",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 825,
+"text": "מים",
+"group": "word",
+"era": "modern",
+"label": "מים — Hebrew mayim: 'water'",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 826,
+"text": "נהר",
+"group": "word",
+"era": "modern",
+"label": "נהר — Hebrew nahar: 'river'",
+"src": "Noto Sans Hebrew, wght 500"
+},
+{
+"i": 827,
+"text": "शब्द",
+"group": "word",
+"era": "modern",
+"label": "शब्द — Hindi shabd: 'word'",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 828,
+"text": "लिपि",
+"group": "word",
+"era": "modern",
+"label": "लिपि — Hindi lipi: 'script'",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 829,
+"text": "पानी",
+"group": "word",
+"era": "modern",
+"label": "पानी — Hindi pānī: 'water'",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 830,
+"text": "नदी",
+"group": "word",
+"era": "modern",
+"label": "नदी — Hindi nadī: 'river'",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 831,
+"text": "अक्षर",
+"group": "word",
+"era": "modern",
+"label": "अक्षर — Sanskrit akṣara: 'letter, syllable; imperishable'",
+"src": "Noto Sans Devanagari, wght 500"
+},
+{
+"i": 832,
+"text": "শব্দ",
+"group": "word",
+"era": "modern",
+"label": "শব্দ — Bengali shobdo: 'word'",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 833,
+"text": "জল",
+"group": "word",
+"era": "modern",
+"label": "জল — Bengali jol: 'water'",
+"src": "Noto Sans Bengali, wght 500"
+},
+{
+"i": 834,
+"text": "சொல்",
+"group": "word",
+"era": "modern",
+"label": "சொல் — Tamil sol: 'word'",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 835,
+"text": "நீர்",
+"group": "word",
+"era": "modern",
+"label": "நீர் — Tamil nīr: 'water'",
+"src": "Noto Sans Tamil, wght 500"
+},
+{
+"i": 836,
+"text": "คำ",
+"group": "word",
+"era": "modern",
+"label": "คำ — Thai kham: 'word'",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 837,
+"text": "น้ำ",
+"group": "word",
+"era": "modern",
+"label": "น้ำ — Thai nam: 'water'",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 838,
+"text": "แม่น้ำ",
+"group": "word",
+"era": "modern",
+"label": "แม่น้ำ — Thai maenam: 'river'",
+"src": "Noto Sans Thai, wght 500"
+},
+{
+"i": 839,
+"text": "ཡི་གེ",
+"group": "word",
+"era": "modern",
+"label": "ཡི་གེ — Tibetan yige: 'letter, writing'",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 840,
+"text": "ཆུ",
+"group": "word",
+"era": "modern",
+"label": "ཆུ — Tibetan chu: 'water'",
+"src": "Noto Serif Tibetan, wght 600"
+},
+{
+"i": 841,
+"text": "ᠦᠰᠦᠭ",
+"group": "word",
+"era": "modern",
+"label": "ᠦᠰᠦᠭ — Mongolian üsüg (vertical): 'letter, script'",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 842,
+"text": "ᠤᠰᠤ",
+"group": "word",
+"era": "modern",
+"label": "ᠤᠰᠤ — Mongolian usu (vertical): 'water'",
+"src": "Noto Sans Mongolian",
+"vertical": true
+},
+{
+"i": 843,
+"text": "ቃል",
+"group": "word",
+"era": "modern",
+"label": "ቃል — Amharic qal: 'word'",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 844,
+"text": "ውሃ",
+"group": "word",
+"era": "modern",
+"label": "ውሃ — Amharic wuha: 'water'",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 845,
+"text": "ወንዝ",
+"group": "word",
+"era": "modern",
+"label": "ወንዝ — Amharic wenz: 'river'",
+"src": "Noto Sans Ethiopic, wght 500"
+},
+{
+"i": 846,
+"text": "բառ",
+"group": "word",
+"era": "modern",
+"label": "բառ — Armenian bar: 'word'",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 847,
+"text": "ջուր",
+"group": "word",
+"era": "modern",
+"label": "ջուր — Armenian jur: 'water'",
+"src": "Noto Sans Armenian, wght 500"
+},
+{
+"i": 848,
+"text": "სიტყვა",
+"group": "word",
+"era": "modern",
+"label": "სიტყვა — Georgian sit'q'va: 'word'",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 849,
+"text": "წყალი",
+"group": "word",
+"era": "modern",
+"label": "წყალი — Georgian ts'q'ali: 'water'",
+"src": "Noto Sans Georgian, wght 500"
+},
+{
+"i": 850,
+"text": "ពាក្យ",
+"group": "word",
+"era": "modern",
+"label": "ពាក្យ — Khmer peaky: 'word'",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 851,
+"text": "ទឹក",
+"group": "word",
+"era": "modern",
+"label": "ទឹក — Khmer tuek: 'water'",
+"src": "Noto Sans Khmer, wght 500"
+},
+{
+"i": 852,
+"text": "වචනය",
+"group": "word",
+"era": "modern",
+"label": "වචනය — Sinhala vachanaya: 'word'",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 853,
+"text": "ජලය",
+"group": "word",
+"era": "modern",
+"label": "ජලය — Sinhala jalaya: 'water'",
+"src": "Noto Sans Sinhala, wght 500"
+},
+{
+"i": 854,
+"text": "ᎠᎹ",
+"group": "word",
+"era": "modern",
+"label": "ᎠᎹ — Cherokee ama: 'water'",
+"src": "Noto Sans Cherokee, wght 500"
+},
+{
+"i": 855,
+"text": "neno",
+"group": "word",
+"era": "modern",
+"label": "neno — Swahili: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 856,
+"text": "maji",
+"group": "word",
+"era": "modern",
+"label": "maji — Swahili: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 857,
+"text": "kelime",
+"group": "word",
+"era": "modern",
+"label": "kelime — Turkish: 'word'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 858,
+"text": "su",
+"group": "word",
+"era": "modern",
+"label": "su — Turkish: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 859,
+"text": "chữ",
+"group": "word",
+"era": "modern",
+"label": "chữ — Vietnamese: 'written character, script'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 860,
+"text": "nước",
+"group": "word",
+"era": "modern",
+"label": "nước — Vietnamese: 'water'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 861,
+"text": "sông",
+"group": "word",
+"era": "modern",
+"label": "sông — Vietnamese: 'river'",
+"src": "Noto Serif, wght 500"
+},
+{
+"i": 862,
+"text": "0",
+"group": "symbol",
+"era": "modern",
+"label": "0 — Digit Zero",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 863,
+"text": "1",
+"group": "symbol",
+"era": "modern",
+"label": "1 — Digit One",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 864,
+"text": "2",
+"group": "symbol",
+"era": "modern",
+"label": "2 — Digit Two",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 865,
+"text": "3",
+"group": "symbol",
+"era": "modern",
+"label": "3 — Digit Three",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 866,
+"text": "4",
+"group": "symbol",
+"era": "modern",
+"label": "4 — Digit Four",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 867,
+"text": "5",
+"group": "symbol",
+"era": "modern",
+"label": "5 — Digit Five",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 868,
+"text": "6",
+"group": "symbol",
+"era": "modern",
+"label": "6 — Digit Six",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 869,
+"text": "7",
+"group": "symbol",
+"era": "modern",
+"label": "7 — Digit Seven",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 870,
+"text": "8",
+"group": "symbol",
+"era": "modern",
+"label": "8 — Digit Eight",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 871,
+"text": "9",
+"group": "symbol",
+"era": "modern",
+"label": "9 — Digit Nine",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 872,
+"text": "0101",
+"group": "symbol",
+"era": "digital",
+"label": "0101 — binary",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 873,
+"text": "1010",
+"group": "symbol",
+"era": "digital",
+"label": "1010 — binary",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 874,
+"text": "0110",
+"group": "symbol",
+"era": "digital",
+"label": "0110 — binary",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 875,
+"text": "1001",
+"group": "symbol",
+"era": "digital",
+"label": "1001 — binary",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 876,
+"text": "</>",
+"group": "symbol",
+"era": "digital",
+"label": "</> — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 877,
+"text": "{ }",
+"group": "symbol",
+"era": "digital",
+"label": "{ } — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 878,
+"text": "=>",
+"group": "symbol",
+"era": "digital",
+"label": "=> — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 879,
+"text": "!=",
+"group": "symbol",
+"era": "digital",
+"label": "!= — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 880,
+"text": "&&",
+"group": "symbol",
+"era": "digital",
+"label": "&& — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 881,
+"text": "//",
+"group": "symbol",
+"era": "digital",
+"label": "// — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 882,
+"text": "#!",
+"group": "symbol",
+"era": "digital",
+"label": "#! — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 883,
+"text": "0xFF",
+"group": "symbol",
+"era": "digital",
+"label": "0xFF — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 884,
+"text": "fn()",
+"group": "symbol",
+"era": "digital",
+"label": "fn() — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 885,
+"text": "if",
+"group": "symbol",
+"era": "digital",
+"label": "if — code token",
+"src": "Noto Sans Mono, wght 500"
+},
+{
+"i": 886,
+"text": "@",
+"group": "symbol",
+"era": "modern",
+"label": "@ — Commercial At",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 887,
+"text": "#",
+"group": "symbol",
+"era": "modern",
+"label": "# — Number Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 888,
+"text": "&",
+"group": "symbol",
+"era": "modern",
+"label": "& — Ampersand",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 889,
+"text": "§",
+"group": "symbol",
+"era": "modern",
+"label": "§ — Section Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 890,
+"text": "¶",
+"group": "symbol",
+"era": "modern",
+"label": "¶ — Pilcrow Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 891,
+"text": "©",
+"group": "symbol",
+"era": "modern",
+"label": "© — Copyright Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 892,
+"text": "™",
+"group": "symbol",
+"era": "modern",
+"label": "™ — Trade Mark Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 893,
+"text": "%",
+"group": "symbol",
+"era": "modern",
+"label": "% — Percent Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 894,
+"text": "$",
+"group": "symbol",
+"era": "modern",
+"label": "$ — Dollar Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 895,
+"text": "€",
+"group": "symbol",
+"era": "modern",
+"label": "€ — Euro Sign",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 896,
+"text": "?",
+"group": "symbol",
+"era": "modern",
+"label": "? — Question Mark",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 897,
+"text": "!",
+"group": "symbol",
+"era": "modern",
+"label": "! — Exclamation Mark",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 898,
+"text": "¿",
+"group": "symbol",
+"era": "modern",
+"label": "¿ — Inverted Question Mark",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 899,
+"text": "*",
+"group": "symbol",
+"era": "modern",
+"label": "* — Asterisk",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 900,
+"text": ";",
+"group": "symbol",
+"era": "modern",
+"label": "; — Semicolon",
+"src": "Noto Sans, wght 500"
+},
+{
+"i": 901,
+"text": "∞",
+"group": "symbol",
+"era": "modern",
+"label": "∞ — Infinity",
+"src": "Noto Sans Math"
+},
+{
+"i": 902,
+"text": "π",
+"group": "symbol",
+"era": "modern",
+"label": "π — Greek Small Letter Pi",
+"src": "Noto Sans Math"
+},
+{
+"i": 903,
+"text": "∑",
+"group": "symbol",
+"era": "modern",
+"label": "∑ — N-Ary Summation",
+"src": "Noto Sans Math"
+},
+{
+"i": 904,
+"text": "√",
+"group": "symbol",
+"era": "modern",
+"label": "√ — Square Root",
+"src": "Noto Sans Math"
+},
+{
+"i": 905,
+"text": "≈",
+"group": "symbol",
+"era": "modern",
+"label": "≈ — Almost Equal To",
+"src": "Noto Sans Math"
+},
+{
+"i": 906,
+"text": "≠",
+"group": "symbol",
+"era": "modern",
+"label": "≠ — Not Equal To",
+"src": "Noto Sans Math"
+},
+{
+"i": 907,
+"text": "∫",
+"group": "symbol",
+"era": "modern",
+"label": "∫ — Integral",
+"src": "Noto Sans Math"
+},
+{
+"i": 908,
+"text": "∂",
+"group": "symbol",
+"era": "modern",
+"label": "∂ — Partial Differential",
+"src": "Noto Sans Math"
+},
+{
+"i": 909,
+"text": "∆",
+"group": "symbol",
+"era": "modern",
+"label": "∆ — Increment",
+"src": "Noto Sans Math"
+},
+{
+"i": 910,
+"text": "∀",
+"group": "symbol",
+"era": "modern",
+"label": "∀ — For All",
+"src": "Noto Sans Math"
+},
+{
+"i": 911,
+"text": "∃",
+"group": "symbol",
+"era": "modern",
+"label": "∃ — There Exists",
+"src": "Noto Sans Math"
+},
+{
+"i": 912,
+"text": "∈",
+"group": "symbol",
+"era": "modern",
+"label": "∈ — Element Of",
+"src": "Noto Sans Math"
+},
+{
+"i": 913,
+"text": "∅",
+"group": "symbol",
+"era": "modern",
+"label": "∅ — Empty Set",
+"src": "Noto Sans Math"
+},
+{
+"i": 914,
+"text": "±",
+"group": "symbol",
+"era": "modern",
+"label": "± — Plus-Minus Sign",
+"src": "Noto Sans Math"
+},
+{
+"i": 915,
+"text": "÷",
+"group": "symbol",
+"era": "modern",
+"label": "÷ — Division Sign",
+"src": "Noto Sans Math"
+},
+{
+"i": 916,
+"text": "→",
+"group": "symbol",
+"era": "modern",
+"label": "→ — Rightwards Arrow",
+"src": "Noto Sans Math"
+},
+{
+"i": 917,
+"text": "←",
+"group": "symbol",
+"era": "modern",
+"label": "← — Leftwards Arrow",
+"src": "Noto Sans Math"
+},
+{
+"i": 918,
+"text": "⇧",
+"group": "symbol",
+"era": "modern",
+"label": "⇧ — Upwards White Arrow",
+"src": "Noto Sans Math"
+},
+{
+"i": 919,
+"text": "⌘",
+"group": "symbol",
+"era": "modern",
+"label": "⌘ — Place Of Interest Sign",
+"src": "Noto Sans Symbols 2"
+},
+{
+"i": 920,
+"text": "⌥",
+"group": "symbol",
+"era": "modern",
+"label": "⌥ — Option Key",
+"src": "Noto Sans Symbols 2"
+},
+{
+"i": 921,
+"text": "⏎",
+"group": "symbol",
+"era": "modern",
+"label": "⏎ — Return Symbol",
+"src": "Noto Sans Math"
+},
+{
+"i": 922,
+"text": "♪",
+"group": "symbol",
+"era": "modern",
+"label": "♪ — Eighth Note",
+"src": "Noto Sans Symbols, wght 500"
+},
+{
+"i": 923,
+"text": "♫",
+"group": "symbol",
+"era": "modern",
+"label": "♫ — Beamed Eighth Notes",
+"src": "Noto Sans Symbols, wght 500"
+},
+{
+"i": 924,
+"text": "♬",
+"group": "symbol",
+"era": "modern",
+"label": "♬ — Beamed Sixteenth Notes",
+"src": "Noto Sans Symbols, wght 500"
+},
+{
+"i": 925,
+"text": "♯",
+"group": "symbol",
+"era": "modern",
+"label": "♯ — Music Sharp Sign",
+"src": "Noto Sans Symbols, wght 500"
+},
+{
+"i": 926,
+"text": "。",
+"group": "symbol",
+"era": "modern",
+"label": "。 — Ideographic Full Stop",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 927,
+"text": "、",
+"group": "symbol",
+"era": "modern",
+"label": "、 — Ideographic Comma",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 928,
+"text": "「",
+"group": "symbol",
+"era": "modern",
+"label": "「 — Left Corner Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 929,
+"text": "」",
+"group": "symbol",
+"era": "modern",
+"label": "」 — Right Corner Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 930,
+"text": "『",
+"group": "symbol",
+"era": "modern",
+"label": "『 — Left White Corner Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 931,
+"text": "』",
+"group": "symbol",
+"era": "modern",
+"label": "』 — Right White Corner Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 932,
+"text": "《",
+"group": "symbol",
+"era": "modern",
+"label": "《 — Left Double Angle Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 933,
+"text": "》",
+"group": "symbol",
+"era": "modern",
+"label": "》 — Right Double Angle Bracket",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 934,
+"text": "？",
+"group": "symbol",
+"era": "modern",
+"label": "？ — Fullwidth Question Mark",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 935,
+"text": "！",
+"group": "symbol",
+"era": "modern",
+"label": "！ — Fullwidth Exclamation Mark",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 936,
+"text": "※",
+"group": "symbol",
+"era": "modern",
+"label": "※ — Reference Mark",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 937,
+"text": "〇",
+"group": "symbol",
+"era": "modern",
+"label": "〇 — Ideographic Number Zero",
+"src": "Noto Sans SC, wght 500"
+},
+{
+"i": 938,
+"text": "✍",
+"group": "symbol",
+"era": "modern",
+"label": "✍ — Writing Hand",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 939,
+"text": "✉",
+"group": "symbol",
+"era": "modern",
+"label": "✉ — Envelope",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 940,
+"text": "✏",
+"group": "symbol",
+"era": "modern",
+"label": "✏ — Pencil",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 941,
+"text": "📖",
+"group": "symbol",
+"era": "modern",
+"label": "📖 — Open Book",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 942,
+"text": "📜",
+"group": "symbol",
+"era": "modern",
+"label": "📜 — Scroll",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 943,
+"text": "🖋",
+"group": "symbol",
+"era": "modern",
+"label": "🖋 — Lower Left Fountain Pen",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 944,
+"text": "⌨",
+"group": "symbol",
+"era": "modern",
+"label": "⌨ — Keyboard",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 945,
+"text": "💬",
+"group": "symbol",
+"era": "modern",
+"label": "💬 — Speech Balloon",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 946,
+"text": "⌛",
+"group": "symbol",
+"era": "modern",
+"label": "⌛ — Hourglass",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 947,
+"text": "☀",
+"group": "symbol",
+"era": "modern",
+"label": "☀ — Black Sun With Rays",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 948,
+"text": "☁",
+"group": "symbol",
+"era": "modern",
+"label": "☁ — Cloud",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 949,
+"text": "☂",
+"group": "symbol",
+"era": "modern",
+"label": "☂ — Umbrella",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 950,
+"text": "❄",
+"group": "symbol",
+"era": "modern",
+"label": "❄ — Snowflake",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 951,
+"text": "★",
+"group": "symbol",
+"era": "modern",
+"label": "★ — Black Star",
+"src": "Noto Sans Symbols 2"
+},
+{
+"i": 952,
+"text": "🌊",
+"group": "symbol",
+"era": "modern",
+"label": "🌊 — Water Wave",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 953,
+"text": "🌙",
+"group": "symbol",
+"era": "modern",
+"label": "🌙 — Crescent Moon",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 954,
+"text": "🔥",
+"group": "symbol",
+"era": "modern",
+"label": "🔥 — Fire",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 955,
+"text": "🐟",
+"group": "symbol",
+"era": "modern",
+"label": "🐟 — Fish",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 956,
+"text": "🐦",
+"group": "symbol",
+"era": "modern",
+"label": "🐦 — Bird",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 957,
+"text": "🐢",
+"group": "symbol",
+"era": "modern",
+"label": "🐢 — Turtle",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 958,
+"text": "🐎",
+"group": "symbol",
+"era": "modern",
+"label": "🐎 — Horse",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 959,
+"text": "💧",
+"group": "symbol",
+"era": "modern",
+"label": "💧 — Droplet",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 960,
+"text": "👁",
+"group": "symbol",
+"era": "modern",
+"label": "👁 — Eye",
+"src": "Noto Emoji (monochrome), wght 500"
+},
+{
+"i": 961,
+"text": "✋",
+"group": "symbol",
+"era": "modern",
+"label": "✋ — Raised Hand",
+"src": "Noto Emoji (monochrome), wght 500"
+}
+]
+}

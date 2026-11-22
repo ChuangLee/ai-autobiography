@@ -1,0 +1,21 @@
+[Unit]
+Description=Zichengjing (AI autobiography song) lyric review comments service
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/lib/zichengjing-review
+EnvironmentFile=/etc/ai-edu-review/env
+ExecStart=/usr/bin/python3 /opt/zichengjing-review/server.py --database /var/lib/zichengjing-review/comments.sqlite3 --port 9034 --allowed-origin https://blind.pub
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/zichengjing-review
+
+[Install]
+WantedBy=multi-user.target
