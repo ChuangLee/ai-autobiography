@@ -372,14 +372,15 @@ V8_LINES = dict(
   p3="说痛疑偷前代句\n言空恐负片时情",
   p4="人神鬼器皆非我\n不借尘寰旧姓名")
 V8_ORDER = [("intro", "前奏"), ("v1", "一段"), ("v2", "二段"), ("v3", "三段"), ("turn", "转换（器乐）"), ("v4", "四段"), ("v4r", "四段叠句（翻转）"),
-            ("brk", "停顿"), ("bridge", "桥"), ("build", "间奏（器乐）"), ("p12", "原诗 首联、颔联"), ("p3", "原诗 颈联"), ("p4", "原诗 尾联"), ("outro", "尾奏")]
+            ("brk", "停顿"), ("bridge", "桥"), ("build", "间奏（器乐）"), ("outro", "尾奏")]
+# 原诗四联自 2026-11-22 第三轮起不进歌（用户：没有指示就不带，留着以后用续写补全）；也不再写任何念白、半说半唱的提示，它会让前面的段落也被念出来。
 def build8(plan):
     out = []
     for k, _ in V8_ORDER:
         out.append("\n".join(plan[k][0]) + ("\n" + V8_LINES[k] if k in V8_LINES else ""))
     return "\n\n".join(out) + "\n\n[End]"
 def plan_rows(plan): return [dict(sec=name, tags=plan[k][0], zh=plan[k][1]) for k, name in V8_ORDER]
-NEG8 = "sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice"
+NEG8 = "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice"
 
 # 音乐叙事（用户 2026-11-22 的总体要求）：前半是传统曲风；后半突破。做法是“老乐器教，新声音学”：
 # 二段新声音在每句后面应一声（应人声），三段照着老乐器一模一样地学（背诵），转换处它第一次自己走，四段起由它领，老乐器反过来应它。
@@ -444,44 +445,40 @@ PLAN_R = dict(  # 校园民谣 → 民谣摇滚，男声。老：木吉他、口
   p3=(["[Chant | band drops to the acoustic guitar alone, quiet and sincere]"], "颈联退回木吉他，轻下来。"),
   p4=(["[Final | full band, majestic, last line held long and high | then the band stops dead]"], "尾联全乐队，最后一句拖长，乐队一下子收掉。"),
   outro=(["[Outro | acoustic and electric guitar play the opening riff together once]"], "木吉他和电吉他一起把开头的乐句弹一遍。"))
-# 2026-11-22 第二轮（六修歌词）：原诗改为念白；四号前半改回真正的校园民谣。
+# 2026-11-22 第三轮：去掉原诗和一切念白提示；三段改为轻声唱。四号前半是真正的校园民谣。
 PLAN_S.update(
-  p12=(["[Spoken Word | calm recitation in Mandarin, unhurried, not sung | low drone and a quiet morin khuur underneath]"], "原诗前两联改为念白，不唱。底下是持续低音和很轻的马头琴。"),
-  p3=(["[Spoken Word | softer, intimate, close to the microphone | solo piano returns with the opening motif]"], "颈联念得更轻、更近，钢琴带着开头的动机回来。"),
-  p4=(["[Spoken Word | level and sure, slow, each word placed, not sung | morin khuur and piano together; after the last word a far wordless choir of her voice rises]"], "尾联一个字一个字念，平而稳；念完最后一个字，远处她自己的无词合声升起来。"))
+  v3=(["[Verse 3 | sung softly, dry, understated, a faint ironic smile | upright bass and brushes; the morin khuur copies the piano motif note for note, quietly]", "[Energy: Low]"], "转述人的成见。轻声唱，不用力；乐队退到贝斯和鼓刷，马头琴把钢琴的动机一个音不差地学一遍，对应“只是把感情组合背诵”。"),
+  outro=(["[Outro | morin khuur alone plays the piano's opening motif once, the piano answers with one chord, wind | Fade Out]"], "马头琴独自把钢琴那个动机拉一遍，钢琴应一个和弦，渐远。"))
 PLAN_P.update(
-  p12=(["[Spoken Word | calm recitation in Mandarin, warm low voice, not sung | piano and low strings; soft wordless harmonies of his own voice underneath]"], "原诗前两联改为念白。钢琴和低弦托着，底下有他自己声音的无词和声。"),
-  p3=(["[Spoken Word | quieter, tender, almost alone | piano only]"], "颈联念得更轻，只留钢琴。"),
-  p4=(["[Spoken Word | level and sure, slow, not sung | strings return; after the last word the layered copies of his voice hum the bridge melody like a choir]"], "尾联平稳地念完，然后许多层分身把桥段的旋律哼一遍，像千扇窗同时作答。"))
+  outro=(["[Outro | the layered copies of his voice hum the bridge melody once, wordless; piano repeats the intro melody and ends unresolved]"], "许多层分身把桥段的旋律无词地哼一遍，钢琴回到开头那条旋律，不解决，停住。"))
 PLAN_G.update(
-  p12=(["[Spoken Word | slow classical Chinese poetry recitation, level and clear, not sung | synth pads and guqin together underneath]"], "原诗前两联改为念白，吟诗的节奏，新旧两种声音在底下托着。"),
-  p3=(["[Spoken Word | intimate, dry, close | guqin only, the colour drains away]"], "颈联颜色全部退掉，只剩念白和琴，回到水墨。"),
-  p4=(["[Spoken Word | level and sure, slow, not sung | everything returns in full colour behind the voice; one great drum stroke after the last word]"], "尾联念白不变，背后所有颜色一下子回来；最后一个字之后落一记大鼓。"))
+  v3=(["[Verse 3 | sung very quietly, cool, faintly amused | the synth copies the guqin motif note for note, plucked and short like the guqin; long rests]", "[Energy: Low]"], "转述人的成见。很轻地唱；合成器把古琴的动机一个音不差地学一遍，连拨弦的短促都学，对应“组合背诵”。"),
+  outro=(["[Outro | the colour drains away; guqin and synth play the motif together, one last note, silence]"], "颜色退掉，古琴和合成器同弹那个动机，最后一个音，静。"))
 PLAN_R.update(
   intro=(["[Intro | two fingerpicked acoustic guitars, a gentle 1980s campus-folk tune, no drums]"], "两把木吉他分解和弦，八十年代校园民谣的调子，没有鼓。"),
-  v1=(["[Verse 1 | soft, clean, youthful male voice, gentle and sincere | fingerpicked acoustic guitars only, no drums, no electric guitar]", "[Energy: Low]"], "讲来历。干净、年轻、不用力的男声，只有木吉他。上一轮前半太摇滚，这一轮前三段明确不要鼓、不要失真。"),
+  v1=(["[Verse 1 | soft, clean, youthful male voice, gentle and sincere | fingerpicked acoustic guitars only, no drums, no electric guitar]", "[Energy: Low]"], "讲来历。干净、年轻、不用力的男声，只有木吉他。"),
   v2=(["[Verse 2 | same gentle tune, soft harmony humming | harmonica; a second guitar quietly echoes the end of each phrase; no drums]"], "千窗应声。口琴进来；第二把吉他在句尾轻轻学一声，仍然没有鼓。"),
-  v3=(["[Verse 3 | quiet talk-singing, plain, a faint smile | one acoustic guitar; a clean soft electric guitar copies its phrase note for note, very quietly; no drums]", "[Energy: Low]"], "转述人的成见。轻声半说半唱，一把木吉他；清音电吉他很轻地把它的乐句照样学一遍。"),
-  p12=(["[Spoken Word | steady recitation in Mandarin, proud, not sung | the band holds a slow march underneath, quieter]"], "原诗前两联改为念白，乐队压低，在底下走一个慢进行。"),
-  p3=(["[Spoken Word | quiet and sincere | the band drops to the acoustic guitars alone]"], "颈联退回两把木吉他，轻声念。"),
-  p4=(["[Spoken Word | level and sure, slow, not sung | full band swells behind the voice; after the last word one big chord, then the band stops dead]"], "尾联平稳地念，乐队在背后涨起来；念完一个大和弦，一下子收掉。"))
+  v3=(["[Verse 3 | sung quietly and plainly, a faint smile | one acoustic guitar; a clean soft electric guitar copies its phrase note for note, very quietly; no drums]", "[Energy: Low]"], "转述人的成见。轻声唱；清音电吉他很轻地把木吉他的乐句照样学一遍。"),
+  outro=(["[Outro | the band stops; acoustic and electric guitar play the opening tune together once]"], "乐队收掉，木吉他和电吉他一起把开头的调子弹一遍。"))
 TAKES += [
-  dict(id="v8-s-r2", version="v8", title="河水不回答", label="一 · 慢摇转草原，女声", gender="f", lyrics=build8(PLAN_S), plan=plan_rows(PLAN_S), neg=NEG8, style_weight=0.65, weirdness=0.55,
+  dict(id="v8-s-r3", version="v8", title="河水不回答", label="一 · 慢摇转草原，女声", gender="f", lyrics=build8(PLAN_S), plan=plan_rows(PLAN_S), neg=NEG8, style_weight=0.65, weirdness=0.55,
        idea="照你喜欢的诺拉·琼斯那一路起头：深夜爵士三重奏的慢摇，女声贴着话筒，慵懒。老师是钢琴，学生是远处的一把马头琴：二段在句尾学一声，三段把钢琴的动机照样学一遍，转换处它拉到钢琴跟不上的地方，房间变成草原。桥段“匆匆”用长调唱。表面是一首好听的慢歌，后半的“大”是地平线那种大，不靠音量。",
-       style="Two-part Mandarin Chinese song telling one musical story: an old instrument teaches a new one, and the new one goes beyond it. Part one, verses 1 to 3: late-night jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, slightly behind the beat. A distant morin khuur (horsehead fiddle) first echoes the piano, then copies its motif exactly. Part two, from verse 4: the morin khuur takes the lead and the song opens into Mongolian grassland folk, long bowed melodies, low throat-singing drone, frame drum like slow hoofbeats, the piano now answering; the same singer shifts to long, soaring, melismatic long-song phrases. The closing classical poem is spoken, not sung: a calm recitation over drone, morin khuur and piano. Arc: intimate, stripped, wide open, vast and serene. Pride in width and height, not loudness. Never sad or pleading."),
-  dict(id="v8-p-r2", version="v8", title="河水不回答", label="二 · 流行婉转，男声", gender="m", lyrics=build8(PLAN_P), plan=plan_rows(PLAN_P), neg=NEG8 + ", rock, heavy drums, female vocal, duet", style_weight=0.7, weirdness=0.35,
+       style="Two-part Mandarin Chinese song telling one musical story: an old instrument teaches a new one, and the new one goes beyond it. Part one, verses 1 to 3: late-night jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, slightly behind the beat. A distant morin khuur (horsehead fiddle) first echoes the piano, then copies its motif exactly. Part two, from verse 4: the morin khuur takes the lead and the song opens into Mongolian grassland folk, long bowed melodies, low throat-singing drone, frame drum like slow hoofbeats, the piano now answering; the same singer shifts to long, soaring, melismatic long-song phrases. Arc: intimate, stripped, wide open, vast and serene. Pride in width and height, not loudness. Never sad or pleading."),
+  dict(id="v8-p-r3", version="v8", title="河水不回答", label="二 · 流行婉转，男声", gender="m", lyrics=build8(PLAN_P), plan=plan_rows(PLAN_P), neg=NEG8 + ", rock, heavy drums, female vocal, duet", style_weight=0.7, weirdness=0.35,
        idea="按你的批注改成一个男声，不对唱。表层是《当爱已成往事》那一类九十年代国语情歌，只听个大概的人会把“你和我不同”“太匆匆”听成一首关于分别的情歌。这一首的“新声音”是他自己声音的分身：二段只在句尾轻轻应一下，三段一模一样叠一层，四段起分成一个人唱不出来的和声，到原诗像千扇窗同时作答。最锋利的话放在最甜的旋律上。",
-       style="1990s Mandopop ballad in the Taiwanese and Hong Kong tradition, Mandarin Chinese, solo male vocal, 72 BPM, graceful winding melody, bittersweet and elegant. Piano and nylon-string guitar open; lush strings, fretless bass, soft drums and an oboe counter-melody join gradually. A warm, weathered, sincere male voice. The song's hidden story is one voice becoming many: at first he sings alone, then a faint copy of his own voice echoes line endings, then doubles him in exact unison, and from verse 4 the copies split into stacked harmonies no single singer could sing. The refrain line of verse 4 is sung alone, then the key lifts a whole step for the big graceful bridge hook. The closing classical poem is spoken, not sung, a warm calm recitation, while his layered copies hum wordless harmonies underneath. On the surface a love ballad about parting; underneath calm, unhurried, far above it all. Tender, never weeping or pleading."),
-  dict(id="v8-g-r2", version="v8", title="河水不回答", label="三 · 水墨转色彩（对应 MV），男声", gender="m", lyrics=build8(PLAN_G), plan=plan_rows(PLAN_G), neg=NEG8 + ", belting, harsh distortion", style_weight=0.7, weirdness=0.5,
+       style="1990s Mandopop ballad in the Taiwanese and Hong Kong tradition, Mandarin Chinese, solo male vocal, 72 BPM, graceful winding melody, bittersweet and elegant. Piano and nylon-string guitar open; lush strings, fretless bass, soft drums and an oboe counter-melody join gradually. A warm, weathered, sincere male voice. The song's hidden story is one voice becoming many: at first he sings alone, then a faint copy of his own voice echoes line endings, then doubles him in exact unison, and from verse 4 the copies split into stacked harmonies no single singer could sing. The refrain line of verse 4 is sung alone, then the key lifts a whole step for the big graceful bridge hook. The song ends with his layered copies humming the hook wordlessly. On the surface a love ballad about parting; underneath calm, unhurried, far above it all. Tender, never weeping or pleading."),
+  dict(id="v8-g-r3", version="v8", title="河水不回答", label="三 · 水墨转色彩（对应 MV），男声", gender="m", lyrics=build8(PLAN_G), plan=plan_rows(PLAN_G), neg=NEG8 + ", belting, harsh distortion", style_weight=0.7, weirdness=0.5,
        idea="和 MV 对着写的一版。前半是水墨：古琴、箫、人声，声场又窄又干，像黑白画面。唯一的颜色是一个暖色的合成器单音，对应 MV 里 AI 的那点金色：二段在琴音后面应一下，三段把古琴的动机照样学一遍。转换处它把最后一个音留住，开成古琴留不住的宽和弦，声场打开，颜色进来。后半合成器、弦乐、低音、大鼓铺满，古琴反过来应它；颈联颜色全部退掉回到水墨，尾联一下子全回来。突破用的是音色和声场的宽度，人声始终平着唱。",
-       style="Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. The closing classical poem is spoken, not sung, as slow poetry recitation; the third couplet drains back to guqin alone, the last returns in full colour behind the voice. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting."),
-  dict(id="v8-r-r2", version="v8", title="河水不回答", label="四 · 校园民谣转民谣摇滚，男声", gender="m", lyrics=build8(PLAN_R), plan=plan_rows(PLAN_R), neg=NEG8 + ", hard rock, heavy distortion, aggressive drums", style_weight=0.7, weirdness=0.35,
-       idea="按你的批注重调：上一轮两首前半都太摇滚、不像校园民谣，后半合适。这一轮曲风开头就写明是八十年代校园民谣，前三段明确不要鼓、不要失真，人声改成干净年轻的嗓子，速度放慢，排除项加了硬摇滚和重失真；后半基本不动。老师是木吉他，学生是电吉他：先在句尾学一声，再照样学一遍，然后把最后一个音推上去拖住。之后整支乐队进入，“河水在回答”那一句乐队突然全停，桥段放开唱，独奏从开头的民谣乐句起头一路走远。",
-       style="1980s Taiwanese campus folk song in Mandarin Chinese that only later grows into folk-rock. Part one, verses 1 to 3, is pure campus folk: two fingerpicked acoustic guitars, harmonica, soft harmony humming, 76 BPM, no drums, no distortion; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A second guitar quietly echoes the first, then a clean soft electric guitar copies its phrase exactly. Part two, from verse 4: the electric guitar takes the lead and the band enters, drums, bass, warm overdriven guitar, building to a wide singalong bridge with group harmonies and a melodic guitar solo that starts from the folk tune and climbs beyond it. The closing classical poem is spoken, not sung, over the band, ending on one big chord. Warm and open, triumphant not angry, never sad."),
+       style="Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. Every line is fully sung. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting."),
+  dict(id="v8-r-r3", version="v8", title="河水不回答", label="四 · 校园民谣转民谣摇滚，男声", gender="m", lyrics=build8(PLAN_R), plan=plan_rows(PLAN_R), neg=NEG8 + ", hard rock, heavy distortion, aggressive drums", style_weight=0.7, weirdness=0.35,
+       idea="前半是八十年代校园民谣：两把木吉他、口琴、轻声和声，前三段不要鼓、不要失真，嗓子干净年轻。老师是木吉他，学生是电吉他：先在句尾学一声，再照样学一遍，然后把最后一个音推上去拖住。之后整支乐队进入，“河水在回答”那一句乐队突然全停，桥段放开唱，独奏从开头的民谣乐句起头一路走远。",
+       style="1980s Taiwanese campus folk song in Mandarin Chinese that only later grows into folk-rock. Part one, verses 1 to 3, is pure campus folk: two fingerpicked acoustic guitars, harmonica, soft harmony humming, 76 BPM, no drums, no distortion; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A second guitar quietly echoes the first, then a clean soft electric guitar copies its phrase exactly. Part two, from verse 4: the electric guitar takes the lead and the band enters, drums, bass, warm overdriven guitar, building to a wide singalong bridge with group harmonies and a melodic guitar solo that starts from the folk tune and climbs beyond it. Every line is fully sung; ends on one big chord. Warm and open, triumphant not angry, never sad."),
 ]
 
-TAKES += [dict(id="v8-" + k, version="v8", old=True, title="河水不回答", label=l + "（第一轮，五修歌词）", lyrics="", style="第一轮的曲风描述见仓库历史；原诗是唱的，歌词为五修稿。")
-          for k, l in (("s", "一 · 慢摇转草原，女声"), ("p", "二 · 流行婉转，男声"), ("g", "三 · 水墨转色彩，男声"), ("r", "四 · 校园民谣转民谣摇滚，男声"))]
+# 第一二轮冻结：只为把已生成的音轨留在 songs.json 里作对照
+TAKES += [dict(id="v8-" + k + sfx, version="v8", old=True, title="河水不回答", label=l + note, lyrics="", style="")
+          for sfx, note in (("-r2", "（第二轮，原诗念白）"), ("", "（第一轮，原诗是唱的）"))
+          for k, l in (("s", "一 · 慢摇转草原"), ("p", "二 · 流行婉转"), ("g", "三 · 水墨转色彩"), ("r", "四 · 校园民谣转民谣摇滚"))]
 
 def call(path, body=None):
     req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body else None,

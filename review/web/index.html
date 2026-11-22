@@ -25,7 +25,40 @@ nav a{color:var(--soft);text-decoration:none;padding:4px 10px;border-radius:14px
 nav a:hover{background:var(--wash);color:var(--ink)}
 nav .sp{flex:1}
 nav button{font:inherit;font-size:13px;color:var(--soft);background:none;border:1px solid var(--rule);border-radius:14px;padding:3px 10px;cursor:pointer}
-main{max-width:760px;margin:0 auto;padding:0 16px 120px}
+main{max-width:1140px;margin:0 auto;padding:0 16px 120px}
+main>section,main>header,main>footer{max-width:760px;margin-left:auto;margin-right:auto}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:40px;align-items:start;max-width:1140px}
+.stage>section{min-width:0}
+.stage>section>h2{margin-top:24px}
+.player{position:sticky;top:60px;max-height:calc(100vh - 76px);overflow:auto;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px 14px 10px;font-size:14px}
+.player .now-t{font-weight:600;font-size:15px;line-height:1.4}
+.player .now-s{font-size:12.5px;color:var(--faint);margin-top:2px}
+.player .ctl{display:flex;align-items:center;gap:10px;margin:10px 0 4px}
+.player .pp{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--ink);background:var(--ink);color:var(--paper);font-size:15px;cursor:pointer;line-height:1}
+.player .pp:disabled{opacity:.35;cursor:default}
+.player input[type=range]{flex:1;min-width:0;accent-color:var(--seal)}
+.player .tm{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap}
+.player .opt{display:flex;gap:12px;align-items:center;font-size:12.5px;color:var(--soft);margin:2px 0 8px;flex-wrap:wrap}
+.player .opt button{font:inherit;color:var(--seal);background:none;border:0;cursor:pointer;padding:0}
+.player .grp{border-top:1px solid var(--rule);padding:8px 0 6px}
+.player .grp .g{font-size:13px;color:var(--soft);margin-bottom:5px}
+.player .trk{display:flex;gap:6px;flex-wrap:wrap}
+.player .trk button{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:14px;padding:3px 12px;cursor:pointer}
+.player .trk button:hover{background:var(--wash)}
+.player .trk button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.player details{border:0;background:none;padding:0;margin:0}
+.player details>summary{padding:8px 0 4px;font-weight:400;font-size:12.5px;color:var(--faint);border:0!important;margin:0!important;border-top:1px solid var(--rule)!important}
+.player .tog{display:none}
+.ln.now{background:var(--mark);box-shadow:-10px 0 0 var(--mark),inset 0 0 0 0 transparent;border-radius:2px}
+.ln.now.has{background:var(--mark)}
+@media (max-width:900px){
+  .stage{display:block}
+  .player{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:6;max-height:72vh;border-radius:12px 12px 0 0;border-width:1px 0 0;padding:10px 14px 8px;box-shadow:0 -6px 24px rgba(0,0,0,.12)}
+  .player .tog{display:inline}
+  .player:not(.open) .lst,.player:not(.open) .cmt{display:none}
+  .player .ctl{margin:6px 0 2px}
+  main{padding-bottom:190px}
+}
 header.hero{padding:56px 0 28px;text-align:center}
 header.hero h1{font-family:var(--serif);font-size:clamp(34px,8vw,52px);letter-spacing:.3em;margin:0 0 6px;font-weight:700;text-indent:.3em}
 header.hero p{color:var(--soft);margin:4px 0;font-size:15px}
@@ -141,7 +174,7 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
   }
   function forget() { key = ""; KEY_STORES.forEach(store.del); renderNav(); }
   function renderNav() {
-    $("#nav").replaceChildren(h("a", { href: "#final" }, "歌词"), songs.some((t) => t.version === "v8") ? h("a", { href: "#songs" }, "试听") : null, h("a", { href: "#prompts" }, "配曲方案"), h("a", { href: "#notes" }, "说明"), h("a", { href: "#others" }, "其他版本"), h("a", { href: "#history" }, "历史各稿"), h("a", { href: "old/" }, "旧版页面与旧试听"), h("a", { href: "mv/" }, "MV 样片"),
+    $("#nav").replaceChildren(h("a", { href: "#final" }, "歌词"), h("a", { href: "#prompts" }, "配曲方案"), h("a", { href: "#notes" }, "说明"), h("a", { href: "#others" }, "其他版本"), h("a", { href: "#history" }, "历史各稿"), h("a", { href: "old/" }, "旧版页面与旧试听"), h("a", { href: "mv/" }, "MV 样片"),
       h("span", { class: "sp" }), key ? h("button", { onclick: forget }, "已登录 · 退出") : h("button", { onclick: ensureKey }, "输入口令"));
   }
   const STATUS = { open: "待处理", done: "已采纳", rejected: "未采纳" };
@@ -174,22 +207,68 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     return h("div", { class: "sec" + (s.classic ? " classic" : "") }, h("div", { class: "lab" }, s.label, h("button", { onclick: () => t.open(null, null) }, "＋批注本段")),
       s.lines.map((line, i) => h("div", { class: "ln", "data-sec": secId, "data-n": i + 1, title: "点这一句写意见", onclick: () => t.open(i + 1, line.replace(/\s+/g, " ")) }, line)), t.box);
   }
-  const mmss = (x) => x ? Math.floor(x / 60) + ":" + String(Math.round(x % 60)).padStart(2, "0") : "";
-  function songBlock(rev) {
-    const all = songs.filter((t) => t.version === "v8");
-    if (!all.length) return null;
-    const mk = (takes) => takes.flatMap((t) => t.tracks.length ? t.tracks.map((tr, i) => {
-      const th = thread("v8-song-" + t.id + "-" + (i + 1), rev + " · 试听 " + t.label + " · 第" + (i + 1) + "首", rev);
-      return h("div", { class: "song" },
-        h("div", { class: "t" }, t.label + " · 第 " + (i + 1) + " 首"),
-        h("div", { class: "d" }, mmss(tr.duration)),
-        h("audio", { controls: "", preload: "metadata", src: tr.file }),
-        h("div", { class: "acts" }, h("button", { onclick: () => th.open(null, null) }, "＋评这一首")),
-        th.box);
-    }) : [h("div", { class: "song" }, h("div", { class: "t" }, t.label), h("div", { class: "d" }, t.fail ? "生成失败：" + t.fail : "生成中…"))]);
-    const cur = all.filter((t) => !t.old), old = all.filter((t) => t.old);
-    return h("section", { id: "songs" }, h("h2", {}, "试听", h("small", {}, "四种编曲，各两首")), h("p", { class: "lead" }, "每种编曲的思路和分段设计在下面的“配曲方案”里。点播放键试听，每首下面可以单独评。"), h("div", { class: "songs" }, mk(cur)),
-      old.length ? h("details", { class: "hist old" }, h("summary", {}, "上一轮的 " + old.reduce((n, t) => n + t.tracks.length, 0) + " 首（旧歌词、原诗是唱的，留作对照）"), h("div", { class: "songs" }, mk(old))) : null);
+  const mmss = (x) => { x = Math.floor(x || 0); return Math.floor(x / 60) + ":" + String(x % 60).padStart(2, "0"); };
+  // One shared player beside the lyrics. The Audio object is never put in the DOM, so re-rendering the page cannot pause it.
+  const audio = new Audio(); audio.preload = "metadata";
+  let timing = {}, cur = null, nowKey = "", follow = store.get("zcj-follow") !== "0", P = null;
+  const allTracks = () => songs.filter((t) => t.version === "v8").flatMap((t) => t.tracks.map((tr, i) => ({ key: t.id + "-" + (i + 1), take: t, i: i + 1, file: tr.file, duration: tr.duration })));
+  function lineAt(t) {
+    const rows = cur && timing[cur.key]; if (!rows) return null;
+    let k = -1; for (let i = 0; i < rows.length; i++) { if (rows[i][2] <= t + 0.12) k = i; else break; }
+    if (k < 0) return null;
+    const next = rows[k + 1]; if (t > rows[k][3] + 3 && (!next || next[2] > t + 0.5)) return null;   // an instrumental stretch
+    return rows[k];
+  }
+  function sync(force) {
+    const r = lineAt(audio.currentTime), key = r ? r[0] + "#" + r[1] : "";
+    if (key === nowKey && !force) return; nowKey = key;
+    document.querySelectorAll(".ln.now").forEach((el) => el.classList.remove("now"));
+    if (!r) return;
+    const el = document.querySelector('#final .ln[data-sec="' + r[0] + '"][data-n="' + r[1] + '"]'); if (!el) return;
+    el.classList.add("now");
+    if (follow && !audio.paused && !force) { const b = el.getBoundingClientRect(), lim = innerWidth <= 900 ? innerHeight - 210 : innerHeight - 80;
+      if (b.top < 70 || b.bottom > lim) scrollTo({ top: scrollY + b.top - (innerWidth <= 900 ? innerHeight * 0.3 : innerHeight * 0.4), behavior: "smooth" }); }
+  }
+  function select(tr, play) {
+    cur = tr; nowKey = ""; audio.src = tr.file; store.set("zcj-track", tr.key);
+    if (play) audio.play().catch(() => {});
+    drawPlayer(); sync(true);
+  }
+  function drawPlayer() {
+    if (!P) return;
+    const rev = content.final.rev, list = allTracks(), curTakes = songs.filter((t) => t.version === "v8" && !t.old), oldTakes = songs.filter((t) => t.version === "v8" && t.old);
+    P.root.style.display = list.length ? "" : "none";
+    const btn = (t, tr, i) => { const key = t.id + "-" + (i + 1), it = list.find((x) => x.key === key);
+      return h("button", { class: cur && cur.key === key ? "on" : null, onclick: () => select(it, true) }, "第 " + (i + 1) + " 首 · " + mmss(tr.duration)); };
+    const grp = (t) => h("div", { class: "grp" }, h("div", { class: "g" }, t.label), t.tracks.length ? h("div", { class: "trk" }, t.tracks.map((tr, i) => btn(t, tr, i))) : h("div", { class: "g" }, t.fail ? "生成失败：" + t.fail : "生成中…"));
+    P.title.textContent = cur ? cur.take.label + " · 第 " + cur.i + " 首" : "选一首开始听";
+    P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "四种编曲，各两首，共用这一个播放器";
+    P.pp.disabled = !cur; P.pp.textContent = audio.paused ? "▶" : "❚❚";
+    P.fol.textContent = follow ? "跟随滚动：开" : "跟随滚动：关";
+    P.lst.replaceChildren(...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前两轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（旧歌词，带原诗，留作对照）"), oldTakes.map(grp))] : []));
+    if (cur) { const th = thread("v8-song-" + cur.key, rev + " · 试听 " + cur.take.label + " · 第" + cur.i + "首", rev);
+      P.cmt.replaceChildren(h("div", { class: "opt" }, h("button", { onclick: () => { P.root.classList.add("open"); th.open(null, null); } }, "＋评这一首")), th.box); }
+    else P.cmt.replaceChildren();
+  }
+  function playerRoot() {
+    if (P) { drawPlayer(); return P.root; }
+    P = { title: h("div", { class: "now-t" }), sub: h("div", { class: "now-s" }), tm: h("span", { class: "tm" }, "0:00 / 0:00"), lst: h("div", { class: "lst" }), cmt: h("div", { class: "cmt" }) };
+    P.pp = h("button", { class: "pp", title: "播放 / 暂停", onclick: () => { if (!cur) return; audio.paused ? audio.play().catch(() => {}) : audio.pause(); } }, "▶");
+    P.seek = h("input", { type: "range", min: "0", max: "1000", value: "0", "aria-label": "进度" });
+    P.seek.addEventListener("input", () => { if (cur && audio.duration) audio.currentTime = audio.duration * P.seek.value / 1000; });
+    P.fol = h("button", { onclick: () => { follow = !follow; store.set("zcj-follow", follow ? "1" : "0"); drawPlayer(); } });
+    P.root = h("aside", { class: "player", id: "songs" }, P.title, P.sub, h("div", { class: "ctl" }, P.pp, P.seek, P.tm),
+      h("div", { class: "opt" }, P.fol, h("span", {}, "双击歌词跳到那一句"), h("button", { class: "tog", onclick: () => P.root.classList.toggle("open") }, "曲目列表 ▾")), P.lst, P.cmt);
+    const tick = () => { const d = audio.duration || (cur && cur.duration) || 0; P.tm.textContent = mmss(audio.currentTime) + " / " + mmss(d);
+      if (d && document.activeElement !== P.seek) P.seek.value = Math.round(audio.currentTime / d * 1000); sync(); };
+    audio.addEventListener("timeupdate", tick); audio.addEventListener("loadedmetadata", tick);
+    ["play", "pause", "ended"].forEach((ev) => audio.addEventListener(ev, () => { P.pp.textContent = audio.paused ? "▶" : "❚❚"; }));
+    audio.addEventListener("ended", () => { const l = allTracks(), k = l.findIndex((x) => x.key === cur.key); nowKey = ""; sync(true); if (k >= 0 && l[k + 1] && !l[k + 1].take.old) select(l[k + 1], true); });
+    document.addEventListener("dblclick", (e) => { const el = e.target.closest && e.target.closest("#final .ln"); const rows = cur && timing[cur.key]; if (!el || !rows) return;
+      const r = rows.find((x) => x[0] === el.dataset.sec && x[1] === +el.dataset.n); if (r) { audio.currentTime = r[2]; audio.play().catch(() => {}); } });
+    const l = allTracks(), saved = l.find((x) => x.key === store.get("zcj-track") && !x.take.old) || l.find((x) => !x.take.old) || l[0];
+    if (saved) { cur = saved; audio.src = saved.file; }
+    drawPlayer(); return P.root;
   }
   function promptBlock(rev) {
     const P = content.prompts; if (!P) return null;
@@ -207,11 +286,11 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     const y = scrollY, f = content.final, overall = thread("f8-overall", f.rev + " · 总评", f.rev);
     $("#app").replaceChildren(...[
       h("header", { class: "hero" }, h("h1", {}, "河水不回答"), h("p", {}, f.sub || "歌词定稿 · 附历史各稿"), h("p", { class: "rev" }, f.rev + " · " + f.date + " · 点任意一句即可批注")),
-      h("section", { id: "final" }, h("h2", {}, f.rev, h("span", { class: "badge" }, f.status)), h("p", { class: "lead" }, f.lead),
+      h("div", { class: "stage" }, h("section", { id: "final" }, h("h2", {}, f.rev, h("span", { class: "badge" }, f.status)), h("p", { class: "lead" }, f.lead),
         f.sections.map((s) => section(f, s, "f8")),
         h("h3", {}, "总评"), overall.box,
-        h("div", { class: "pick" }, h("button", { class: "btn ghost", onclick: () => overall.open(null, null) }, "写总评"))),
-      songBlock(f.rev), promptBlock(f.rev),
+        h("div", { class: "pick" }, h("button", { class: "btn ghost", onclick: () => overall.open(null, null) }, "写总评"))), playerRoot()),
+      promptBlock(f.rev),
       h("section", { id: "notes" }, h("h2", {}, "说明", h("small", {}, "歌词各处的来由")), h("dl", { class: "notes" }, f.notes.map(([t, d]) => [h("dt", {}, t), h("dd", {}, d)]))),
       h("section", { id: "others" }, h("h2", {}, "其他版本", h("small", {}, "已降级，折叠备查")),
         (content.cands || []).map((c) => { const ct = thread("cand-" + c.id + "-overall", f.rev + " · " + c.name + " · 总评", f.rev);
@@ -226,12 +305,13 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
         content.history.map((v, i) => h("details", { class: "hist old" }, h("summary", {}, v.rev + " · " + v.title),
           h("p", { class: "why" }, "改动缘由：" + v.why), v.sections.map((s) => section(v, s, "h" + (content.history.length - i)))))),
       h("footer", {}, "仅供审阅 · 意见保存在服务器，下一稿会逐条回复")]);
-    mark(); scrollTo(0, y);
+    mark(); sync(true); scrollTo(0, y);
   }
   async function init() {
     key = KEY_STORES.map(store.get).find(Boolean) || "";
     try { content = await (await fetch("heshui/content.json", { cache: "no-cache" })).json(); } catch { $("#app").textContent = "内容载入失败，请刷新。"; return; }
     try { songs = await (await fetch("songs.json", { cache: "no-cache" })).json(); } catch { songs = []; }
+    try { timing = await (await fetch("timing.json", { cache: "no-cache" })).json(); } catch { timing = {}; }
     try { comments = (await api("comments")).comments; } catch { comments = []; }
     if (key) await api("auth").catch((e) => { if (e.status === 401) forget(); });
     renderNav(); render();

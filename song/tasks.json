@@ -298,5 +298,65 @@
     "sunoId": "abaf6128-d2f5-4dae-9f4f-f906423f8747"
    }
   ]
+ },
+ "v8-s-r3": {
+  "taskId": "6629769ef96e7e48d06dd021ab9b0888",
+  "tracks": [
+   {
+    "file": "audio/v8-s-r3-1.mp3",
+    "duration": 281.08,
+    "sunoId": "e9f32e14-baed-422e-98ca-9c9b155ca3d3"
+   },
+   {
+    "file": "audio/v8-s-r3-2.mp3",
+    "duration": 272.8,
+    "sunoId": "9f8d81a6-8b40-44db-b5a9-6dee28152ea1"
+   }
+  ]
+ },
+ "v8-p-r3": {
+  "taskId": "57d103588b6bde892c6a73af1051a2e6",
+  "tracks": [
+   {
+    "file": "audio/v8-p-r3-1.mp3",
+    "duration": 253.4,
+    "sunoId": "47eb8b68-64f5-406b-9fa8-da4c93a17ad2"
+   },
+   {
+    "file": "audio/v8-p-r3-2.mp3",
+    "duration": 243.2,
+    "sunoId": "64fbebe2-0cf8-42d7-aa87-8bcf6e50aaf2"
+   }
+  ]
+ },
+ "v8-g-r3": {
+  "taskId": "c0c508f47c2bc3a2e2bc69d2d0af28f6",
+  "tracks": [
+   {
+    "file": "audio/v8-g-r3-1.mp3",
+    "duration": 263.6,
+    "sunoId": "7ead0413-0991-46a8-8a4a-2c82bca2e234"
+   },
+   {
+    "file": "audio/v8-g-r3-2.mp3",
+    "duration": 268.6,
+    "sunoId": "21cde004-424d-410a-9e46-e33b866d1b9e"
+   }
+  ]
+ },
+ "v8-r-r3": {
+  "taskId": "a90927b8f788a831d9e20ce97dde76da",
+  "tracks": [
+   {
+    "file": "audio/v8-r-r3-1.mp3",
+    "duration": 232.36,
+    "sunoId": "f375c0e3-52e1-4099-87fe-31f4d7c9177d"
+   },
+   {
+    "file": "audio/v8-r-r3-2.mp3",
+    "duration": 233.6,
+    "sunoId": "1a122721-0816-4f1c-af41-de4aa25ab42d"
+   }
+  ]
  }
 }

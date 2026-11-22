@@ -10,6 +10,7 @@ install -m 644 web/index.html web/poem.jpg /var/www/zichengjing/
 rm -f /var/www/zichengjing/content.json
 install -d /var/www/zichengjing/old && install -m 644 web/old/index.html web/old/content.json /var/www/zichengjing/old/
 [ -f web/songs.json ] && install -m 644 web/songs.json /var/www/zichengjing/
+[ -f web/timing.json ] && install -m 644 web/timing.json /var/www/zichengjing/
 if ls web/audio/*.mp3 >/dev/null 2>&1; then install -d /var/www/zichengjing/audio && install -m 644 web/audio/*.mp3 /var/www/zichengjing/audio/; fi
 install -d /var/www/zichengjing/mv/data /var/www/zichengjing/mv/v6 && install -m 644 ../mv/index.html ../mv/timing.json /var/www/zichengjing/mv/ && install -m 644 ../mv/data/strokes.js /var/www/zichengjing/mv/data/ && install -m 644 ../mv/v6/index.html ../mv/v6/timing.json /var/www/zichengjing/mv/v6/
 # MV: the web-encoded Veo clips (mv/clips, made by mv/ai/encode.sh) and the earlier hand-drawn version for comparison
