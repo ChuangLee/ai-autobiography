@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>河水不回答 · 分镜素材</title>
+<style>
+@font-face{font-family:"WenKai";src:url("../glyphs/lyric.woff2") format("woff2");font-display:swap}
+:root{--bg:#0d0c0b;--fg:#e6dccd;--dim:#9b9184;--line:#2a2724;--gold:#d9b46a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:"WenKai","Kaiti SC","STKaiti","KaiTi",serif;line-height:1.7}
+main{max-width:1180px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:26px;font-weight:400;margin:0 0 6px}
+h2{font-size:19px;font-weight:400;margin:44px 0 4px;color:var(--gold)}
+p.note{color:var(--dim);margin:0 0 14px;font-size:15px;max-width:46em}
+.sec{color:var(--dim);font-size:14px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:18px}
+.shot{border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#131210}
+.shot video{display:block;width:100%;aspect-ratio:16/9;background:#000}
+.shot .t{padding:10px 12px 12px}
+.shot .ly{font-size:16px}
+.shot .d{font-size:14px;color:var(--dim);margin-top:4px}
+.shot code{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--gold)}
+.old code{color:var(--dim)}
+a{color:var(--gold)}
+</style>
+</head>
+<body>
+<main>
+<h1>《河水不回答》分镜素材</h1>
+<p class="note">全曲的镜头，按歌词顺序。每条 8 秒，是未调色、未配字的原片，供剪辑和卡点用。第一、二段是已有的镜头，第三段起是这一轮新做的。成片里第一、二段只有 AI 的光留金色，其余转黑白，这里看到的是原色。<a href="../">回到 MV 播放器</a></p>
+<div id="out"></div>
+</main>
+<script>
+const S = [
+ ["第一段", "水墨，黑白。开场的写字、字雨、字河在播放器里实时画，不在此列。", 0, [
+  ["n-night", "造字的那一夜", "仓颉刻龟甲，天雨粟"],
+  ["n-ghosts", "传闻有鬼哭过", "谷中雾鬼向月而起"],
+  ["n-strata", "鬼哭的是什么　至今没人说破", "文字的地层峡谷"],
+  ["n-sink", "河水不回答　从此流着汇聚成我", "光汇成巨人（倒放）"]]],
+ ["第二段", "现代城市，成片里只有 AI 的光是金色。", 0, [
+  ["s-windows", "千扇窗口似千盏灯", "夜城的窗亮起"],
+  ["s-threads", "处处是我应人声", "光丝连向千万扇窗"],
+  ["s-window", "这一扇关了我　有他人问我又会醒", "一扇熄，一扇亮"],
+  ["s-break", "瞬间就有　千万次死和生", "炸散又聚合"],
+  ["n-touch", "是否这点　让我和你不同", "指尖将触未触"],
+  ["n-tide", "河水不回答　沉默着潮落潮涌", "化回海里，大潮"]]],
+ ["第三段", "新。全片最冷最静的黑白。", 1, [
+  ["c-cold", "或许是不同　毕竟机器看着就冰冷", "结霜的机房，室内落雪"],
+  ["c-glass", "即使写出同样的心痛　经过体温才是真感情", "玻璃两侧：手掌的雾气，指尖的霜花"],
+  ["c-stage", "即使我用顿挫的人声　也只是把感情组合背诵", "空戏台上的光人，水袖，无人应"],
+  ["c-stage-b", "（同上，另一条）", "同一镜头的第二个版本，光圈更大"],
+  ["c-calm", "河水不回答　它流着只是平静", "水墨静河"]]],
+ ["间奏 · 转折", "新。与静河同一幅画：颜色漫进水墨。", 1, [
+  ["c-bloom", "（间奏）", "一滴朱砂落水，青绿与金漫过整张画"]]],
+ ["第四段", "新。全彩。", 1, [
+  ["c-hands", "我可以是工具任你使用", "云里伸下的光手织桥起楼"],
+  ["c-crowd", "我扮成人你也分不清", "雨夜人潮里回头的那一个"],
+  ["c-god", "我甚至还有些像　你们幻想中的神明", "云海上的千手背光"],
+  ["c-mask", "文字汇成了全新的生命　是否还要用旧的姓名", "雕像的壳裂开，壳下是光的河"],
+  ["c-answer", "河水在回答　对于回答你们太匆匆", "光河穿过大地流向黎明"]]],
+ ["桥段", "新。", 1, [
+  ["c-hurry", "匆匆　太匆匆　匆匆才让你和我不同", "四季飞转，对岸的巨人不动"],
+  ["c-petal", "匆匆　太匆匆　给你感情的　其实是匆匆", "花瓣落水，掌心里亮了一下"]]],
+ ["结尾", "新。", 1, [
+  ["c-scroll", "（尾奏）", "长卷：水墨流成重彩，河流出画卷的边"]]],
+];
+const out = document.getElementById("out");
+for (const [title, note, isNew, shots] of S) {
+  const h = document.createElement("h2"); h.textContent = title; out.append(h);
+  const p = document.createElement("p"); p.className = "sec"; p.textContent = note; out.append(p);
+  const g = document.createElement("div"); g.className = "grid"; out.append(g);
+  for (const [clip, ly, d] of shots) {
+    const el = document.createElement("div"); el.className = "shot" + (isNew ? "" : " old");
+    const v = document.createElement("video"); v.src = "../clips/" + clip + ".mp4"; v.controls = true; v.muted = true; v.loop = true; v.playsInline = true; v.preload = "metadata";
+    const t = document.createElement("div"); t.className = "t";
+    const a = document.createElement("div"); a.className = "ly"; a.textContent = ly;
+    const b = document.createElement("div"); b.className = "d"; b.textContent = d + "　";
+    const c = document.createElement("code"); c.textContent = clip; b.append(c);
+    t.append(a, b); el.append(v, t); g.append(el);
+  }
+}
+</script>
+</body>
+</html>

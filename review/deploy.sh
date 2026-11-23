@@ -17,6 +17,8 @@ install -d /var/www/zichengjing/mv/data /var/www/zichengjing/mv/v6 && install -m
 install -d /var/www/zichengjing/mv/clips /var/www/zichengjing/mv/old-canvas && install -m 644 ../mv/clips/*.mp4 /var/www/zichengjing/mv/clips/ && install -m 644 ../mv/old-canvas/index.html /var/www/zichengjing/mv/old-canvas/ && install -m 644 ../mv/timing.json /var/www/zichengjing/mv/old-canvas/ && install -d /var/www/zichengjing/mv/old-canvas/data && install -m 644 ../mv/data/strokes.js /var/www/zichengjing/mv/old-canvas/data/
 # MV v3 (black-and-white ink): the glyph atlas of real writing and the lyric font; the previous colour cut kept at mv/v2-color for comparison
 install -d /var/www/zichengjing/mv/glyphs /var/www/zichengjing/mv/v2-color && install -m 644 ../mv/glyphs/atlas.png ../mv/glyphs/atlas.json ../mv/glyphs/lyric.woff2 ../mv/glyphs/CREDITS.md /var/www/zichengjing/mv/glyphs/ && install -m 644 ../mv/v2-color/index.html /var/www/zichengjing/mv/v2-color/
+# Storyboard gallery: every shot of the whole song in lyric order (mv/shots.html), served at mv/shots/
+install -d /var/www/zichengjing/mv/shots && install -m 644 ../mv/shots.html /var/www/zichengjing/mv/shots/index.html
 python3 build_heshui.py
 install -d /var/www/zichengjing/heshui && install -m 644 web/heshui/index.html web/heshui/content.json /var/www/zichengjing/heshui/
 install -d /opt/zichengjing-review
