@@ -66,29 +66,24 @@ function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.
 // `moon`: [x, y from top, radius in frame heights] of the moon in the clip, which stays silver even when it is as bright as the giant.
 const LEN = { "s-break": 5.33, "c-calm": 6.58 }, clipLen = (c) => LEN[c] ?? 7.83;
 const V1 = { paper: 1, bars: 1, beat: .3 }, V2 = { lyr: 1, ai: 1, paper: .3, beat: .5 }, V3 = { lyr: 1, bars: 1, paper: .3, beat: .4 }, C = { lyr: 1, col: 1, beat: 1 };
-const TEASE = { lyr: 1, col: 1, bars: 1, beat: .7, fx: 1, tr: "cut", punch: .1, zoom: [1.12, 1.0] };
-const INKCUT = { lyr: 1, paper: 1, bars: 1, beat: 1, tr: "cut", punch: .16 }, AICUT = { lyr: 1, ai: 1, sat: .2, paper: .3, beat: 1, tr: "cut", punch: .16 }, COLCUT = { ...C, tr: "cut", punch: .16 };
+const TEASE = { lyr: 1, col: 1, bars: 1, beat: .35, tr: "ink", zoom: [1.06, 1.0] };
+const INKCUT = { lyr: 1, paper: 1, bars: 1, beat: 1, tr: "cut", punch: .06 }, AICUT = { lyr: 1, ai: 1, sat: .2, paper: .3, beat: 1, tr: "cut", punch: .06 }, COLCUT = { ...C, tr: "cut", punch: .06 };
 const SHOTS = [
-  // cold open: 字 is written in two seconds, its strokes become windows onto what is coming, the camera dives through a stroke and the
-  // strongest moments of the film flash past on the guqin's notes; then back to the bare paper, and the story starts from the beginning
+  // cold open: 字 is written in two seconds, its strokes become windows onto what is coming, the camera dives through a stroke into
+  // three unhurried looks at what is coming, changing on the guqin's notes; then back to the bare paper, and the story starts from the beginning
   { gen: "sea",   at: 0, tr: "cut", glyphs: 0, lyr: 0, ...V1, red: 1 },
-  { clip: "c-mask",   at: 2.2,   in: 4.1, rate: 1,   ...TEASE, tr: "glyph", punch: 0, glyphs: 1.2, flow: "burst" },
-  { clip: "n-sink",   at: 5.81,  in: 5.3, rate: 1.3, ...TEASE, col: 0, ai: 1, glyphs: 1.1, flow: "up", moon: [.495, .536, .34] },
-  { clip: "s-break",  at: 6.73,  in: .1,  rate: 1.3, ...TEASE, col: 0, ai: 1, sat: .2, glyphs: 1.4, flow: "burst", moon: [.67, .13, .09] },
-  { clip: "c-god",    at: 7.66,  in: 4.4, rate: 1.3, ...TEASE, glyphs: .6, flow: "out" },
-  { clip: "c-hands",  at: 9.50,  in: 1.8, rate: 1.5, ...TEASE, glyphs: .5, flow: "out" },
-  { clip: "n-touch",  at: 10.42, in: 4.6, rate: 1.3, ...TEASE, col: 0, ai: 1, sat: .2, glyphs: .5, flow: "drift" },
-  { clip: "c-bloom",  at: 11.35, in: 4.4, rate: 1.3, ...TEASE, glyphs: .5, flow: "up" },
-  { clip: "c-answer", at: 13.20, in: .5,  rate: 1.6, ...TEASE, glyphs: .7, flow: "rush" },
-  { clip: "c-mask",   at: 14.14, in: .2,  rate: 1.5, ...TEASE, glyphs: 1.2, flow: "burst" },
+  { clip: "c-mask",   at: 2.2,   in: 4.1, rate: 1,  ...TEASE, tr: "glyph", glyphs: .8, flow: "burst" },
+  { clip: "c-hands",  at: 7.66,  in: 1.6, rate: 1,  ...TEASE, glyphs: .4, flow: "out" },
+  { clip: "c-bloom",  at: 11.35, in: 3.6, rate: 1,  ...TEASE, glyphs: .4, flow: "up" },
   // intro and verse 1: ink
-  { gen: "sea2",  at: 15.07, tr: "flash", glyphs: 0, lyr: 0, ...V1, red: [1, 0, -1, -.01] },
+  { gen: "sea2",  at: 15.07, tr: "ink", glyphs: 0, lyr: 0, ...V1, red: [1, 0, -1, -.01] },
   { gen: "fall",  ph: 0, tr: "cross", glyphs: .25, flow: "fall", lyr: 0, ...V1 },
   { gen: "river", ph: 2, tr: "ink", glyphs: .2, flow: "drift", lyr: 0, ...V1 },
   { clip: "n-night",  ph: 4, align: "start", tr: "ink", zoom: [1.0, 1.07], glyphs: .5, flow: "fall", lyr: 1, ...V1 },
   { clip: "n-ghosts", ph: 5, align: "center", tr: "cross", zoom: [1.04, 1.0], glyphs: .4, flow: "fall", lyr: 1, ...V1 },
   { clip: "n-strata", ph: 6, align: "start", tr: "ink", zoom: [1.0, 1.06], glyphs: .7, flow: "rush", lyr: 1, ...V1 },
-  { clip: "n-sink",   ph: 8, align: "end", tr: "cross", zoom: [1.12, 1.0], glyphs: 1.1, flow: "up", lyr: 1, ...V1, ai: 1, bars: [1, 0, -3.2, -.4], moon: [.495, .536, .34] },
+  { gen: "mouth",     ph: 8, tr: "ink", glyphs: .2, flow: "drift", lyr: [0, 1, 2.5, 5], ...V1 },
+  { clip: "n-sink",   at: 47.3, align: "end", tr: "light", zoom: [1.12, 1.0], glyphs: 1.1, flow: "up", lyr: 1, ...V1, ai: 1, bars: [1, 0, -3.2, -.4], moon: [.495, .536, .34] },
   // verse 2: the city; the warm light slowly comes back
   { clip: "s-windows", ph: 10, align: "start", tr: "flash", zoom: [1.0, 1.06], glyphs: .4, flow: "drift", ...V2, sat: .07 },
   { clip: "s-threads", ph: 11, align: "center", tr: "light", zoom: [1.0, 1.06], glyphs: .7, flow: "out", ...V2, sat: .1, moon: [.69, .33, .16] },
@@ -103,7 +98,7 @@ const SHOTS = [
   { clip: "c-calm",  ph: 26, tr: "ink", zoom: [1.0, 1.03], glyphs: 0, ...V3, lyr: 0, paper: 1, beat: .1 },
   // the turn: one drop of vermilion on the drum stroke; colour floods the same painting and the frame opens
   { clip: "c-bloom", at: 118.89, tr: "cross", zoom: [1.03, 1.1], glyphs: .5, flow: "up", lyr: 1, red: 1, ai: [0, 1, 2, 6], col: [0, 1, 1.5, 6.5], bars: [1, 0, 3, 8], paper: [1, 0, 2, 7], beat: .6 },
-  { gen: "river2",   at: 132.75, tr: "ink", glyphs: .35, flow: "rush", ...C, ai: 1, beat: .9 },
+  { gen: "river2",   at: 132.75, tr: "ink", glyphs: .25, flow: "rush", ...C, ai: 0, beat: .7 },
   { clip: "n-sink",  at: 147.52, align: "end", tr: "light", zoom: [1.1, 1.0], glyphs: 1.2, flow: "up", lyr: 1, ai: 1, duo: 1, beat: 1 },
   // verse 4: full colour
   { clip: "c-hands", ph: 28, tr: "flash", zoom: [1.0, 1.06], glyphs: .5, flow: "out", ...C, ai: 1 },
@@ -201,8 +196,9 @@ const NOISE = `
   float fbm(vec2 p){ float s = 0.0, a = .5; for (int i = 0; i < 5; i++){ s += a * vn(p); p = p * 2.03 + vec2(17.1, 9.2); a *= .5; } return s; }
   float fbm3(vec2 p){ float s = 0.0, a = .5; for (int i = 0; i < 3; i++){ s += a * vn(p); p = p * 2.03 + vec2(17.1, 9.2); a *= .5; } return s; }
   // the rivers: five tributaries that meet and run on to the horizon as one
-  float rx(float k, float z){ float m = smoothstep(-15.0, 50.0, z); return mix(k * 17.0 + sin(z * .08 + k * 1.9) * 4.0, 0.0, m) + sin(z * .022) * 8.0; }
-  float rw(float z){ return mix(3.2, 13.0, smoothstep(-10.0, 90.0, z)); }
+  float rx(float k, float z){ float m = smoothstep(0.0, 95.0, z); return mix(k * 17.0 + sin(z * .08 + k * 1.9) * 4.0, 0.0, m) + sin(z * .022) * 8.0; }
+  float rw(float z){ return mix(3.4, 13.0, smoothstep(20.0, 110.0, z)); }
+  const float ZSEA = 165.0;                // where the land ends
   float wave(vec2 q, float t, float A){ return A * (sin(q.x * .35 + t * .9) * .5 + sin(q.y * .5 - t * 1.1 + q.x * .15) * .6 + sin((q.x + q.y) * .8 + t * 1.7) * .2); }
 `;
 const CALS = 2.0;                        // the written character covers CALS x CALS world units around the origin
@@ -219,7 +215,7 @@ const FS_VS = `#version 300 es
 // — the paper, the sky, the sea, the mountains —
 const SCENE_FS = `#version 300 es
   precision highp float; in vec2 vUV; out vec4 o;
-  uniform vec3 uCam, uF, uR, uU, uMoon; uniform float uTan, uAsp, uT, uWaveInk, uNight, uRiver, uCalliA, uFogD, uNear, uFar, uTint;
+  uniform vec3 uCam, uF, uR, uU, uMoon; uniform float uTan, uAsp, uT, uWaveInk, uNight, uRiver, uCalliA, uFogD, uNear, uFar, uTint, uLand;
   uniform sampler2D uCalli;
   ${NOISE}
   const vec3 PAPER = vec3(.925, .91, .868), INK = vec3(.05, .05, .058);
@@ -302,8 +298,17 @@ const SCENE_FS = `#version 300 es
       vec2 q = hit.xz; float fog = 1.0 - exp(-t / uFogD);
       vec3 n = normalize(vec3((fbm3(q * .6 + uT * .2) - .5) * .5, 1.0, (fbm3(q * .6 + 3.0 - uT * .2) - .5) * .5));
       float glint = smoothstep(.93, .995, dot(reflect(d, n), uMoon));
-      k = waveLines(q, t) * .55 * uWaveInk * (1.0 - glint);
-      k += .07 * uWaveInk * fbm3(q * .25 + uT * .03);
+      float wet = 1.0;
+      if (uLand > .5) {                                                                            // dry land until the coast: the rivers on it are made of writing, not of water
+        float shore = ZSEA + 9.0 * (fbm3(vec2(q.x * .035, 3.0)) - .5); wet = smoothstep(shore - 2.0, shore + 14.0, q.y);
+        float dr = 1e9; for (int i = -2; i <= 2; i++) dr = min(dr, abs(q.x - rx(float(i), q.y)));
+        float w = rw(q.y), bank = smoothstep(.22, .0, abs(dr / w - 1.18)) * smoothstep(.3, .62, fbm3(q * vec2(.9, .22) + 4.0));   // a dry-brush line along each bank
+        float land = .05 + .13 * smoothstep(.45, .8, fbm3(q * .045)) * smoothstep(w * 1.3, w * 3.5, dr) + bank * .34;
+        land += smoothstep(1.6, .0, abs(q.y - shore)) * .22 * smoothstep(.35, .6, fbm3(q * vec2(.25, .9)));                    // the shoreline
+        k = land * (1.0 - wet);
+      } else k = 0.0;
+      k += waveLines(q, t) * .55 * uWaveInk * (1.0 - glint) * wet;
+      k += .07 * uWaveInk * fbm3(q * .25 + uT * .03) * wet;
       k += fibre(q) * (1.0 - smoothstep(3.0, 12.0, t));
       k = mix(k, .05, fog);
       col = mix(PAPER, INK, clamp(k, 0.0, 1.0));
@@ -338,12 +343,12 @@ const GLYPH_VS = `#version 300 es
   layout(location = 0) in vec2 aC; layout(location = 1) in vec4 aI; layout(location = 2) in float aCell;
   uniform vec3 uCam, uF, uR, uU; uniform float uTan, uAsp, uT, uKind, uUpright, uSize, uReveal, uEvo, uWaveAmp, uNear, uFar, uFogD, uCols, uFlow;
   uniform highp sampler2D uEvoTex;
-  out vec2 vTex; out float vA, vFog, vSeed; flat out int vK;
+  out vec2 vTex; out float vA, vFog, vSeed, vTrib; flat out int vK;
   ${NOISE}
   const float CALS = ${CALS.toFixed(2)};
   vec4 proj(vec3 p){ vec3 v = p - uCam; float ze = dot(v, uF); return vec4(dot(v, uR) / (uTan * uAsp), dot(v, uU) / uTan, (uFar + uNear) / (uFar - uNear) * ze - 2.0 * uFar * uNear / (uFar - uNear), ze); }
   void main(){
-    float s = aI.z; int K = int(uKind + .5); vK = K; vSeed = s;
+    float s = aI.z, zr = 0.0; int K = int(uKind + .5); vK = K; vSeed = s; vTrib = -1.0;
     vec3 p; float size = uSize * (.75 + .5 * fract(s * 91.7)), a = 1.0, up = uUpright, cell = aCell, rot = (fract(s * 53.1) - .5) * .5;
     vec3 trailDir = normalize(vec3(-6.0, 38.0, 0.0));
     if (K == 0) {
@@ -351,10 +356,11 @@ const GLYPH_VS = `#version 300 es
       a = smoothstep(uReveal, uReveal - 4.0, length(p.xz) + s * 3.0);
       if (abs(p.x) < CALS * .62 && abs(p.z) < CALS * .62) a = 0.0;                         // leave the written character alone
     } else if (K == 4) {                                                                    // the rivers
-      float kk = floor(aI.x * 5.0) - 2.0, off = (aI.y - .5) * 1.8;
-      float z = fract(s * 7.13 + uT * uFlow / 640.0) * 640.0 - 40.0;
-      p = vec3(rx(kk, z) + off * rw(z), 0.0, z); p.y = .05 + wave(p.xz, uT, .12);
-      a = smoothstep(-40.0, -30.0, z);
+      float kk = floor(aI.x * 5.0) - 2.0, off = (aI.y - .5) * 1.8; vTrib = kk + 2.0;
+      float z = fract(s * 7.13 + uT * uFlow / 640.0) * 640.0 - 40.0, out_ = max(z - ZSEA, 0.0);
+      p = vec3(rx(kk, z) + off * rw(z) * (1.0 + pow(out_ / 45.0, 1.3) * 1.6), 0.0, z);            // past the coast the river fans out into the sea
+      p.y = .05 + wave(p.xz, uT, .12 + uWaveAmp * smoothstep(0.0, 30.0, out_));
+      a = smoothstep(-40.0, -30.0, z) * (1.0 - smoothstep(ZSEA + 90.0, ZSEA + 230.0, z)); zr = z;
     } else {                                                                                // 1 falling, 2 its trail, 3 the ripple where it lands
       float P = 2.6, ph = fract(s * 7.31 + uT / P), fallT = 1.25, tt = ph * P;
       vec3 land = vec3((fract(s * 17.3) - .5) * 80.0, 0.0, uCam.z + 8.0 + fract(s * 29.1) * 75.0);
@@ -363,6 +369,7 @@ const GLYPH_VS = `#version 300 es
     }
     if (aI.w >= 0.0 && K != 2 && K != 3) {                                                  // a wave of time passes: oracle bone → bronze → seal → … → print
       float dist = length(p - uCam), st = clamp(uEvo * 11.0 - dist / 25.0 + fract(s * 13.1) * .9, 0.0, 8.99);
+      if (K == 4) st = clamp((zr + 36.0) / 17.0 + fract(s * 13.1) * .9, 0.0, 8.99);          // down the Chinese river the script grows up: oracle bone at the source, print at the mouth
       cell = texelFetch(uEvoTex, ivec2(int(st), int(aI.w)), 0).r;
     }
     vec3 Fp = normalize(cross(vec3(0.0, 1.0, 0.0), uR)), world;
@@ -379,8 +386,8 @@ const GLYPH_VS = `#version 300 es
   }`;
 const GLYPH_FS = `#version 300 es
   precision highp float;
-  in vec2 vTex; in float vA, vFog, vSeed; flat in int vK; out vec4 o;
-  uniform sampler2D uAtlas; uniform float uNight;
+  in vec2 vTex; in float vA, vFog, vSeed, vTrib; flat in int vK; out vec4 o;
+  uniform sampler2D uAtlas; uniform float uNight, uPal;
   float h21(vec2 p){ p = fract(p * vec2(233.34, 851.73)); p += dot(p, p + 23.45); return fract(p.x * p.y); }
   void main(){
     float a;
@@ -391,6 +398,9 @@ const GLYPH_FS = `#version 300 es
     a *= vA * (1.0 - vFog);
     float tone = .04 + .32 * pow(fract(vSeed * 71.3), 2.0);                                 // ink of different strengths
     vec3 ink = mix(vec3(tone * .97, tone * .96, tone), vec3(.93, .92, .9), uNight);
+    if (uPal > .5 && vTrib >= 0.0) {                                                        // after the colour has come, each river runs in its own mineral pigment
+      vec3 pal = vTrib < .5 ? vec3(.93, .30, .20) : vTrib < 1.5 ? vec3(1.0, .76, .30) : vTrib < 2.5 ? vec3(1.0, .96, .86) : vTrib < 3.5 ? vec3(.22, .78, .62) : vec3(.42, .56, 1.0);
+      ink = pal * (.7 + .5 * fract(vSeed * 71.3)); }
     o = vec4(ink * a, a);
   }`;
 
@@ -517,14 +527,21 @@ function initGL() {
   make("sea", sea);
   const fall = []; for (let i = 0; i < 900; i++) fall.push([0, 0, hash(i, 11), -1, pick(MIX, hash(i, 12))]);
   make("fall", fall);
-  const river = []; for (let i = 0; i < 15000; i++) { const [ev, c] = glyphFor(i + 7e5); river.push([hash(i, 22), hash(i, 23), hash(i, 21), ev, c]); }
+  // five rivers, five families of writing: clay and stone of the Near East; hieroglyphs; Chinese (which evolves as it flows); the alphabets and abugidas; and the youngest, words, numbers and code
+  const cp = (gl) => gl.text.codePointAt(0), inR = (x, a, b) => x >= a && x <= b, anc = GROUPS["world-ancient"] || [];
+  const isHiero = (gl) => inR(cp(gl), 0x13000, 0x1345F) || inR(cp(gl), 0x14400, 0x1467F) || inR(cp(gl), 0x10000, 0x100FF);
+  const isClay = (gl) => inR(cp(gl), 0x12000, 0x1254F) || inR(cp(gl), 0x10380, 0x103DF) || inR(cp(gl), 0x10900, 0x1091F) || inR(cp(gl), 0x10A60, 0x10A7F);
+  const TRIB = [anc.filter(isClay), anc.filter(isHiero), null, [...anc.filter((gl) => !isClay(gl) && !isHiero(gl)), ...(GROUPS["world-modern"] || [])], [...(GROUPS["word"] || []), ...(GROUPS["symbol"] || [])]];
+  const river = []; for (let i = 0; i < 17000; i++) { const x = hash(i, 22), k = Math.min(4, Math.floor(x * 5)), list = TRIB[k];
+    let ev = -1, c = 0; if (list && list.length) c = list[Math.floor(hash(i, 24) * list.length)].i; else if (EVO.length) ev = Math.floor(hash(i, 25) * EVO.length); else c = pick(MIX, hash(i, 24));
+    river.push([x, hash(i, 23), hash(i, 21), ev, c]); }
   make("river", river);
 }
 function upload(k, v) { if (!v || v.readyState < 2) return false; gl.activeTexture(gl.TEXTURE0 + k); gl.bindTexture(gl.TEXTURE_2D, TEX[k]); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); gl.generateMipmap(gl.TEXTURE_2D); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); return true; }
 
 // ───────── the drawn scenes: camera and parameters over time ─────────
-const rx = (k, z) => lerp(k * 17 + Math.sin(z * .08 + k * 1.9) * 4, 0, sm(-15, 50, z)) + Math.sin(z * .022) * 8;   // same as the shader
+const rx = (k, z) => lerp(k * 17 + Math.sin(z * .08 + k * 1.9) * 4, 0, sm(0, 95, z)) + Math.sin(z * .022) * 8;   // same as the shader
 const MOON = (() => { const v = [0, .045, 1], l = Math.hypot(...v); return v.map((x) => x / l); })();
 const GEN = {
   sea(u, D) {                       // brush writes 字 seen from above; the camera rises, tilts, and the paper becomes a sea of writing
@@ -544,15 +561,20 @@ const GEN = {
     return { cam: { p: [0, 3.6, 14 + 2.6 * u], yaw: 0, pitch: lerp(9, -8, e) * deg }, fov: 44, kind: "sea", fall: true, waveInk: 1, waveAmp: .24, upright: .85, size: .62,
       reveal: 1e5, evo: .85, calli: 0, fogD: 80 };
   },
-  river(u, D) {                     // 才落成一条河: rivers of writing run down through the mountains and become one
-    const e = ease(sm(0, D, u)), z = -46 + 6.5 * u;
-    return { cam: { p: [rx(0, z + 30) * .6, lerp(26, 15, e), z], yaw: 0, pitch: lerp(-34, -16, e) * deg }, fov: 46, kind: "river", river: 0, waveInk: .35, waveAmp: .1,
-      upright: lerp(.35, .8, e), size: 1.0, reveal: 1e5, evo: .9, calli: 0, fogD: 150, flow: 6, night: .22 * sm(D - 1.4, D, u) };
+  river(u, D) {                     // 字才汇成文明的河: five rivers, each made of one family of writing, cross the bare land and braid into one
+    const e = ease(sm(0, D, u)), z = lerp(-66, 18, e);
+    return { cam: { p: [rx(0, z + 40) * .5, lerp(34, 13, e), z], yaw: 0, pitch: lerp(-40, -15, e) * deg }, fov: 46, kind: "river", land: 1, waveInk: 1, waveAmp: .1,
+      upright: lerp(.15, .7, e), size: 1.3, reveal: 1e5, evo: .9, calli: 0, fogD: 190, flow: 7, night: .22 * sm(D - 1.4, D, u) };
   },
-  river2(u, D) {                    // the same rivers of writing after the colour has come: gold water, blue-green ranges, a vermilion sky; flown faster and lower
-    const e = ease(sm(0, D, u)), z = -46 + 8 * u + 26 * e * e;
-    return { cam: { p: [rx(0, z + 30) * .6, lerp(22, 12, e), z], yaw: Math.sin(u * .21) * .04, pitch: lerp(-30, -11, e) * deg }, fov: 48, kind: "river", river: 0, waveInk: .5, waveAmp: .1,
-      upright: lerp(.4, .85, e), size: 1.05, reveal: 1e5, evo: .95, calli: 0, fogD: 170, flow: 9, tint: 1 };
+  mouth(u, D) {                     // 从此流着: the one river of all writing runs out across the coast and spreads into the sea, under the moon; night comes on
+    const e = ease(sm(0, D, u)), z = lerp(92, 150, e);
+    return { cam: { p: [rx(0, z + 30) * .7, lerp(11, 5.5, e), z], yaw: 0, pitch: lerp(-13, -3.5, e) * deg }, fov: 46, kind: "river", land: 1, waveInk: 1, waveAmp: .3,
+      upright: lerp(.7, .85, e), size: 1.3, reveal: 1e5, evo: .9, calli: 0, fogD: 210, flow: 11, night: lerp(.22, .9, sm(D * .5, D * .85, u)) };
+  },
+  river2(u, D) {                    // the same journey after the colour has come, in one flight: every river in its own pigment, glowing on the dark land, down to the sea
+    const e = sm(0, D, u), z = lerp(-60, 150, e * e * .55 + e * .45);
+    return { cam: { p: [rx(0, z + 36) * .6, lerp(26, 6, e), z], yaw: Math.sin(u * .21) * .04, pitch: lerp(-34, -5, e) * deg }, fov: 48, kind: "river", land: 1, waveInk: 1, waveAmp: .3,
+      upright: lerp(.2, .85, e), size: 1.35, reveal: 1e5, evo: .95, calli: 0, fogD: 210, flow: 12, night: .93, pal: 1 };
   },
 };
 function basis(c) { const cp = Math.cos(c.pitch), sp = Math.sin(c.pitch), cy = Math.cos(c.yaw), sy = Math.sin(c.yaw);
@@ -565,7 +587,7 @@ function renderGen(slot, p, t) {
     gl.uniform1f(U.uT, t); gl.uniform1f(U.uNear, NEAR); gl.uniform1f(U.uFar, FAR); gl.uniform1f(U.uFogD, q.fogD); gl.uniform1f(U.uNight, q.night || 0); };
   // background: paper, sky, sea, mountains (writes depth)
   gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.ALWAYS); gl.depthMask(true);
-  gl.useProgram(SC.p); common(SC.U); gl.uniform3fv(SC.U.uMoon, MOON); gl.uniform1f(SC.U.uWaveInk, q.waveInk); gl.uniform1f(SC.U.uRiver, q.river || 0); gl.uniform1f(SC.U.uTint, q.tint || 0); gl.uniform1f(SC.U.uCalliA, q.calli ? 1 : 0);
+  gl.useProgram(SC.p); common(SC.U); gl.uniform3fv(SC.U.uMoon, MOON); gl.uniform1f(SC.U.uWaveInk, q.waveInk); gl.uniform1f(SC.U.uRiver, q.river || 0); gl.uniform1f(SC.U.uTint, q.tint || 0); gl.uniform1f(SC.U.uLand, q.land || 0); gl.uniform1f(SC.U.uCalliA, q.calli ? 1 : 0);
   gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, CALTEX); gl.uniform1i(SC.U.uCalli, 2);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
   // the characters
@@ -574,7 +596,7 @@ function renderGen(slot, p, t) {
   gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, ATEX); gl.uniform1i(GL.U.uAtlas, 3);
   gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, EVOTEX); gl.uniform1i(GL.U.uEvoTex, 4);
   gl.uniform1f(GL.U.uUpright, q.upright); gl.uniform1f(GL.U.uSize, q.size); gl.uniform1f(GL.U.uReveal, q.reveal); gl.uniform1f(GL.U.uEvo, q.evo);
-  gl.uniform1f(GL.U.uWaveAmp, q.waveAmp); gl.uniform1f(GL.U.uCols, AJ.cols); gl.uniform1f(GL.U.uFlow, q.flow || 0);
+  gl.uniform1f(GL.U.uWaveAmp, q.waveAmp); gl.uniform1f(GL.U.uCols, AJ.cols); gl.uniform1f(GL.U.uFlow, q.flow || 0); gl.uniform1f(GL.U.uPal, q.pal || 0);
   const draw = (vao, kind, size) => { gl.uniform1f(GL.U.uKind, kind); if (size) gl.uniform1f(GL.U.uSize, size); gl.bindVertexArray(VAO[vao]); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, CNT[vao]); };
   if (q.kind === "sea") draw("sea", 0);
   if (q.kind === "river") draw("river", 4);
@@ -686,14 +708,14 @@ function render(t) {
   const P = (key, d = 0) => A ? lerp(val(A, key, t, d), val(B, key, t, d), f) : val(B, key, t, d);       // a shot parameter, blended across the transition
   const bars = P("bars"), gain = P("beat", .5), beat = beatAt(t) * gain;
   let pulse = 0; for (let k = 0; k < S.length; k++) { const d = t - S[k]; if (d > 0 && d < 1.2) pulse = Math.max(pulse, Math.exp(-d * 3.5)); }
-  const hit = Math.max(0, 1 - (t - B.a) / .28), dive = B.tr === "glyph" ? Math.max(0, 1 - Math.abs(t - B.a - TR.glyph) / .18) * .4 : 0;
+  const hit = Math.max(0, 1 - (t - B.a) / .28), dive = B.tr === "glyph" ? Math.max(0, 1 - Math.abs(t - B.a - TR.glyph) / .25) * .12 : 0;
   const flash = (B.tr === "flash" ? Math.max(0, 1 - Math.abs(t - B.a - .1) / .35) * .75 : 0) + (B.punch ? hit * B.punch : 0) + dive, fx = P("fx");
   gl.viewport(0, 0, W, H); gl.useProgram(CP.p);
   const bind = (unit, slot, p) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, p && p.gen ? GTEX[slot] : TEX[slot]); };
   bind(0, 0, A); bind(1, 1, B); gl.uniform1i(CP.U.uA, 0); gl.uniform1i(CP.U.uB, 1);
   gl.uniform1f(CP.U.uHasA, okA ? 1 : 0); gl.uniform1f(CP.U.uHasB, okB ? 1 : 0); gl.uniform1f(CP.U.uMix, A ? f : 1);
   gl.uniform1f(CP.U.uMode, A ? { cut: 0, cross: 0, light: 1, dark: 2, flash: 3, ink: 4, glyph: 5 }[B.tr] : 0); gl.uniform1f(CP.U.uZA, A ? zf(A) : 1); gl.uniform1f(CP.U.uZB, zf(B)); gl.uniform1f(CP.U.uTime, t);
-  gl.uniform1f(CP.U.uExpo, 1.0 + .05 * pulse + .13 * beat); gl.uniform1f(CP.U.uPunch, 1 + .016 * beat); gl.uniform1f(CP.U.uBars, bars); gl.uniform1f(CP.U.uFlash, flash); gl.uniform1f(CP.U.uSeed, i * 7.13);
+  gl.uniform1f(CP.U.uExpo, 1.0 + .04 * pulse + .07 * beat); gl.uniform1f(CP.U.uPunch, 1 + .016 * beat); gl.uniform1f(CP.U.uBars, bars); gl.uniform1f(CP.U.uFlash, flash); gl.uniform1f(CP.U.uSeed, i * 7.13);
   gl.uniform1f(CP.U.uSat, P("sat")); gl.uniform1f(CP.U.uPaper, P("paper")); gl.uniform1f(CP.U.uRed, P("red")); gl.uniform1f(CP.U.uAI, P("ai"));
   gl.uniform1f(CP.U.uCol, P("col")); gl.uniform1f(CP.U.uDuo, P("duo"));
   gl.uniform1f(CP.U.uFx, fx * (.0025 + .008 * beatAt(t) + .011 * hit * (B.punch ? 1 : 0))); gl.uniform1f(CP.U.uGlitch, fx && B.punch ? .05 * Math.max(0, 1 - (t - B.a) / .12) : 0);
