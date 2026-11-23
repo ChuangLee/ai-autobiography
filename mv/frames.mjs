@@ -32,7 +32,7 @@ const port = server.address().port, profile = await mkdtemp(path.join(tmpdir(), 
 const chrome = spawn(chromeBin, ["--headless=new", "--no-sandbox", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--hide-scrollbars", "--remote-debugging-port=0", "--user-data-dir=" + profile, "--window-size=1920,1080", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
 const wsBase = await new Promise((res, rej) => { let b = ""; chrome.stderr.on("data", (d) => { b += d; const m = b.match(/DevTools listening on (ws:\/\/[^\s]+)/); if (m) res(m[1]); }); chrome.on("exit", () => rej(new Error("chrome exited"))); });
 const dbg = new URL(wsBase).port;
-const tab = await (await fetch(`http://127.0.0.1:${dbg}/json/new?${encodeURIComponent(`http://127.0.0.1:${port}/index.html?take=${take}&t=0`)}`, { method: "PUT" })).json();
+const tab = await (await fetch(`http://127.0.0.1:${dbg}/json/new?${encodeURIComponent(`http://127.0.0.1:${port}/index.html?t=0`)}`, { method: "PUT" })).json();
 const ws = new WebSocket(tab.webSocketDebuggerUrl); await new Promise((r) => ws.addEventListener("open", r));
 let seq = 0; const waiters = new Map();
 ws.addEventListener("message", (e) => { const m = JSON.parse(e.data); if (m.id && waiters.has(m.id)) { waiters.get(m.id)(m); waiters.delete(m.id); } });

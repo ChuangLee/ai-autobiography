@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>河水不回答 · MV 前两段</title>
+<style>
+@font-face{font-family:"WenKai";src:url("../glyphs/lyric.woff2") format("woff2");font-display:block}
+html,body{margin:0;height:100%;background:#0b0a0a;color:#e6dccd;font-family:"WenKai","Kaiti SC","STKaiti","KaiTi",serif;overflow:hidden}
+#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+canvas{max-width:100vw;max-height:100vh;aspect-ratio:16/9;width:100vw;display:block;background:#0b0a0a}
+@media (min-aspect-ratio:16/9){canvas{width:auto;height:100vh}}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:10px 16px 14px;display:flex;gap:12px;align-items:center;font:13px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(transparent,rgba(0,0,0,.6));transition:opacity .4s}
+#ui.hide{opacity:0;pointer-events:none}
+#ui button,#ui select{font:inherit;color:#eee3d2;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 12px;cursor:pointer}
+#ui select option{color:#111}
+#bar{flex:1;height:14px;display:flex;align-items:center;cursor:pointer}
+#bar i{display:block;height:2px;width:100%;background:rgba(255,255,255,.3);position:relative}
+#bar b{position:absolute;left:0;top:0;height:2px;background:#e9e1d2;width:0}
+#tm{min-width:84px;text-align:right;font-variant-numeric:tabular-nums;color:#d8cfc0}
+#start{position:fixed;inset:0;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 55%,#f1ece0,#d9d1c0 75%);color:#151313;cursor:pointer;letter-spacing:.3em}
+#start h1{font-size:clamp(30px,6vw,64px);margin:0;font-weight:400;text-indent:.3em}
+#start p{margin:0;font-size:15px;color:#4a4540;letter-spacing:.2em}
+#start small{font:12px -apple-system,"PingFang SC",sans-serif;color:#7d756a;letter-spacing:.1em;min-height:1em}
+#start i{display:block;width:34px;height:34px;background:#a8321f;border-radius:3px;opacity:.85}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c" width="1920" height="1080"></canvas></div>
+<div id="start"><h1>河水不回答</h1><i></i><p>前两段样片 · 点击播放</p><small id="load"></small></div>
+<div id="ui" class="hide">
+  <button id="pp">暂停</button>
+  <div id="bar"><i><b></b></i></div>
+  <span id="tm"></span>
+  <select id="take" title="换一首"></select>
+  <button id="fs">全屏</button>
+</div>
+<audio id="au" preload="auto"></audio>
+<script src="../data/strokes.js"></script>
+<script>
+(() => {
+"use strict";
+const W = 1920, H = 1080;
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+const FONT = '"WenKai","Kaiti SC","STKaiti","KaiTi","Noto Serif CJK SC",serif';
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const ease = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const fract = (x) => x - Math.floor(x);
+const hash = (i, k = 0) => fract(Math.sin(i * 127.1 + k * 311.7 + 17.3) * 43758.5453);
+const lerp = (a, b, t) => a + (b - a) * t;
+const deg = Math.PI / 180;
+function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
+
+// ───────── the cut ─────────
+// Verse 1 is ink on paper: the opening, the falling characters and the rivers are drawn live (every character on screen is real
+// writing from the glyph atlas, from oracle bones to code); the rest are Veo clips in black-and-white ink. Verse 2 is the modern
+// city, still black and white. Only the new thing keeps colour: wherever `ai` is set, the giant's light, the lit windows, the threads
+// and circuits stay gold (or turn gold, in the ink clips where the giant is white), and the world around them stays ink.
+// `gen` shots are rendered here, `clip` shots are Veo footage. `from`/`to` are lyric phrase indices. `lyr`: 0 ink-on-paper lyric, 1 light lyric. `ai`: how much the AI's light keeps its gold.
+// `moon`: [x, y from top, radius in frame heights] of the moon in the clip, which stays silver even when it is as bright as the giant.
+const LEN = { "s-break": 5.33 }, clipLen = (c) => LEN[c] ?? 7.83;
+const SHOTS = [
+  { gen: "sea",   intro: true, tr: "cut", glyphs: 0, lyr: 0 },
+  { gen: "fall",  from: 0, to: 1, tr: "cross", glyphs: .25, flow: "fall", lyr: 0 },
+  { gen: "river", from: 1, to: 2, tr: "ink", glyphs: .2, flow: "drift", lyr: 0 },
+  { clip: "n-night",  from: 2, to: 3, align: "start", tr: "ink", zoom: [1.0, 1.07], glyphs: .5, flow: "fall", lyr: 1 },
+  { clip: "n-ghosts", from: 3, to: 4, align: "center", tr: "cross", zoom: [1.04, 1.0], glyphs: .4, flow: "fall", lyr: 1 },
+  { clip: "n-strata", from: 4, to: 6, align: "start", tr: "ink", zoom: [1.0, 1.06], glyphs: .7, flow: "rush", lyr: 1 },
+  { clip: "n-sink",   from: 6, to: 9, align: "end", tr: "cross", zoom: [1.12, 1.0], glyphs: 1.1, flow: "up", hero: true, lyr: 1, ai: 1, moon: [.495, .536, .34] },
+  { clip: "s-windows", from: 9, to: 10, align: "start", tr: "flash", zoom: [1.0, 1.06], glyphs: .4, flow: "drift", lyr: 1, ai: 1 },
+  { clip: "s-threads", from: 10, to: 11, align: "center", tr: "light", zoom: [1.0, 1.06], glyphs: .7, flow: "out", lyr: 1, ai: 1, moon: [.69, .33, .16] },
+  { clip: "s-window",  from: 11, to: 13, align: "start", tr: "cross", zoom: [1.03, 1.1], glyphs: .4, flow: "drift", lyr: 1, ai: 1 },
+  { clip: "s-break",   from: 13, to: 14, align: "end", tr: "flash", zoom: [1.0, 1.08], glyphs: 1.4, flow: "burst", lyr: 1, ai: 1, moon: [.67, .13, .09] },
+  { clip: "n-touch",   from: 14, to: 15, align: "end", tr: "light", zoom: [1.0, 1.09], glyphs: .6, flow: "drift", lyr: 1, ai: 1 },
+  { clip: "n-tide",    from: 15, to: 17, align: "start", tr: "light", zoom: [1.0, 1.1], glyphs: 1, flow: "drift", tail: 3.2, lyr: 1, ai: 0.8, moon: [.495, .54, .34] },
+];
+const LINES = [[0, 1], [2, 3], [4, 5], [6, 7, 8], [9, 10], [11, 12], [13, 14], [15, 16]];
+let TAKES = {}, PH = [], S = [], E = [], END = 100, PLAN = [], COLD = 6;
+function setTake(id) {
+  const d = TAKES[id]; PH = d.phrases.slice(0, 17); S = PH.map((p) => p[0]);
+  E = PH.map((p, i) => Math.min(p[1], p[0] + .6 * p[2].length + 1.8, S[i + 1] ?? 1e9));
+  END = PH[16][1] + SHOTS[SHOTS.length - 1].tail;
+  COLD = Math.min(7, Math.max(5.5, S[0] * .24));                     // the written character holds the screen this long
+  PLAN = SHOTS.map((s) => {
+    const a = s.intro ? 0 : S[s.from], b = s.intro ? S[0] : s.to < 17 ? S[s.to] : END;
+    if (s.gen) return { ...s, a, b, rate: 1, inPt: 0 };
+    const L = clipLen(s.clip), dur = b - a, rate = clamp(L / dur, s.minRate ?? .5, 1), used = dur * rate;
+    const inPt = s.align === "end" ? Math.max(0, L - .06 - used) : s.align === "center" ? Math.max(0, (L - used) / 2) : .05;
+    return { ...s, a, b, rate, inPt };
+  });
+}
+const TR = { cut: 0, light: .9, cross: .6, dark: .9, flash: .35, ink: 1.1 };
+function shotAt(t) { let i = 0; for (let k = 0; k < PLAN.length; k++) if (t >= PLAN[k].a) i = k; return i; }
+function clipTime(p, t) { return Math.min(clipLen(p.clip) - .04, p.inPt + Math.max(0, t - p.a) * p.rate); }
+
+// ───────── video sources ─────────
+const VID = {};
+function makeVideos() {
+  for (const s of SHOTS) if (s.clip) { const v = document.createElement("video"); v.src = "../clips/" + s.clip + ".mp4"; v.muted = true; v.playsInline = true; v.preload = "auto"; v.crossOrigin = "anonymous"; VID[s.clip] = v; }
+}
+const seekTo = (v, x) => new Promise((r) => { if (Math.abs(v.currentTime - x) < .002 && v.readyState >= 2) return r(); const done = () => { v.removeEventListener("seeked", done); r(); }; v.addEventListener("seeked", done); v.currentTime = x; setTimeout(done, 4000); });
+function driveVideos(t, playing) {
+  const i = shotAt(t), want = new Set([i]); if (i + 1 < PLAN.length && t > PLAN[i + 1].a - 2) want.add(i + 1); if (i > 0 && t < PLAN[i].a + TR[PLAN[i].tr]) want.add(i - 1);
+  PLAN.forEach((p, k) => { if (!p.clip) return; const v = VID[p.clip]; if (!want.has(k)) { if (!v.paused) v.pause(); return; }
+    const x = clipTime(p, t); v.playbackRate = p.rate;
+    if (t < p.a) { if (!v.paused) v.pause(); if (Math.abs(v.currentTime - p.inPt) > .05 && !v.seeking) v.currentTime = p.inPt; return; }
+    if (Math.abs(v.currentTime - x) > .25 && !v.seeking) v.currentTime = x;
+    if (playing && v.paused && x < clipLen(p.clip) - .05) v.play().catch(() => {}); if (!playing && !v.paused) v.pause(); });
+}
+
+// ───────── the glyph atlas: real writing only ─────────
+let ATLAS, AJ, GROUPS = {}, EVO = [];
+const STYLES = ["cn-oracle", "cn-bronze", "cn-bigseal", "cn-seal", "cn-clerical", "cn-kai", "cn-xing", "cn-cao", "cn-song"];
+async function loadAtlas() {
+  AJ = await (await fetch("../glyphs/atlas.json", { cache: "no-cache" })).json();
+  ATLAS = new Image(); ATLAS.src = "../glyphs/atlas.png"; await ATLAS.decode();
+  for (const gl of AJ.glyphs) (GROUPS[gl.group] ??= []).push(gl);
+  // characters that exist in several historical styles evolve as a wave of time passes over the sea
+  const byChar = {};
+  for (const gl of AJ.glyphs) if (STYLES.includes(gl.group)) (byChar[gl.text] ??= {})[gl.group] = gl.i;
+  for (const [ch, m] of Object.entries(byChar)) {
+    const have = STYLES.map((s) => m[s] ?? -1); if (have.filter((x) => x >= 0).length < 3) continue;
+    const row = have.map((x, k) => { if (x >= 0) return x; for (let j = k + 1; j < 9; j++) if (have[j] >= 0) return have[j]; for (let j = k - 1; j >= 0; j--) if (have[j] >= 0) return have[j]; return 0; });
+    EVO.push({ ch, row });
+  }
+}
+const pick = (groups, r) => { const list = groups.flatMap(([g, w]) => (GROUPS[g] ? [[GROUPS[g], w]] : [])); const tot = list.reduce((s, x) => s + x[1], 0);
+  let u = r * tot; for (const [l, w] of list) { if (u < w) return l[Math.floor(u / w * l.length)].i; u -= w; } return list[0][0][0].i; };
+const MIX = [["cn-kai", 3], ["cn-poem", 3], ["cn-song", 2], ["cn-xing", 1.5], ["cn-cao", 1], ["cn-seal", 1], ["cn-oracle", 1], ["cn-bronze", 1], ["cn-bigseal", .6], ["cn-clerical", 1],
+  ["world-ancient", 2.6], ["world-modern", 2.6], ["word", 1], ["symbol", .8]];
+
+// ───────── WebGL ─────────
+const glc = off(W, H), gl = glc.getContext("webgl2", { alpha: false, premultipliedAlpha: false, preserveDrawingBuffer: true, antialias: false });
+const NOISE = `
+  float h21(vec2 p){ p = fract(p * vec2(233.34, 851.73)); p += dot(p, p + 23.45); return fract(p.x * p.y); }
+  float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h21(i), h21(i + vec2(1,0)), f.x), mix(h21(i + vec2(0,1)), h21(i + vec2(1,1)), f.x), f.y); }
+  float fbm(vec2 p){ float s = 0.0, a = .5; for (int i = 0; i < 5; i++){ s += a * vn(p); p = p * 2.03 + vec2(17.1, 9.2); a *= .5; } return s; }
+  float fbm3(vec2 p){ float s = 0.0, a = .5; for (int i = 0; i < 3; i++){ s += a * vn(p); p = p * 2.03 + vec2(17.1, 9.2); a *= .5; } return s; }
+  // the rivers: five tributaries that meet and run on to the horizon as one
+  float rx(float k, float z){ float m = smoothstep(-15.0, 50.0, z); return mix(k * 17.0 + sin(z * .08 + k * 1.9) * 4.0, 0.0, m) + sin(z * .022) * 8.0; }
+  float rw(float z){ return mix(3.2, 13.0, smoothstep(-10.0, 90.0, z)); }
+  float wave(vec2 q, float t, float A){ return A * (sin(q.x * .35 + t * .9) * .5 + sin(q.y * .5 - t * 1.1 + q.x * .15) * .6 + sin((q.x + q.y) * .8 + t * 1.7) * .2); }
+`;
+const CALS = 2.0;                        // the written character covers CALS x CALS world units around the origin
+function compile(vs, fs) {
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) + src.slice(0, 200)); return s; };
+  const p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  const U = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); for (let i = 0; i < n; i++) { const nm = gl.getActiveUniform(p, i).name; U[nm] = gl.getUniformLocation(p, nm); }
+  return { p, U };
+}
+const FS_VS = `#version 300 es
+  out vec2 vUV; void main(){ vec2 p = vec2((gl_VertexID << 1) & 2, gl_VertexID & 2); vUV = p; gl_Position = vec4(p * 2.0 - 1.0, 0.0, 1.0); }`;
+
+// — the paper, the sky, the sea, the mountains —
+const SCENE_FS = `#version 300 es
+  precision highp float; in vec2 vUV; out vec4 o;
+  uniform vec3 uCam, uF, uR, uU, uMoon; uniform float uTan, uAsp, uT, uWaveInk, uNight, uRiver, uCalliA, uFogD, uNear, uFar;
+  uniform sampler2D uCalli;
+  ${NOISE}
+  const vec3 PAPER = vec3(.925, .91, .868), INK = vec3(.05, .05, .058);
+  const float CALS = ${CALS.toFixed(2)};
+  float depthOf(float ze){ float n = uNear, f = uFar; return clamp(((f + n) / (f - n) - 2.0 * f * n / ((f - n) * ze)) * .5 + .5, 0.0, 1.0); }
+  float mountains(vec3 d, inout float k){                     // ranges on either side of the open sea; the far ones paler (远山淡)
+    float az = atan(d.x, d.z), e = d.y, side = smoothstep(.1, .6, abs(az));
+    for (int i = 0; i < 3; i++){ float fi = float(i);
+      float r = fbm3(vec2(az * (2.2 + fi * 1.6) + fi * 5.3, fi * 2.7));
+      float ridge = side * ((.012 + fi * .004) + (.11 - fi * .035) * pow(max(r - .22, 0.0), 1.5) * 2.2) - .004 * fi;
+      if (ridge <= .0) continue;
+      float m = smoothstep(ridge + .0012, ridge - .0012, e);
+      float v = (.16 + fi * .13) * smoothstep(-.004, ridge * .85, e) * (.85 + .3 * fbm3(vec2(az * 18.0, e * 18.0) + fi));
+      k = mix(k, max(k, v), m);
+    }
+    return k;
+  }
+  float skyInk(vec3 d){
+    float e = d.y, k = .07 + .24 * smoothstep(.0, .55, e);
+    vec2 sp = d.xz / (abs(e) + .2) * .55;
+    float cl = fbm(sp + vec2(uT * .012, 0.0));
+    k += smoothstep(.48, .82, cl) * .2 * smoothstep(.02, .3, e);
+    float md = acos(clamp(dot(d, uMoon), -1.0, 1.0)), R = .055;
+    k += smoothstep(R * 5.0, R * 1.02, md) * .42 * (.8 + .4 * fbm(d.xy * 30.0));   // ink washed around the moon: 烘云托月
+    k = mix(k, .0, smoothstep(R * 1.05, R * .985, md));                             // the moon itself is bare paper
+    k *= .3 + .7 * smoothstep(-.005, .1, e);                                         // mist on the horizon
+    return k;
+  }
+  float skyAll(vec3 d){ float k = skyInk(d); return mountains(d, k); }
+  float waveLines(vec2 q, float dist){                        // ink line waves, after Ma Yuan's water studies
+    vec2 wq = q + vec2(fbm3(q * .07), fbm3(q * .07 + 7.0)) * 7.0;
+    float k = 0.0;
+    for (int i = 0; i < 2; i++){ float fi = float(i);
+      float ph = wq.y * (.5 + fi * .23) + sin(wq.x * (.17 + fi * .05) + fi) * 1.3 - uT * (.3 + fi * .12);
+      float f = abs(fract(ph) - .5), aa = fwidth(ph) * 1.3 + 1e-4, lw = .045 + .03 * vn(q * .4 + fi);
+      float line = 1.0 - smoothstep(lw, lw + aa, f);
+      line *= smoothstep(.32, .62, fbm3(q * vec2(.5, 1.6) + fi * 9.0 + uT * .05));             // the brush runs dry and breaks
+      k = max(k, line * (1.0 - fi * .35));
+    }
+    return k;
+  }
+  float fibre(vec2 q){                                          // rice paper, seen up close
+    float a = vn(q * vec2(180.0, 22.0)) * vn(q * vec2(24.0, 160.0));
+    return (smoothstep(.55, .9, a) * .05 + (vn(q * 90.0) - .5) * .03);
+  }
+  float terrain(vec2 q){
+    float d = 1e9; for (int k = -2; k <= 2; k++) d = min(d, abs(q.x - rx(float(k), q.y)));
+    float w = rw(q.y), base = smoothstep(w * 1.05, w + 9.0, d);
+    float m = fbm3(q * .03), r = 1.0 - abs(vn(q * .09) * 2.0 - 1.0);
+    return base * (3.0 + 70.0 * m * m + 14.0 * r * m);
+  }
+  void main(){
+    vec3 d = normalize(uF + (vUV.x * 2.0 - 1.0) * uTan * uAsp * uR + (vUV.y * 2.0 - 1.0) * uTan * uU);
+    float k, ze = uFar * .999;
+    vec3 hit; bool sea = false; float t = 0.0;
+    if (uRiver > .5) {
+      bool got = false; t = .5;
+      for (int i = 0; i < 130; i++){ vec3 p = uCam + d * t; float h = terrain(p.xz), dy = p.y - h;
+        if (dy < .01 * t) { got = true; break; } if (d.y > 0.0 && p.y > 75.0) break; t += max(.12, dy * .45); if (t > uFar) break; }
+      if (got) { hit = uCam + d * t; ze = t * dot(d, uF);
+        float h = terrain(hit.xz);
+        if (h < .06) sea = true;
+        else {
+          vec2 e = vec2(.15, 0.0); vec3 n = normalize(vec3(terrain(hit.xz - e.xy) - terrain(hit.xz + e.xy), 2.0 * e.x, terrain(hit.xz - e.yx) - terrain(hit.xz + e.yx)));
+          float dif = clamp(dot(n, normalize(vec3(-.5, .55, .65))), 0.0, 1.0), hh = hit.y;
+          float cun = fbm3(vec2(hit.x * .7 + hit.y * .6, hit.z * .35) * vec2(1.0, 3.0));            // texture strokes on the rock (皴)
+          k = (.3 + .6 * smoothstep(2.0, 34.0, hh)) * (.6 + .8 * (1.0 - dif));                  // peaks dark, feet pale, shadowed faces darker
+          k += smoothstep(.45, .75, cun) * .28 * smoothstep(1.5, 8.0, hh);
+          k += pow(1.0 - abs(dot(n, d)), 4.0) * .5;                                                // ink outline along the ridges
+          float fog = 1.0 - exp(-t / uFogD), mist = exp(-max(hh, 0.0) * .28) * .8;               // mist lies in the valleys
+          k *= 1.0 - clamp(mist + fog * .8, 0.0, 1.0);
+          k = mix(k, .06, fog * .7);
+        }
+      } else k = skyAll(d);
+    } else if (d.y < -.0004 && uCam.y > 0.0) { t = -uCam.y / d.y; hit = uCam + d * t; sea = true; ze = t * dot(d, uF); }
+    else k = skyAll(d);
+    vec3 col;
+    if (sea) {
+      vec2 q = hit.xz; float fog = 1.0 - exp(-t / uFogD);
+      vec3 n = normalize(vec3((fbm3(q * .6 + uT * .2) - .5) * .5, 1.0, (fbm3(q * .6 + 3.0 - uT * .2) - .5) * .5));
+      float glint = smoothstep(.93, .995, dot(reflect(d, n), uMoon));
+      k = waveLines(q, t) * .55 * uWaveInk * (1.0 - glint);
+      k += .07 * uWaveInk * fbm3(q * .25 + uT * .03);
+      k += fibre(q) * (1.0 - smoothstep(3.0, 12.0, t));
+      k = mix(k, .05, fog);
+      col = mix(PAPER, INK, clamp(k, 0.0, 1.0));
+      if (uCalliA > 0.0) { vec2 cu = vec2(-hit.x, hit.z) / CALS + .5;
+        if (cu.x > 0.0 && cu.x < 1.0 && cu.y > 0.0 && cu.y < 1.0) { vec4 c = texture(uCalli, vec2(cu.x, 1.0 - cu.y)); col = mix(col, c.rgb, c.a * uCalliA * (1.0 - fog)); } }
+    } else col = mix(PAPER, INK, clamp(k, 0.0, 1.0));
+    col = mix(col, col * .18 + INK * .9, uNight);
+    o = vec4(col, 1.0); gl_FragDepth = depthOf(max(ze, uNear));
+  }`;
+
+// — the characters themselves, as instanced quads on the sea, falling from the sky, or flowing down the rivers —
+const GLYPH_VS = `#version 300 es
+  precision highp float;
+  layout(location = 0) in vec2 aC; layout(location = 1) in vec4 aI; layout(location = 2) in float aCell;
+  uniform vec3 uCam, uF, uR, uU; uniform float uTan, uAsp, uT, uKind, uUpright, uSize, uReveal, uEvo, uWaveAmp, uNear, uFar, uFogD, uCols, uFlow;
+  uniform highp sampler2D uEvoTex;
+  out vec2 vTex; out float vA, vFog, vSeed; flat out int vK;
+  ${NOISE}
+  const float CALS = ${CALS.toFixed(2)};
+  vec4 proj(vec3 p){ vec3 v = p - uCam; float ze = dot(v, uF); return vec4(dot(v, uR) / (uTan * uAsp), dot(v, uU) / uTan, (uFar + uNear) / (uFar - uNear) * ze - 2.0 * uFar * uNear / (uFar - uNear), ze); }
+  void main(){
+    float s = aI.z; int K = int(uKind + .5); vK = K; vSeed = s;
+    vec3 p; float size = uSize * (.75 + .5 * fract(s * 91.7)), a = 1.0, up = uUpright, cell = aCell, rot = (fract(s * 53.1) - .5) * .5;
+    vec3 trailDir = normalize(vec3(-6.0, 38.0, 0.0));
+    if (K == 0) {
+      p = vec3(aI.x + sin(uT * .15 + s * 40.0) * .15, 0.0, aI.y); p.y = wave(p.xz, uT, uWaveAmp);
+      a = smoothstep(uReveal, uReveal - 4.0, length(p.xz) + s * 3.0);
+      if (abs(p.x) < CALS * .62 && abs(p.z) < CALS * .62) a = 0.0;                         // leave the written character alone
+    } else if (K == 4) {                                                                    // the rivers
+      float kk = floor(aI.x * 5.0) - 2.0, off = (aI.y - .5) * 1.8;
+      float z = fract(s * 7.13 + uT * uFlow / 640.0) * 640.0 - 40.0;
+      p = vec3(rx(kk, z) + off * rw(z), 0.0, z); p.y = .05 + wave(p.xz, uT, .12);
+      a = smoothstep(-40.0, -30.0, z);
+    } else {                                                                                // 1 falling, 2 its trail, 3 the ripple where it lands
+      float P = 2.6, ph = fract(s * 7.31 + uT / P), fallT = 1.25, tt = ph * P;
+      vec3 land = vec3((fract(s * 17.3) - .5) * 80.0, 0.0, uCam.z + 8.0 + fract(s * 29.1) * 75.0);
+      if (K < 3) { float f = clamp(tt / fallT, 0.0, 1.0); p = land + vec3(6.0, 38.0, 0.0) * (1.0 - f); a = tt < fallT ? smoothstep(0.0, .15, f) : 0.0; size = uSize * 1.5; up = 1.0; rot = 0.0; }
+      else { float rt = tt - fallT; a = rt > 0.0 ? 1.0 - rt / (P - fallT) : 0.0; p = land; p.y = wave(p.xz, uT, uWaveAmp) + .02; size = .4 + rt * 4.0; up = 0.0; rot = 0.0; }
+    }
+    if (aI.w >= 0.0 && K != 2 && K != 3) {                                                  // a wave of time passes: oracle bone → bronze → seal → … → print
+      float dist = length(p - uCam), st = clamp(uEvo * 11.0 - dist / 25.0 + fract(s * 13.1) * .9, 0.0, 8.99);
+      cell = texelFetch(uEvoTex, ivec2(int(st), int(aI.w)), 0).r;
+    }
+    vec3 Fp = normalize(cross(vec3(0.0, 1.0, 0.0), uR)), world;
+    if (K == 2) world = p + uR * aC.x * size * .3 + trailDir * (aC.y + .5) * size * 6.0;
+    else {
+      float cr = cos(rot), sr = sin(rot); vec2 c = vec2(cr * aC.x - sr * aC.y, sr * aC.x + cr * aC.y);
+      vec3 Y = normalize(mix(Fp, vec3(0.0, 1.0, 0.0), up));
+      world = p + (uR * c.x + Y * c.y) * size + vec3(0.0, up * size * .45, 0.0);
+    }
+    gl_Position = proj(world);
+    vFog = 1.0 - exp(-length(world - uCam) / uFogD); vA = a;
+    if (a <= .002) gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+    vTex = (K == 2 || K == 3) ? aC + .5 : (vec2(mod(cell, uCols), floor(cell / uCols)) + vec2(aC.x + .5, .5 - aC.y)) / uCols;
+  }`;
+const GLYPH_FS = `#version 300 es
+  precision highp float;
+  in vec2 vTex; in float vA, vFog, vSeed; flat in int vK; out vec4 o;
+  uniform sampler2D uAtlas; uniform float uNight;
+  float h21(vec2 p){ p = fract(p * vec2(233.34, 851.73)); p += dot(p, p + 23.45); return fract(p.x * p.y); }
+  void main(){
+    float a;
+    if (vK == 2) { float across = abs(vTex.x - .5) * 2.0, hair = h21(vec2(floor(vTex.x * 16.0), floor(vSeed * 97.0)));
+      a = pow(1.0 - vTex.y, 1.6) * (1.0 - across * across) * (.35 + .65 * hair) * .75; }                // a dry-brush streak behind the falling character
+    else if (vK == 3) { float r = length(vTex - .5) * 2.0; a = smoothstep(.07, .0, abs(r - .86)) * .7 + smoothstep(.05, .0, abs(r - .6)) * .35; }
+    else { a = texture(uAtlas, vTex).r; float halo = texture(uAtlas, vTex, 2.5).r; a = max(a, halo * .3); }  // ink bleeds a little into the paper
+    a *= vA * (1.0 - vFog);
+    float tone = .04 + .32 * pow(fract(vSeed * 71.3), 2.0);                                 // ink of different strengths
+    vec3 ink = mix(vec3(tone * .97, tone * .96, tone), vec3(.93, .92, .9), uNight);
+    o = vec4(ink * a, a);
+  }`;
+
+// — the compositor: two shots in, one graded frame out —
+const COMP_FS = `#version 300 es
+  precision highp float; in vec2 vUV; out vec4 o;
+  uniform sampler2D uA, uB; uniform float uHasA, uHasB, uMix, uMode, uZA, uZB, uTime, uExpo, uBars, uFlash, uSeed, uSat, uPaper, uRed, uAI; uniform vec4 uMoonA, uMoonB;
+  ${NOISE}
+  vec2 zuv(vec2 uv, float z){ return (uv - .5) / z + .5; }
+  // rgb, and in alpha the fine detail (how much brighter than its surroundings): thin veins of light have it, the smooth moon does not
+  vec4 shot(sampler2D T, vec2 uv, float z){
+    vec2 q = zuv(uv, z);
+    vec3 c = texture(T, q).rgb;
+    vec3 bl = textureLod(T, q, 4.0).rgb * .45 + textureLod(T, q, 5.5).rgb * .35 + textureLod(T, q, 7.0).rgb * .3;
+    float det = dot(c - textureLod(T, q, 3.0).rgb, vec3(.33));
+    return vec4(c + max(bl - .55, 0.0) * .7, det);
+  }
+  float moon(vec4 M, vec2 uv, float z){ vec2 d = (zuv(uv, z) - M.xy) * vec2(16.0 / 9.0, 1.0); return M.w * smoothstep(M.z * 1.12, M.z * .98, length(d)); }
+  vec3 grade(vec3 c, float mm, float det){
+    float l = dot(c, vec3(.2126, .7152, .0722));
+    float red = smoothstep(.16, .36, c.r - max(c.g, c.b)) * smoothstep(.25, .5, c.r) * uRed;   // only the vermilion seal keeps its colour
+    float warm = smoothstep(.0, .18, c.r - c.b);                                               // later, only the warm light comes back
+    // the AI keeps its colour: gold light (windows, threads, the giant) stays gold while the violet night and everything else goes to ink;
+    // where the footage itself is black and white, the hottest light is gilded instead (the moon and the paper stay grey: they are dimmer)
+    // all of it is mapped to one gold, so the red-orange and violet of the old colour footage cannot come back with it
+    float gold = smoothstep(.06, .22, (c.r + c.g) * .5 - c.b) * smoothstep(.22, .6, l) * (1.0 - mm);
+    float heat = mix(smoothstep(.62, .95, l), max(smoothstep(.78, .93, l) * smoothstep(.02, .07, det), smoothstep(.93, .99, l)), mm);
+    vec3 gild = l * mix(vec3(1.16, .84, .46), vec3(1.0, .96, .88), smoothstep(.9, 1.0, l));
+    c = mix(vec3(l), c, clamp(max(uSat * warm, red * .8), 0.0, 1.0));
+    c = mix(c, gild, clamp(max(gold, heat) * uAI, 0.0, 1.0));
+    c *= uExpo;
+    c = mix(vec3(.04, .039, .042), vec3(.965, .945, .9), c);                                     // ink black, paper white
+    c = smoothstep(-.02, 1.02, c) * .35 + c * .65;
+    return c;
+  }
+  void main(){
+    vec2 uv = vUV;
+    vec4 a4 = uHasA > .5 ? shot(uA, uv, uZA) : vec4(0.0), b4 = uHasB > .5 ? shot(uB, uv, uZB) : vec4(0.0);
+    vec3 a = a4.rgb, b = b4.rgb, c;
+    float lb = dot(b, vec3(.3, .55, .15)), mm = mix(moon(uMoonA, uv, uZA), moon(uMoonB, uv, uZB), uMix), det = mix(a4.a, b4.a, uMix);
+    if (uMode < .5) c = mix(a, b, smoothstep(0.0, 1.0, uMix));
+    else if (uMode < 1.5) { float key = lb * .62 + vn(uv * vec2(9.0, 5.0) + uSeed) * .38, thr = 1.05 - uMix * 1.35, m = smoothstep(thr - .14, thr + .14, key);
+      c = mix(a, b, m) + vec3(1.0) * m * (1.0 - m) * 1.2 * (1.0 - uMix); }
+    else if (uMode < 2.5) c = mix(a * (1.0 - smoothstep(0.0, .5, uMix)), b, smoothstep(.5, 1.0, uMix));
+    else if (uMode < 3.5) c = mix(a, b, smoothstep(.35, .6, uMix));
+    else {                                                                                     // ink: the next shot bleeds in like ink into paper
+      float n = fbm(uv * vec2(3.4, 1.9) + uSeed) * .7 + (1.0 - length((uv - .5) * vec2(1.6, 1.0))) * .3;
+      float thr = 1.12 - uMix * 1.35, m = smoothstep(thr - .04, thr + .04, n), edge = smoothstep(thr - .16, thr, n) * (1.0 - m);
+      c = mix(a, b, m) * (1.0 - edge * .9);
+    }
+    c = grade(c, mm, det) + vec3(1.0, .97, .92) * uFlash;
+    float fib = vn(uv * vec2(1400.0, 160.0)) * vn(uv * vec2(180.0, 1300.0));
+    c *= 1.0 - (smoothstep(.5, .9, fib) * .07 + (vn(uv * 700.0) - .5) * .04) * uPaper;        // rice paper over verse one
+    vec2 v = uv - .5; c *= 1.0 - dot(v, v) * .75;
+    c += (h21(uv * vec2(1920.0, 1080.0) + fract(uTime * 7.3) * 91.0) - .5) * .04;
+    float bar = (1.0 - 1920.0 / 2.39 / 1080.0) * .5 * uBars;
+    if (uv.y < bar || uv.y > 1.0 - bar) c = vec3(0.0);
+    o = vec4(clamp(c, 0.0, 1.0), 1.0);
+  }`;
+
+let SC, GL, CP, VAO = {}, CNT = {}, TEX = [], FBO = [], GTEX = [], ATEX, EVOTEX, CALTEX;
+function tex(w, h, mip) { const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+  if (w) gl.texStorage2D(gl.TEXTURE_2D, mip ? Math.floor(Math.log2(Math.max(w, h))) + 1 : 1, gl.RGBA8, w, h);
+  else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mip ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); return t; }
+function initGL() {
+  SC = compile(FS_VS, SCENE_FS); GL = compile(GLYPH_VS, GLYPH_FS); CP = compile(FS_VS, COMP_FS);
+  for (let k = 0; k < 2; k++) {
+    const vt = tex(0, 0, false); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); TEX.push(vt);
+    const gt = tex(W, H, true); GTEX.push(gt);
+    const rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, W, H);
+    const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, gt, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb); FBO.push(fb);
+  }
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  // atlas, as one red channel
+  ATEX = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, ATEX); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, gl.RED, gl.UNSIGNED_BYTE, ATLAS); gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  const an = gl.getExtension("EXT_texture_filter_anisotropic"); if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+  // evolution table: 9 styles × N characters → atlas cell
+  const ev = new Float32Array(9 * Math.max(1, EVO.length)); EVO.forEach((e, r) => e.row.forEach((c, s) => ev[r * 9 + s] = c));
+  EVOTEX = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, EVOTEX); gl.texImage2D(gl.TEXTURE_2D, 0, gl.R32F, 9, Math.max(1, EVO.length), 0, gl.RED, gl.FLOAT, ev);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  CALTEX = tex(0, 0, false);
+  // instances
+  const corner = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, corner); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-.5, -.5, .5, -.5, -.5, .5, .5, .5]), gl.STATIC_DRAW);
+  const make = (name, list) => {
+    const I = new Float32Array(list.length * 4), C = new Float32Array(list.length); list.forEach((x, i) => { I.set(x.slice(0, 4), i * 4); C[i] = x[4]; });
+    const vao = gl.createVertexArray(); gl.bindVertexArray(vao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, corner); gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    const b1 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b1); gl.bufferData(gl.ARRAY_BUFFER, I, gl.STATIC_DRAW); gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 4, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(1, 1);
+    const b2 = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b2); gl.bufferData(gl.ARRAY_BUFFER, C, gl.STATIC_DRAW); gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0); gl.vertexAttribDivisor(2, 1);
+    gl.bindVertexArray(null); VAO[name] = vao; CNT[name] = list.length;
+  };
+  const glyphFor = (id) => { const r = hash(id, 2); if (EVO.length && r < .3) return [Math.floor(hash(id, 3) * EVO.length), 0]; return [-1, pick(MIX, hash(id, 4))]; };
+  const sea = []; let id = 0;
+  for (let z = -40; z < 280; z += 1.1) for (let x = -130; x < 130; x += 1.1) { id++; const [ev, c] = glyphFor(id); sea.push([x + (hash(id, 5) - .5) * .7, z + (hash(id, 6) - .5) * .7, hash(id, 7), ev, c]); }
+  make("sea", sea);
+  const fall = []; for (let i = 0; i < 900; i++) fall.push([0, 0, hash(i, 11), -1, pick(MIX, hash(i, 12))]);
+  make("fall", fall);
+  const river = []; for (let i = 0; i < 15000; i++) { const [ev, c] = glyphFor(i + 7e5); river.push([hash(i, 22), hash(i, 23), hash(i, 21), ev, c]); }
+  make("river", river);
+}
+function upload(k, v) { if (!v || v.readyState < 2) return false; gl.activeTexture(gl.TEXTURE0 + k); gl.bindTexture(gl.TEXTURE_2D, TEX[k]); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, v); gl.generateMipmap(gl.TEXTURE_2D); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); return true; }
+
+// ───────── the drawn scenes: camera and parameters over time ─────────
+const rx = (k, z) => lerp(k * 17 + Math.sin(z * .08 + k * 1.9) * 4, 0, sm(-15, 50, z)) + Math.sin(z * .022) * 8;   // same as the shader
+const MOON = (() => { const v = [0, .045, 1], l = Math.hypot(...v); return v.map((x) => x / l); })();
+const GEN = {
+  sea(u, D) {                       // brush writes 字 seen from above; the camera rises, tilts, and the paper becomes a sea of writing
+    const tA = COLD - 1.2, tB = Math.min(tA + 7.5, D - 4), e = ease(sm(tA, tB, u)), g = Math.max(0, u - tB);
+    return { cam: { p: [0, lerp(3.3 - .25 * sm(0, tA, u), 8.5, e) - 1.5 * sm(tB, D, u), -19 * e + 1.5 * g], yaw: 0, pitch: (lerp(-90, -11, e) + 4 * sm(tB, D, u)) * deg },
+      fov: 40, kind: "sea", waveInk: sm(tA + .8, tB + 1, u), waveAmp: .22 * sm(tA + 2, tB + 2, u), upright: .82 * sm(tA + 2.5, tB + 1, u), size: .62,
+      reveal: 1.2 + 320 * Math.pow(sm(tA - .3, tB + 7, u), 1.7), evo: lerp(.06, .78, sm(tA, D, u)), calli: 1, fogD: 75 };
+  },
+  fall(u, D) {                      // 字落了几千年: writing of every age falls out of the sky into the sea
+    const e = ease(sm(0, D, u));
+    return { cam: { p: [0, 3.6, 14 + 2.6 * u], yaw: 0, pitch: lerp(9, -8, e) * deg }, fov: 44, kind: "sea", fall: true, waveInk: 1, waveAmp: .24, upright: .85, size: .62,
+      reveal: 1e5, evo: .85, calli: 0, fogD: 80 };
+  },
+  river(u, D) {                     // 才落成一条河: rivers of writing run down through the mountains and become one
+    const e = ease(sm(0, D, u)), z = -46 + 6.5 * u;
+    return { cam: { p: [rx(0, z + 30) * .6, lerp(26, 15, e), z], yaw: 0, pitch: lerp(-34, -16, e) * deg }, fov: 46, kind: "river", river: 0, waveInk: .35, waveAmp: .1,
+      upright: lerp(.35, .8, e), size: 1.0, reveal: 1e5, evo: .9, calli: 0, fogD: 150, flow: 6, night: .22 * sm(D - 1.4, D, u) };
+  },
+};
+function basis(c) { const cp = Math.cos(c.pitch), sp = Math.sin(c.pitch), cy = Math.cos(c.yaw), sy = Math.sin(c.yaw);
+  const F = [sy * cp, sp, cy * cp], R = [-cy, 0, sy], U = [R[1] * F[2] - R[2] * F[1], R[2] * F[0] - R[0] * F[2], R[0] * F[1] - R[1] * F[0]]; return { P: c.p, F, R, U }; }
+function renderGen(slot, p, t) {
+  const u = t - p.a, q = GEN[p.gen](u, p.b - p.a), B = basis(q.cam), tanH = Math.tan(q.fov * deg / 2), NEAR = .05, FAR = 400;
+  if (q.calli) drawCalli(u);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, FBO[slot]); gl.viewport(0, 0, W, H);
+  const common = (U) => { gl.uniform3fv(U.uCam, B.P); gl.uniform3fv(U.uF, B.F); gl.uniform3fv(U.uR, B.R); gl.uniform3fv(U.uU, B.U); gl.uniform1f(U.uTan, tanH); gl.uniform1f(U.uAsp, W / H);
+    gl.uniform1f(U.uT, t); gl.uniform1f(U.uNear, NEAR); gl.uniform1f(U.uFar, FAR); gl.uniform1f(U.uFogD, q.fogD); gl.uniform1f(U.uNight, q.night || 0); };
+  // background: paper, sky, sea, mountains (writes depth)
+  gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.ALWAYS); gl.depthMask(true);
+  gl.useProgram(SC.p); common(SC.U); gl.uniform3fv(SC.U.uMoon, MOON); gl.uniform1f(SC.U.uWaveInk, q.waveInk); gl.uniform1f(SC.U.uRiver, q.river || 0); gl.uniform1f(SC.U.uCalliA, q.calli ? 1 : 0);
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, CALTEX); gl.uniform1i(SC.U.uCalli, 2);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  // the characters
+  gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.depthFunc(gl.LEQUAL); gl.depthMask(false);
+  gl.useProgram(GL.p); common(GL.U);
+  gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, ATEX); gl.uniform1i(GL.U.uAtlas, 3);
+  gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, EVOTEX); gl.uniform1i(GL.U.uEvoTex, 4);
+  gl.uniform1f(GL.U.uUpright, q.upright); gl.uniform1f(GL.U.uSize, q.size); gl.uniform1f(GL.U.uReveal, q.reveal); gl.uniform1f(GL.U.uEvo, q.evo);
+  gl.uniform1f(GL.U.uWaveAmp, q.waveAmp); gl.uniform1f(GL.U.uCols, AJ.cols); gl.uniform1f(GL.U.uFlow, q.flow || 0);
+  const draw = (vao, kind, size) => { gl.uniform1f(GL.U.uKind, kind); if (size) gl.uniform1f(GL.U.uSize, size); gl.bindVertexArray(VAO[vao]); gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, CNT[vao]); };
+  if (q.kind === "sea") draw("sea", 0);
+  if (q.kind === "river") draw("river", 4);
+  if (q.fall) { draw("fall", 3, .62); draw("fall", 2, .62); draw("fall", 1, .62); }
+  gl.bindVertexArray(null); gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.depthMask(true);
+  gl.bindTexture(gl.TEXTURE_2D, GTEX[slot]); gl.generateMipmap(gl.TEXTURE_2D);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+}
+
+// ───────── the brush: 字, stroke by stroke, in wet ink on rice paper, then the seal ─────────
+const CAL = off(1024, 1024), cx = CAL.getContext("2d"), KM = off(1024, 1024), kx = KM.getContext("2d");
+const WRITE = [.3, 2.35];                // the character is written in these seconds
+let INKPAT, STIMES, SEAL;
+function buildInk() {
+  const c = off(256, 256), x = c.getContext("2d"), d = x.createImageData(256, 256);
+  const vnoise = (px, py, f) => { const X = Math.floor(px * f), Y = Math.floor(py * f), fx = px * f - X, fy = py * f - Y, s = (a, b) => hash(((a % 64) + 64) % 64 * 131 + ((b % 64) + 64) % 64, 9);
+    const u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy); return lerp(lerp(s(X, Y), s(X + 1, Y), u), lerp(s(X, Y + 1), s(X + 1, Y + 1), u), v); };
+  for (let y = 0; y < 256; y++) for (let xx = 0; xx < 256; xx++) { const n = vnoise(xx / 256, y / 256, 8) * .6 + vnoise(xx / 256, y / 256, 32) * .4, v = 6 + 34 * n * n, i = (y * 256 + xx) * 4;
+    d.data[i] = v; d.data[i + 1] = v * .97; d.data[i + 2] = v * .96; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0); INKPAT = kx.createPattern(c, "repeat");
+  const st = window.STROKES["字"], L = st.m.map((m) => { let s = 0; for (let k = 1; k < m.length; k++) s += Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]); return Math.pow(s, .6); });
+  const gap = .09, tot = L.reduce((a, b) => a + b, 0), span = WRITE[1] - WRITE[0] - gap * (L.length - 1); let at = WRITE[0];
+  STIMES = L.map((l) => { const s = [at, at + span * l / tot]; at = s[1] + gap; return s; });
+  // the seal: 河水 in small seal script, cut in white out of vermilion (白文印)
+  SEAL = off(150, 150); const sx = SEAL.getContext("2d"); sx.fillStyle = "#b02e1c"; sx.fillRect(4, 4, 142, 142);
+  const sealCell = (ch) => (GROUPS["cn-seal"] || []).find((g) => g.text === ch) ?? (GROUPS["cn-kai"] || []).find((g) => g.text === ch);
+  const tmp = off(128, 128), tx = tmp.getContext("2d");
+  [["河", 6], ["水", 72]].forEach(([ch, y]) => { const c = sealCell(ch); if (!c) return; tx.clearRect(0, 0, 128, 128);
+    tx.drawImage(ATLAS, (c.i % AJ.cols) * AJ.cell, Math.floor(c.i / AJ.cols) * AJ.cell, AJ.cell, AJ.cell, 0, 0, 128, 128);
+    const id = tx.getImageData(0, 0, 128, 128); for (let i = 0; i < id.data.length; i += 4) { id.data[i + 3] = id.data[i]; id.data[i] = id.data[i + 1] = id.data[i + 2] = 0; } tx.putImageData(id, 0, 0);
+    sx.globalCompositeOperation = "destination-out"; sx.drawImage(tmp, 30, y - 4, 90, 90); sx.globalCompositeOperation = "source-over"; });
+  sx.globalCompositeOperation = "destination-out"; for (let i = 0; i < 900; i++) { sx.globalAlpha = .3 + .7 * hash(i, 41); const r = .6 + 2.2 * hash(i, 42) ** 3; sx.beginPath(); sx.arc(hash(i, 43) * 150, hash(i, 44) * 150, r, 0, 7); sx.fill(); }
+  sx.globalAlpha = 1; sx.globalCompositeOperation = "source-over";
+}
+let calliDone = -1;
+function drawCalli(u) {
+  const q = Math.min(u, 6.5); if (Math.abs(q - calliDone) < 1e-4) return; calliDone = q;
+  const d = window.STROKES["字"], size = 640, sc = size / 1024;
+  kx.setTransform(1, 0, 0, 1, 0, 0); kx.clearRect(0, 0, 1024, 1024);
+  kx.save(); kx.translate(512 - size / 2, 500 - size / 2); kx.scale(sc, sc); kx.transform(1, 0, 0, -1, 0, 900); kx.lineCap = "round"; kx.lineJoin = "round"; kx.fillStyle = INKPAT; kx.strokeStyle = INKPAT;
+  d.s.forEach((sp, i) => { const [a, b] = STIMES[i], pr = clamp((q - a) / (b - a)); if (pr <= 0) return; const path = new Path2D(sp), m = d.m[i];
+    const seg = []; let total = 0; for (let k = 1; k < m.length; k++) { const l = Math.hypot(m[k][0] - m[k - 1][0], m[k][1] - m[k - 1][1]); seg.push(l); total += l; }
+    const at = (f) => { let left = f * total; for (let k = 1; k < m.length; k++) { if (left <= seg[k - 1] || k === m.length - 1) { const r = clamp(left / seg[k - 1]); return [lerp(m[k - 1][0], m[k][0], r), lerp(m[k - 1][1], m[k][1], r), Math.atan2(m[k][1] - m[k - 1][1], m[k][0] - m[k - 1][0])]; } left -= seg[k - 1]; } return [...m[m.length - 1], 0]; };
+    kx.save(); kx.clip(path);
+    if (pr >= 1) kx.fill(path);
+    else { const f = 1 - Math.pow(1 - pr, 1.5); kx.lineWidth = 250; kx.beginPath(); kx.moveTo(m[0][0], m[0][1]); for (let s = 1; s <= 24; s++) { const [x, y] = at(f * s / 24); kx.lineTo(x, y); } kx.stroke(); }
+    // 飞白: the brush runs dry toward the end of the stroke, leaving hairs of bare paper
+    const shown = pr >= 1 ? 1 : 1 - Math.pow(1 - pr, 1.5);
+    kx.globalCompositeOperation = "destination-out"; kx.lineCap = "butt";
+    for (let j = 0; j < 9; j++) { const off = (j / 8 - .5) * 120, w = 5 + 9 * hash(i * 17 + j, 3);
+      for (let s = 0; s < 14; s++) { const f0 = .58 + .42 * s / 14, f1 = f0 + .03; if (f1 > shown) break; if (hash(i * 300 + j * 20 + s, 5) < .5 - .4 * (s / 14)) continue;
+        const [x0, y0, a0] = at(f0), [x1, y1] = at(f1), nx = -Math.sin(a0), ny = Math.cos(a0);
+        kx.globalAlpha = .25 + .5 * s / 14; kx.lineWidth = w; kx.beginPath(); kx.moveTo(x0 + nx * off, y0 + ny * off); kx.lineTo(x1 + nx * off, y1 + ny * off); kx.stroke(); } }
+    kx.globalCompositeOperation = "source-over"; kx.globalAlpha = 1; kx.lineCap = "round";
+    kx.restore(); });
+  kx.restore();
+  // wet ink spreads a little into the fibres, then the sharp ink on top
+  cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, 1024, 1024);
+  const wet = sm(WRITE[0], WRITE[1] + 2.5, q);
+  cx.filter = `blur(${(5 + 9 * wet).toFixed(1)}px)`; cx.globalAlpha = .22 + .12 * wet; cx.drawImage(KM, 0, 0);
+  cx.filter = "blur(1.2px)"; cx.globalAlpha = .6; cx.drawImage(KM, 0, 0); cx.filter = "none"; cx.globalAlpha = 1; cx.drawImage(KM, 0, 0);
+  const st = WRITE[1] + .35, k = sm(st, st + .14, q);
+  if (k > 0) { const s = 108 * (1 + .3 * (1 - k)); cx.globalAlpha = k * .92; cx.drawImage(SEAL, 800 - s / 2 + 54, 840 - s / 2 + 54, s, s); cx.globalAlpha = 1; }
+  gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, CALTEX); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, CAL);
+}
+
+// ───────── real characters drifting in front of the lens ─────────
+const SPR = [];
+function buildSprites() {
+  const N = 96, ids = []; for (let i = 0; i < N; i++) ids.push(pick(MIX, hash(i, 61)));
+  const tmp = off(128, 128), tx = tmp.getContext("2d", { willReadFrequently: true });
+  ids.forEach((cell) => {
+    tx.clearRect(0, 0, 128, 128); tx.drawImage(ATLAS, (cell % AJ.cols) * AJ.cell, Math.floor(cell / AJ.cols) * AJ.cell, AJ.cell, AJ.cell, 0, 0, 128, 128);
+    const id = tx.getImageData(0, 0, 128, 128), lt = new ImageData(128, 128), dk = new ImageData(128, 128), au = new ImageData(128, 128);
+    for (let i = 0; i < id.data.length; i += 4) { const a = id.data[i]; lt.data[i] = 255; lt.data[i + 1] = 250; lt.data[i + 2] = 240; lt.data[i + 3] = a; dk.data[i] = 18; dk.data[i + 1] = 17; dk.data[i + 2] = 17; dk.data[i + 3] = a; au.data[i] = 255; au.data[i + 1] = 196; au.data[i + 2] = 110; au.data[i + 3] = a; }
+    const mk = (im, blur) => { const c = off(128, 128), x = c.getContext("2d"); if (!blur) { x.putImageData(im, 0, 0); return c; } const s = off(128, 128); s.getContext("2d").putImageData(im, 0, 0); x.filter = "blur(6px)"; x.drawImage(s, 0, 0); return c; };
+    SPR.push({ light: [mk(lt), mk(lt, 1)], dark: [mk(dk), mk(dk, 1)], gold: [mk(au), mk(au, 1)] });
+  });
+}
+function glyphLayer(t, p, k, amt, bars) {
+  if (amt <= .01 || !SPR.length) return; const n = Math.round(110 * amt), bp = bars * .128 * H, light = p.lyr >= .5;
+  g.save(); g.beginPath(); g.rect(0, bp, W, H - 2 * bp); g.clip(); g.globalCompositeOperation = light ? "lighter" : "source-over";
+  for (let i = 0; i < n; i++) { const id = k * 1000 + i, z = .25 + .75 * hash(id, 3), life = 5 + 6 * hash(id, 4), q = fract(hash(id, 5) + t / life);
+    let x = hash(id, 1) * W, y = hash(id, 2) * H; const sp = 220 * (1.4 - z);
+    if (p.flow === "up") { y = H * 1.1 - q * H * 1.3; x += Math.sin(t * .5 + id) * 30; }
+    else if (p.flow === "fall") { y = -H * .1 + q * H * 1.25; x += q * 60; }
+    else if (p.flow === "rush") { const a = hash(id, 6) * 6.283, r = Math.pow(q, 2.2) * W * .9; x = W / 2 + Math.cos(a) * r; y = H * .52 + Math.sin(a) * r * .6; }
+    else if (p.flow === "out" || p.flow === "burst") { const a = hash(id, 6) * 6.283, r = (p.flow === "burst" ? Math.pow(q, .5) : q) * W * .7; x = W / 2 + Math.cos(a) * r; y = H * .42 + Math.sin(a) * r * .55; }
+    else { x += Math.sin(t * .13 + id) * sp * .4 + q * 90; y += Math.cos(t * .11 + id * 1.7) * sp * .25 - q * 40; }
+    const near = z < .42, s = (near ? 120 : 40) * (1.25 - z) + 12, a = amt * Math.sin(q * Math.PI) * (near ? .22 : .5) * (.5 + .5 * Math.sin(t * 2.1 + id));
+    if (a <= .01) continue; g.globalAlpha = Math.min(1, a); const sp2 = SPR[id % SPR.length][!light ? "dark" : hash(id, 9) < (p.ai || 0) * .7 ? "gold" : "light"]; g.drawImage(sp2[near ? 1 : 0], x - s / 2, y - s / 2, s, s); }
+  g.restore();
+}
+
+// ───────── one frame ─────────
+function layer(slot, p, t) { if (!p) return false; if (p.gen) { renderGen(slot, p, t); return true; } return upload(slot, VID[p.clip]); }
+function render(t) {
+  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = "source-over"; g.shadowBlur = 0; g.filter = "none";
+  const i = shotAt(t), cur = PLAN[i], prev = PLAN[i - 1], trd = TR[cur.tr], f = prev && trd ? clamp((t - cur.a) / trd) : 1;
+  const A = f < 1 && prev ? prev : null, B = cur;
+  const okA = layer(0, A, t), okB = layer(1, B, t);
+  const zf = (p) => p.zoom ? lerp(p.zoom[0], p.zoom[1], clamp((t - p.a) / (p.b - p.a + TR[p.tr]))) : 1;
+  const rise = PLAN.find((p) => p.hero), bars = 1 - sm(rise.b - 3.2, rise.b - .4, t);
+  let pulse = 0; for (let k = 0; k < S.length; k++) { const d = t - S[k]; if (d > 0 && d < 1.2) pulse = Math.max(pulse, Math.exp(-d * 3.5)); }
+  const flash = B.tr === "flash" ? Math.max(0, 1 - Math.abs(t - B.a - .1) / .35) * .75 : 0;
+  // colour: none through verse one; in verse two the warm light slowly comes back — a first crack in the black and white
+  const sat = .06 * sm(S[9], S[9] + 3, t) + .2 * sm(S[13], END - 2, t), paper = 1 - .7 * sm(S[9] - .5, S[9] + 1.5, t);
+  gl.viewport(0, 0, W, H); gl.useProgram(CP.p);
+  const bind = (unit, slot, p) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, p && p.gen ? GTEX[slot] : TEX[slot]); };
+  bind(0, 0, A); bind(1, 1, B); gl.uniform1i(CP.U.uA, 0); gl.uniform1i(CP.U.uB, 1);
+  gl.uniform1f(CP.U.uHasA, okA ? 1 : 0); gl.uniform1f(CP.U.uHasB, okB ? 1 : 0); gl.uniform1f(CP.U.uMix, A ? f : 1);
+  gl.uniform1f(CP.U.uMode, { cut: 0, cross: 0, light: 1, dark: 2, flash: 3, ink: 4 }[B.tr]); gl.uniform1f(CP.U.uZA, A ? zf(A) : 1); gl.uniform1f(CP.U.uZB, zf(B)); gl.uniform1f(CP.U.uTime, t);
+  gl.uniform1f(CP.U.uExpo, 1.0 + .06 * pulse); gl.uniform1f(CP.U.uBars, bars); gl.uniform1f(CP.U.uFlash, flash); gl.uniform1f(CP.U.uSeed, i * 7.13);
+  gl.uniform1f(CP.U.uSat, sat); gl.uniform1f(CP.U.uPaper, paper); gl.uniform1f(CP.U.uRed, 1 - sm(S[0] - 1, S[0], t));
+  gl.uniform1f(CP.U.uAI, A ? lerp(A.ai || 0, B.ai || 0, f) : B.ai || 0);
+  const mv = (p) => p && p.moon ? [p.moon[0], 1 - p.moon[1], p.moon[2], 1] : [0, 0, 0, 0];
+  gl.uniform4f(CP.U.uMoonA, ...mv(A)); gl.uniform4f(CP.U.uMoonB, ...mv(B));
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  g.drawImage(glc, 0, 0);
+
+  if (A) glyphLayer(t, A, i - 1, A.glyphs * (1 - f), bars); glyphLayer(t, B, i, B.glyphs * (A ? f : 1) * sm(B.a - .2, B.a + .8, t), bars);
+
+  // the lyric, written down the right margin: ink on the paper scenes, light on the dark ones
+  const lyr = A ? lerp(A.lyr, B.lyr, f) : B.lyr;
+  const u = (() => { for (let k = S.length - 1; k >= 0; k--) if (t >= S[k] - .15) return k; return -1; })();
+  if (u >= 0) { const line = LINES.find((l) => l.includes(u)), last = line[line.length - 1], out = 1 - sm(E[last] + .5, E[last] + 1.8, t);
+    if (out > 0) { g.save(); g.textAlign = "center"; g.textBaseline = "middle"; g.font = `400 50px ${FONT}`;
+      const tc = [lerp(22, 246, lyr), lerp(20, 240, lyr), lerp(19, 228, lyr)], sc = [lerp(238, 6, lyr), lerp(233, 5, lyr), lerp(222, 6, lyr)];
+      g.shadowColor = `rgba(${sc.map(Math.round)},.9)`; g.shadowBlur = 20;
+      const top = H * (.15 + .02 * bars);
+      line.forEach((k, n) => { const e = sm(S[k] - .12, S[k] + .6, t); if (e <= 0) return;
+        [...PH[k][2]].forEach((c, j) => { const ce = sm(0, 1, e * (PH[k][2].length + 1) - j * .8); g.fillStyle = `rgba(${tc.map(Math.round)},${ce * out})`; const x = W * (.93 - n * .043), y = top + j * 60 - 6 * (1 - ce); g.fillText(c, x, y); g.fillText(c, x, y); }); });
+      g.restore(); } }
+
+  const fin = sm(END - 2.6, END - .3, t);
+  if (fin > 0) { g.globalAlpha = fin; g.fillStyle = "#070606"; g.fillRect(0, 0, W, H); g.globalAlpha = fin * sm(END - 1.4, END - .4, t); g.fillStyle = "#e8e0d2"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `400 36px ${FONT}`; g.fillText("前两段 · 样片", W / 2, H / 2); g.globalAlpha = 1; }
+}
+async function renderAt(t) {
+  const i = shotAt(t), need = [PLAN[i]]; if (i > 0 && t < PLAN[i].a + TR[PLAN[i].tr]) need.push(PLAN[i - 1]);
+  await Promise.all(need.filter((p) => p.clip).map((p) => seekTo(VID[p.clip], clipTime(p, t)))); render(t);
+}
+
+// ───────── player ─────────
+const au = document.getElementById("au"), ui = document.getElementById("ui"), startEl = document.getElementById("start");
+const q = new URLSearchParams(location.search);
+function load(id) { setTake(id); const was = !au.paused; au.src = "../../" + TAKES[id].file; au.load(); if (was) au.play(); try { localStorage.setItem("zcj-mv12-take", id); } catch {} }
+const fmt = (s) => Math.floor(s / 60) + ":" + String(Math.floor(s % 60)).padStart(2, "0");
+function tick() {
+  let t = au.currentTime || 0; if (t >= END) { au.pause(); au.currentTime = 0; t = 0; }
+  au.volume = clamp(1 - sm(END - 2.6, END - .2, t));
+  driveVideos(t, !au.paused); render(t);
+  document.querySelector("#bar b").style.width = (t / END * 100) + "%"; document.getElementById("tm").textContent = fmt(t) + " / " + fmt(END);
+  requestAnimationFrame(tick);
+}
+async function init() {
+  const lo = document.getElementById("load"); lo.textContent = "载入字库…";
+  TAKES = await (await fetch("../timing.json", { cache: "no-cache" })).json();
+  await loadAtlas();
+  try { await Promise.race([document.fonts.load(`400 50px ${FONT}`, "字河水"), new Promise((r) => setTimeout(r, 1500))]); } catch {}
+  initGL(); buildInk(); buildSprites(); makeVideos();
+  const ids = Object.keys(TAKES); let saved = null; try { saved = localStorage.getItem("zcj-mv12-take"); } catch {}
+  const first = ids.includes(q.get("take")) ? q.get("take") : ids.includes(saved) ? saved : ids[0];
+  if (q.has("t")) { setTake(first); startEl.remove(); window.renderAt = renderAt; window.DUR = END;
+    await Promise.all(Object.values(VID).map((v) => new Promise((r) => v.readyState >= 2 ? r() : (v.onloadeddata = r, setTimeout(r, 15000)))));
+    await renderAt(+q.get("t")); document.title = "ready"; return; }
+  const sel = document.getElementById("take");
+  ids.forEach((id) => { const o = document.createElement("option"); o.value = id; o.textContent = TAKES[id].label || id; sel.append(o); });
+  sel.value = first; sel.onchange = () => load(sel.value);
+  load(first);
+  const vs = Object.values(VID);
+  const poll = setInterval(() => { const n = vs.filter((v) => v.readyState >= 3).length; lo.textContent = n < vs.length ? `素材载入 ${n}/${vs.length}` : ""; if (n === vs.length) clearInterval(poll); }, 300);
+  render(0);
+  const pp = document.getElementById("pp");
+  startEl.onclick = () => { startEl.remove(); ui.classList.remove("hide"); au.play(); vs.forEach((v) => { v.play().then(() => v.pause()).catch(() => {}); }); requestAnimationFrame(tick); };
+  pp.onclick = () => au.paused ? au.play() : au.pause();
+  au.onplay = () => pp.textContent = "暂停"; au.onpause = () => pp.textContent = "播放";
+  document.getElementById("bar").onclick = (e) => { const r = e.currentTarget.getBoundingClientRect(); au.currentTime = clamp((e.clientX - r.left) / r.width) * END; };
+  document.getElementById("fs").onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  let idle; const wake = () => { ui.classList.remove("hide"); clearTimeout(idle); idle = setTimeout(() => !au.paused && ui.classList.add("hide"), 2600); };
+  addEventListener("pointermove", wake); addEventListener("pointerdown", wake);
+  addEventListener("keydown", (e) => { if (e.code === "Space") { e.preventDefault(); pp.onclick(); } if (e.code === "ArrowRight") au.currentTime += 5; if (e.code === "ArrowLeft") au.currentTime -= 5; });
+}
+init().catch((e) => { document.title = "error: " + (e && (e.stack || e.message)); console.error(e); });
+})();
+</script>
+</body>
+</html>
