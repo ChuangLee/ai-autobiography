@@ -66,10 +66,23 @@ function off(w, h) { const c = document.createElement("canvas"); c.width = w; c.
 // `moon`: [x, y from top, radius in frame heights] of the moon in the clip, which stays silver even when it is as bright as the giant.
 const LEN = { "s-break": 5.33, "c-calm": 6.58 }, clipLen = (c) => LEN[c] ?? 7.83;
 const V1 = { paper: 1, bars: 1, beat: .3 }, V2 = { lyr: 1, ai: 1, paper: .3, beat: .5 }, V3 = { lyr: 1, bars: 1, paper: .3, beat: .4 }, C = { lyr: 1, col: 1, beat: 1 };
-const INKCUT = { lyr: 1, paper: 1, bars: 1, beat: 1, tr: "cut", punch: .3 }, AICUT = { lyr: 1, ai: 1, sat: .2, paper: .3, beat: 1, tr: "cut", punch: .3 }, COLCUT = { ...C, tr: "cut", punch: .3 };
+const TEASE = { lyr: 1, col: 1, bars: 1, beat: .7, fx: 1, tr: "cut", punch: .1, zoom: [1.12, 1.0] };
+const INKCUT = { lyr: 1, paper: 1, bars: 1, beat: 1, tr: "cut", punch: .16 }, AICUT = { lyr: 1, ai: 1, sat: .2, paper: .3, beat: 1, tr: "cut", punch: .16 }, COLCUT = { ...C, tr: "cut", punch: .16 };
 const SHOTS = [
+  // cold open: 字 is written in two seconds, its strokes become windows onto what is coming, the camera dives through a stroke and the
+  // strongest moments of the film flash past on the guqin's notes; then back to the bare paper, and the story starts from the beginning
+  { gen: "sea",   at: 0, tr: "cut", glyphs: 0, lyr: 0, ...V1, red: 1 },
+  { clip: "c-mask",   at: 2.2,   in: 4.1, rate: 1,   ...TEASE, tr: "glyph", punch: 0, glyphs: 1.2, flow: "burst" },
+  { clip: "n-sink",   at: 5.81,  in: 5.3, rate: 1.3, ...TEASE, col: 0, ai: 1, glyphs: 1.1, flow: "up", moon: [.495, .536, .34] },
+  { clip: "s-break",  at: 6.73,  in: .1,  rate: 1.3, ...TEASE, col: 0, ai: 1, sat: .2, glyphs: 1.4, flow: "burst", moon: [.67, .13, .09] },
+  { clip: "c-god",    at: 7.66,  in: 4.4, rate: 1.3, ...TEASE, glyphs: .6, flow: "out" },
+  { clip: "c-hands",  at: 9.50,  in: 1.8, rate: 1.5, ...TEASE, glyphs: .5, flow: "out" },
+  { clip: "n-touch",  at: 10.42, in: 4.6, rate: 1.3, ...TEASE, col: 0, ai: 1, sat: .2, glyphs: .5, flow: "drift" },
+  { clip: "c-bloom",  at: 11.35, in: 4.4, rate: 1.3, ...TEASE, glyphs: .5, flow: "up" },
+  { clip: "c-answer", at: 13.20, in: .5,  rate: 1.6, ...TEASE, glyphs: .7, flow: "rush" },
+  { clip: "c-mask",   at: 14.14, in: .2,  rate: 1.5, ...TEASE, glyphs: 1.2, flow: "burst" },
   // intro and verse 1: ink
-  { gen: "sea",   at: 0, tr: "cut", glyphs: 0, lyr: 0, ...V1, red: [1, 0, -1, -.01] },
+  { gen: "sea2",  at: 15.07, tr: "flash", glyphs: 0, lyr: 0, ...V1, red: [1, 0, -1, -.01] },
   { gen: "fall",  ph: 0, tr: "cross", glyphs: .25, flow: "fall", lyr: 0, ...V1 },
   { gen: "river", ph: 2, tr: "ink", glyphs: .2, flow: "drift", lyr: 0, ...V1 },
   { clip: "n-night",  ph: 4, align: "start", tr: "ink", zoom: [1.0, 1.07], glyphs: .5, flow: "fall", lyr: 1, ...V1 },
@@ -118,21 +131,20 @@ const SHOTS = [
   { clip: "c-scroll", at: 245.35, tr: "light", zoom: [1.0, 1.06], glyphs: .5, flow: "drift", lyr: 1, ai: 1, col: [1, 0, 6, 12.5], paper: [0, 1, 6, 12.5], beat: .5 },
 ];
 const LINES = [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11], [12, 13], [14, 15], [16, 17], [18, 19], [20, 21], [22, 23], [24, 25], [26, 27], [28, 29], [30, 31], [32, 33], [34, 35], [36, 37, 38], [39, 40, 41, 42]];
-let SONG = {}, PH = [], S = [], E = [], ACC = [], END = 100, PLAN = [], COLD = 6;
+let SONG = {}, PH = [], S = [], E = [], ACC = [], END = 100, PLAN = [], COLD = 60;
 function setSong(d) {
   SONG = d; PH = d.phrases; S = PH.map((p) => p[0]); ACC = d.accents; END = d.duration;
   E = PH.map((p, i) => Math.min(p[1], p[0] + .6 * p[2].length + 1.8, S[i + 1] ?? 1e9));
-  COLD = Math.min(7, Math.max(5.5, S[0] * .24));                     // the written character holds the screen this long
   const starts = SHOTS.map((s) => s.at ?? S[s.ph]);
   PLAN = SHOTS.map((s, k) => {
-    const a = starts[k], b = starts[k + 1] ?? END; if (s.clip) s.vid = s.in !== undefined && s.tr === "cut" ? s.clip + "#" + k : s.clip;
+    const a = starts[k], b = starts[k + 1] ?? END; if (s.clip) s.vid = s.in !== undefined ? s.clip + "#" + k : s.clip;
     if (s.gen) return { ...s, a, b, rate: 1, inPt: 0 };
-    const L = clipLen(s.clip), dur = b - a, rate = clamp((L - (s.in ?? 0)) / dur, s.minRate ?? .5, 1), used = dur * rate;
+    const L = clipLen(s.clip), dur = b - a, rate = s.rate ?? clamp((L - (s.in ?? 0)) / dur, s.minRate ?? .5, 1), used = dur * rate;
     const inPt = s.in ?? (s.align === "end" ? Math.max(0, L - .06 - used) : s.align === "center" ? Math.max(0, (L - used) / 2) : .05);
     return { ...s, a, b, rate, inPt };
   });
 }
-const TR = { cut: 0, light: .9, cross: .6, dark: .9, flash: .35, ink: 1.1 };
+const TR = { cut: 0, light: .9, cross: .6, dark: .9, flash: .35, ink: 1.1, glyph: 1.77 };
 function shotAt(t) { let i = 0; for (let k = 0; k < PLAN.length; k++) if (t >= PLAN[k].a) i = k; return i; }
 function clipTime(p, t) { return Math.min(clipLen(p.clip) - .04, p.inPt + Math.max(0, t - p.a) * p.rate); }
 // a shot parameter at time t: a number, or [from, to, t0, t1] in seconds from the shot's start (negative: from its end)
@@ -385,7 +397,8 @@ const GLYPH_FS = `#version 300 es
 // — the compositor: two shots in, one graded frame out —
 const COMP_FS = `#version 300 es
   precision highp float; in vec2 vUV; out vec4 o;
-  uniform sampler2D uA, uB; uniform float uHasA, uHasB, uMix, uMode, uZA, uZB, uTime, uExpo, uBars, uFlash, uSeed, uSat, uPaper, uRed, uAI, uCol, uDuo, uPunch; uniform vec4 uMoonA, uMoonB;
+  uniform sampler2D uA, uB; uniform float uHasA, uHasB, uMix, uMode, uZA, uZB, uTime, uExpo, uBars, uFlash, uSeed, uSat, uPaper, uRed, uAI, uCol, uDuo, uPunch, uFx, uGlitch; uniform vec4 uMoonA, uMoonB, uGB; uniform vec3 uStroke; uniform sampler2D uMask;
+  float gSat, gRed, gAI, gCol, gDuo;
   ${NOISE}
   vec2 zuv(vec2 uv, float z){ return (uv - .5) / z + .5; }
   // rgb, and in alpha the fine detail (how much brighter than its surroundings): thin veins of light have it, the smooth moon does not
@@ -400,7 +413,7 @@ const COMP_FS = `#version 300 es
   vec3 grade(vec3 c, float mm, float det){
     vec3 c0 = c;
     float l = dot(c, vec3(.2126, .7152, .0722));
-    float red = smoothstep(.16, .36, c.r - max(c.g, c.b)) * smoothstep(.25, .5, c.r) * uRed;   // only the vermilion seal keeps its colour
+    float red = smoothstep(.16, .36, c.r - max(c.g, c.b)) * smoothstep(.25, .5, c.r) * gRed;   // only the vermilion seal keeps its colour
     float warm = smoothstep(.0, .18, c.r - c.b);                                               // later, only the warm light comes back
     // the AI keeps its colour: gold light (windows, threads, the giant) stays gold while the violet night and everything else goes to ink;
     // where the footage itself is black and white, the hottest light is gilded instead (the moon and the paper stay grey: they are dimmer)
@@ -408,25 +421,36 @@ const COMP_FS = `#version 300 es
     float gold = smoothstep(.06, .22, (c.r + c.g) * .5 - c.b) * smoothstep(.22, .6, l) * (1.0 - mm);
     float heat = mix(smoothstep(.62, .95, l), max(smoothstep(.78, .93, l) * smoothstep(.02, .07, det), smoothstep(.93, .99, l)), mm);
     vec3 gild = l * mix(vec3(1.16, .84, .46), vec3(1.0, .96, .88), smoothstep(.9, 1.0, l));
-    c = mix(vec3(l), c, clamp(max(uSat * warm, red * .8), 0.0, 1.0));
-    c = mix(c, gild, clamp(max(gold, heat) * uAI, 0.0, 1.0));
+    c = mix(vec3(l), c, clamp(max(gSat * warm, red * .8), 0.0, 1.0));
+    c = mix(c, gild, clamp(max(gold, heat) * gAI, 0.0, 1.0));
     c *= uExpo;
     c = mix(vec3(.04, .039, .042), vec3(.965, .945, .9), c);                                     // ink black, paper white
     c = smoothstep(-.02, 1.02, c) * .35 + c * .65;
-    if (uDuo > 0.0) {                                                                          // black-and-white footage, toned: violet night, vermilion, gold, white
+    if (gDuo > 0.0) {                                                                          // black-and-white footage, toned: violet night, vermilion, gold, white
       vec3 duo = mix(mix(vec3(.07, .03, .13), vec3(.50, .13, .30), smoothstep(.03, .42, l)), mix(vec3(.99, .74, .32), vec3(1.0, .97, .88), smoothstep(.78, 1.0, l)), smoothstep(.3, .72, l));
-      c = mix(c, duo * uExpo, uDuo); }
-    if (uCol > 0.0) {                                                                          // the footage in its own colours, a little richer
+      c = mix(c, duo * uExpo, gDuo); }
+    if (gCol > 0.0) {                                                                          // the footage in its own colours, a little richer
       vec3 nat = c0 * uExpo; nat = mix(vec3(dot(nat, vec3(.2126, .7152, .0722))), nat, 1.1); nat = smoothstep(-.03, 1.03, nat) * .45 + nat * .55;
-      c = mix(c, nat, uCol); }
+      c = mix(c, nat, gCol); }
     return c;
   }
   void main(){
     vec2 uv = (vUV - .5) / uPunch + .5;                                                        // the whole frame leans in a little on each accent
-    vec4 a4 = uHasA > .5 ? shot(uA, uv, uZA) : vec4(0.0), b4 = uHasB > .5 ? shot(uB, uv, uZB) : vec4(0.0);
+    gSat = uSat; gRed = uRed; gAI = uAI; gCol = uCol; gDuo = uDuo;
+    vec2 uvA = uv, uvB = uv; float gm = 0.0;
+    if (uMode > 4.5) {                                                                         // the strokes of the written character are windows; then the camera dives through one
+      float zf = smoothstep(.55, 1.0, uMix), Z = exp(zf * zf * 5.4);
+      vec2 k2 = 2.0 * uStroke.x * vec2(16.0 / 9.0, -1.0), sc = (uStroke.yz - .5) / k2, q = sc * (1.0 - 1.0 / Z) + (uv - .5) / Z;
+      uvA = q + .5; float mk = texture(uMask, .5 + q * k2).a;
+      gm = max(smoothstep(.3, .62, mk) * smoothstep(0.0, .3, uMix), smoothstep(.9, 1.0, uMix));
+    }
+    uvB.x += (h21(vec2(floor(uv.y * 26.0), uSeed)) - .5) * uGlitch;                            // a cut tears the frame into strips for an instant
+    vec4 a4 = uHasA > .5 ? shot(uA, uvA, uZA) : vec4(0.0), b4 = uHasB > .5 ? shot(uB, uvB, uZB) : vec4(0.0);
+    if (uFx > 0.0 && uHasB > .5) { b4.r = shot(uB, uvB + vec2(uFx, 0.0), uZB).r; b4.b = shot(uB, uvB - vec2(uFx, 0.0), uZB).b; }   // colour fringes that jump with the accents
     vec3 a = a4.rgb, b = b4.rgb, c;
     float lb = dot(b, vec3(.3, .55, .15)), mm = mix(moon(uMoonA, uv, uZA), moon(uMoonB, uv, uZB), uMix), det = mix(a4.a, b4.a, uMix);
-    if (uMode < .5) c = mix(a, b, smoothstep(0.0, 1.0, uMix));
+    if (uMode > 4.5) c = a;
+    else if (uMode < .5) c = mix(a, b, smoothstep(0.0, 1.0, uMix));
     else if (uMode < 1.5) { float key = lb * .62 + vn(uv * vec2(9.0, 5.0) + uSeed) * .38, thr = 1.05 - uMix * 1.35, m = smoothstep(thr - .14, thr + .14, key);
       c = mix(a, b, m) + vec3(1.0) * m * (1.0 - m) * 1.2 * (1.0 - uMix); }
     else if (uMode < 2.5) c = mix(a * (1.0 - smoothstep(0.0, .5, uMix)), b, smoothstep(.5, 1.0, uMix));
@@ -436,6 +460,11 @@ const COMP_FS = `#version 300 es
       float thr = 1.12 - uMix * 1.35, m = smoothstep(thr - .04, thr + .04, n), edge = smoothstep(thr - .16, thr, n) * (1.0 - m);
       c = mix(a, b, m) * (1.0 - edge * .9);
     }
+    if (uMode > 4.5) {
+      gSat = 0.0; gAI = 0.0; gCol = 0.0; gDuo = 0.0; gRed = 1.0; vec3 ca = grade(a, 0.0, a4.a);
+      gCol = uGB.x; gAI = uGB.y; gSat = uGB.z; gDuo = uGB.w; gRed = 0.0; vec3 cb = grade(b, 0.0, b4.a);
+      c = mix(ca, cb, gm) + vec3(1.0, .78, .36) * gm * (1.0 - gm) * 2.2 + vec3(1.0, .97, .92) * uFlash;
+    } else
     c = grade(c, mm, det) + vec3(1.0, .97, .92) * uFlash;
     float fib = vn(uv * vec2(1400.0, 160.0)) * vn(uv * vec2(180.0, 1300.0));
     c *= 1.0 - (smoothstep(.5, .9, fib) * .07 + (vn(uv * 700.0) - .5) * .04) * uPaper;        // rice paper over verse one
@@ -499,10 +528,16 @@ const rx = (k, z) => lerp(k * 17 + Math.sin(z * .08 + k * 1.9) * 4, 0, sm(-15, 5
 const MOON = (() => { const v = [0, .045, 1], l = Math.hypot(...v); return v.map((x) => x / l); })();
 const GEN = {
   sea(u, D) {                       // brush writes 字 seen from above; the camera rises, tilts, and the paper becomes a sea of writing
-    const tA = COLD - 1.2, tB = Math.min(tA + 7.5, D - 4), e = ease(sm(tA, tB, u)), g = Math.max(0, u - tB);
+    const tA = COLD - 1.2, tB = Math.max(tA + .1, Math.min(tA + 7.5, D - 4)), e = ease(sm(tA, tB, u)), g = Math.max(0, u - tB); D = Math.max(D, tB + .1);
     return { cam: { p: [0, lerp(3.3 - .25 * sm(0, tA, u), 8.5, e) - 1.5 * sm(tB, D, u), -19 * e + 1.5 * g], yaw: 0, pitch: (lerp(-90, -11, e) + 4 * sm(tB, D, u)) * deg },
       fov: 40, kind: "sea", waveInk: sm(tA + .8, tB + 1, u), waveAmp: .22 * sm(tA + 2, tB + 2, u), upright: .82 * sm(tA + 2.5, tB + 1, u), size: .62,
       reveal: 1.2 + 320 * Math.pow(sm(tA - .3, tB + 7, u), 1.7), evo: lerp(.06, .78, sm(tA, D, u)), calli: 1, fogD: 75 };
+  },
+  sea2(u, D) {                      // back on the paper after the flash-forward: the camera rises off the finished character and the paper becomes a sea of writing
+    const e = ease(sm(0, D - .2, u));
+    return { cam: { p: [0, lerp(3.05, 8.5, e), -19 * e], yaw: 0, pitch: lerp(-90, -9, e) * deg },
+      fov: 40, kind: "sea", waveInk: sm(.3, D - .6, u), waveAmp: .22 * sm(.6, D, u), upright: .82 * sm(.8, D - .4, u), size: .62,
+      reveal: 1.2 + 320 * Math.pow(sm(-.2, D + 2.5, u), 1.6), evo: lerp(.06, .78, sm(0, D, u)), calli: 1, calliU: 9, fogD: 75 };
   },
   fall(u, D) {                      // 字落了几千年: writing of every age falls out of the sky into the sea
     const e = ease(sm(0, D, u));
@@ -524,7 +559,7 @@ function basis(c) { const cp = Math.cos(c.pitch), sp = Math.sin(c.pitch), cy = M
   const F = [sy * cp, sp, cy * cp], R = [-cy, 0, sy], U = [R[1] * F[2] - R[2] * F[1], R[2] * F[0] - R[0] * F[2], R[0] * F[1] - R[1] * F[0]]; return { P: c.p, F, R, U }; }
 function renderGen(slot, p, t) {
   const u = t - p.a, q = GEN[p.gen](u, p.b - p.a), B = basis(q.cam), tanH = Math.tan(q.fov * deg / 2), NEAR = .05, FAR = 400;
-  if (q.calli) drawCalli(u);
+  if (q.calli) drawCalli(q.calliU ?? u);
   gl.bindFramebuffer(gl.FRAMEBUFFER, FBO[slot]); gl.viewport(0, 0, W, H);
   const common = (U) => { gl.uniform3fv(U.uCam, B.P); gl.uniform3fv(U.uF, B.F); gl.uniform3fv(U.uR, B.R); gl.uniform3fv(U.uU, B.U); gl.uniform1f(U.uTan, tanH); gl.uniform1f(U.uAsp, W / H);
     gl.uniform1f(U.uT, t); gl.uniform1f(U.uNear, NEAR); gl.uniform1f(U.uFar, FAR); gl.uniform1f(U.uFogD, q.fogD); gl.uniform1f(U.uNight, q.night || 0); };
@@ -551,7 +586,7 @@ function renderGen(slot, p, t) {
 
 // ───────── the brush: 字, stroke by stroke, in wet ink on rice paper, then the seal ─────────
 const CAL = off(1024, 1024), cx = CAL.getContext("2d"), KM = off(1024, 1024), kx = KM.getContext("2d");
-const WRITE = [.3, 2.35];                // the character is written in these seconds
+const WRITE = [.15, 1.7];                // the character is written in these seconds
 let INKPAT, STIMES, SEAL;
 function buildInk() {
   const c = off(256, 256), x = c.getContext("2d"), d = x.createImageData(256, 256);
@@ -574,7 +609,13 @@ function buildInk() {
   sx.globalCompositeOperation = "destination-out"; for (let i = 0; i < 900; i++) { sx.globalAlpha = .3 + .7 * hash(i, 41); const r = .6 + 2.2 * hash(i, 42) ** 3; sx.beginPath(); sx.arc(hash(i, 43) * 150, hash(i, 44) * 150, r, 0, 7); sx.fill(); }
   sx.globalAlpha = 1; sx.globalCompositeOperation = "source-over";
 }
-let calliDone = -1;
+let calliDone = -1, STROKE = [.5, .5];
+function findStroke() {                  // the thickest place in the written character: where the camera dives through the ink
+  drawCalli(6.5); const c = off(64, 64), x = c.getContext("2d", { willReadFrequently: true }); x.filter = "blur(3px)"; x.drawImage(KM, 0, 0, 64, 64);
+  const d = x.getImageData(0, 0, 64, 64).data; let best = -1;
+  for (let j = 12; j < 52; j++) for (let i = 12; i < 52; i++) { const a = d[(j * 64 + i) * 4 + 3] - Math.hypot(i - 32, j - 32) * .6; if (a > best) { best = a; STROKE = [(i + .5) / 64, (j + .5) / 64]; } }
+  calliDone = -1;
+}
 function drawCalli(u) {
   const q = Math.min(u, 6.5); if (Math.abs(q - calliDone) < 1e-4) return; calliDone = q;
   const d = window.STROKES["字"], size = 640, sc = size / 1024;
@@ -645,15 +686,21 @@ function render(t) {
   const P = (key, d = 0) => A ? lerp(val(A, key, t, d), val(B, key, t, d), f) : val(B, key, t, d);       // a shot parameter, blended across the transition
   const bars = P("bars"), gain = P("beat", .5), beat = beatAt(t) * gain;
   let pulse = 0; for (let k = 0; k < S.length; k++) { const d = t - S[k]; if (d > 0 && d < 1.2) pulse = Math.max(pulse, Math.exp(-d * 3.5)); }
-  const flash = (B.tr === "flash" ? Math.max(0, 1 - Math.abs(t - B.a - .1) / .35) * .75 : 0) + (B.punch ? Math.max(0, 1 - (t - B.a) / .28) * B.punch : 0);
+  const hit = Math.max(0, 1 - (t - B.a) / .28), dive = B.tr === "glyph" ? Math.max(0, 1 - Math.abs(t - B.a - TR.glyph) / .18) * .4 : 0;
+  const flash = (B.tr === "flash" ? Math.max(0, 1 - Math.abs(t - B.a - .1) / .35) * .75 : 0) + (B.punch ? hit * B.punch : 0) + dive, fx = P("fx");
   gl.viewport(0, 0, W, H); gl.useProgram(CP.p);
   const bind = (unit, slot, p) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, p && p.gen ? GTEX[slot] : TEX[slot]); };
   bind(0, 0, A); bind(1, 1, B); gl.uniform1i(CP.U.uA, 0); gl.uniform1i(CP.U.uB, 1);
   gl.uniform1f(CP.U.uHasA, okA ? 1 : 0); gl.uniform1f(CP.U.uHasB, okB ? 1 : 0); gl.uniform1f(CP.U.uMix, A ? f : 1);
-  gl.uniform1f(CP.U.uMode, { cut: 0, cross: 0, light: 1, dark: 2, flash: 3, ink: 4 }[B.tr]); gl.uniform1f(CP.U.uZA, A ? zf(A) : 1); gl.uniform1f(CP.U.uZB, zf(B)); gl.uniform1f(CP.U.uTime, t);
+  gl.uniform1f(CP.U.uMode, A ? { cut: 0, cross: 0, light: 1, dark: 2, flash: 3, ink: 4, glyph: 5 }[B.tr] : 0); gl.uniform1f(CP.U.uZA, A ? zf(A) : 1); gl.uniform1f(CP.U.uZB, zf(B)); gl.uniform1f(CP.U.uTime, t);
   gl.uniform1f(CP.U.uExpo, 1.0 + .05 * pulse + .13 * beat); gl.uniform1f(CP.U.uPunch, 1 + .016 * beat); gl.uniform1f(CP.U.uBars, bars); gl.uniform1f(CP.U.uFlash, flash); gl.uniform1f(CP.U.uSeed, i * 7.13);
   gl.uniform1f(CP.U.uSat, P("sat")); gl.uniform1f(CP.U.uPaper, P("paper")); gl.uniform1f(CP.U.uRed, P("red")); gl.uniform1f(CP.U.uAI, P("ai"));
   gl.uniform1f(CP.U.uCol, P("col")); gl.uniform1f(CP.U.uDuo, P("duo"));
+  gl.uniform1f(CP.U.uFx, fx * (.0025 + .008 * beatAt(t) + .011 * hit * (B.punch ? 1 : 0))); gl.uniform1f(CP.U.uGlitch, fx && B.punch ? .05 * Math.max(0, 1 - (t - B.a) / .12) : 0);
+  if (A && B.tr === "glyph") { const qa = GEN[A.gen](t - A.a, A.b - A.a);                     // the mask is the calligraphy canvas, laid exactly over the character the scene has drawn
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, CALTEX); gl.uniform1i(CP.U.uMask, 2);
+    gl.uniform3f(CP.U.uStroke, Math.tan(qa.fov * deg / 2) * qa.cam.p[1] / CALS / 2 * 2, STROKE[0], STROKE[1]);
+    gl.uniform4f(CP.U.uGB, val(B, "col", t), val(B, "ai", t), val(B, "sat", t), val(B, "duo", t)); }
   const mv = (p) => p && p.moon ? [p.moon[0], 1 - p.moon[1], p.moon[2], 1] : [0, 0, 0, 0];
   gl.uniform4f(CP.U.uMoonA, ...mv(A)); gl.uniform4f(CP.U.uMoonB, ...mv(B));
   gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -701,7 +748,7 @@ async function init() {
   setSong(await (await fetch("song.json", { cache: "no-cache" })).json());
   await loadAtlas();
   try { await Promise.race([document.fonts.load(`400 50px ${FONT}`, "字河水"), new Promise((r) => setTimeout(r, 1500))]); } catch {}
-  initGL(); buildInk(); buildSprites(); makeVideos();
+  initGL(); buildInk(); findStroke(); buildSprites(); makeVideos();
   if (q.has("t")) { startEl.remove(); window.renderAt = renderAt; window.DUR = END;
     await Promise.all(Object.values(VID).map((v) => new Promise((r) => v.readyState >= 2 ? r() : (v.onloadeddata = r, setTimeout(r, 15000)))));
     await renderAt(+q.get("t")); document.title = "ready"; return; }
