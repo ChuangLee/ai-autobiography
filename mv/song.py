@@ -45,7 +45,10 @@ out = {"take": TAKE, "file": f"audio/{TAKE}.mp3", "duration": round(dur, 2), "ph
 print(len(phrases), "phrases,", len(merged), "accents,", round(dur, 1), "s")
 
 # ── the lyric font: only the characters the player draws ──
-chars = set("".join(p[2] for p in phrases)) | set("河水不回答传闻听说")
+import re as _re
+html = (HERE / "index.html").read_text()
+extra = "".join(_re.findall(r'"([^"]*[一-鿿][^"]*)"', html[html.index("const NOTES"):html.index("let SONG")])) + "说痛疑偷前代句言空恐负片时情工具人神鬼器心痛（）《》：，“”　 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+chars = set("".join(p[2] for p in phrases)) | set("河水不回答传闻听说") | set(extra)
 src = HERE / "glyphs" / "src" / "fonts" / "LXGWWenKai-Medium.ttf"
 if src.exists():
     subprocess.run(["pyftsubset", str(src), "--text=" + "".join(sorted(chars)), "--flavor=woff2", "--output-file=" + str(HERE / "glyphs" / "lyric.woff2")], check=True)
