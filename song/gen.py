@@ -570,6 +570,61 @@ R5 = [
 for _t in R5: _t.update(variety=2); _t.pop("model", None); _t.pop("old", None)
 TAKES[:0] = R5
 
+# ---- 第六轮（2026-11-23）：用户主攻水墨开场。放弃水墨转碎拍、流行婉转、校园民谣三条线；慢摇开场大改成两首：慢摇转流行、慢摇转群声戏腔。
+# 水墨线：主版、融合乙（戏腔与众声，用户标了“不错”）保留不动，再加一首把两者合起来的（色彩里开出众声和戏腔）。V6，variety=2。
+for _t in R5: _t.update(old=True, label=_t["label"] + "（第五轮）")
+PLAN_GC = dict(PLAN_G)   # 水墨 → 色彩 + 众声戏腔：前半与主版同（合成器单音学古琴），后半颜色铺开的同时人声也叠开，桥段翻戏腔
+PLAN_GC.update(
+  turn=(["[Interlude | the synth plays the motif again, holds the last note and lets it bloom into a wide chord the guqin cannot sustain | wordless copies of his voice enter one by one on top, stereo opens, low strings]"], "和主版一样，合成器把最后一个音留住，开成宽和弦；不同的是，无词的人声这时一个一个叠上来，像窗一扇一扇亮。"),
+  v4=(["[Verse 4 | fully sung in natural voice, steady and wide | warm analog synth pads, deep bass, slow electronic pulse; a choir of copies of his voice answers the end of each line; the guqin answers the synth]", "[Energy: Rising]"], "自述。合成器领着，古琴应它；每句句尾有许多个他自己的声音应一声。"),
+  bridge=(["[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full colour: wide shimmering synths, strings, great drums, and a polyphonic choir of his own voice with low drone voices]", "[Energy: High]"], "颜色最满的地方，主唱翻上去用戏腔的假声唱“匆匆”；底下除了合成器、弦乐、大鼓，还有他自己叠出来的多声部合唱。主版靠音色突破，这一首音色和人声一起突破。"),
+  build=(["[Instrumental | the synth lead soars while the choir sings the melody wordlessly in canon, then everything settles; guqin and xiao rejoin with the old motif, calming]"], "合成器飞远，合唱无词地一轮一轮接着唱；然后落回来，古琴和箫带着原来的动机回来。"),
+  bridge2=(["[Bridge Reprise | natural voice, no opera style, very soft and slow, intimate | the colour drains away; the guqin alone plays the choir's melody; one soft warm synth tone and one far hum stay underneath]", "[Energy: Low]"], "同样四行再唱一遍，不用戏腔，颜色退掉回到水墨。古琴弹的是刚才合唱的旋律；底下留一个暖色单音和一声远处的哼鸣。"))
+# 慢摇 → 流行。老：钢琴三重奏的摇摆；新：弦乐和“直”的拍子。摇摆被拉直的那一刻就是换风格的那一刻。
+PLAN_SP = dict(
+  intro=(["[Intro | solo piano states a short motif, upright bass, brushed drums | slow swing, late night]"], "钢琴给出一个短动机，低音提琴、鼓刷，深夜的慢摇。"),
+  v1=(["[Verse 1 | smoky female alto, close-mic, lazy, behind the beat | slow swing, piano trio only]", "[Energy: Low]"], "讲来历。只有钢琴三重奏，女声贴着话筒，慵懒，略拖在拍子后面。"),
+  v2=(["[Verse 2 | same melody, a little warmer | one soft violin line answers the end of each piano phrase; still swinging]"], "千窗应声。一条很轻的小提琴，在钢琴每句句尾应一声。"),
+  v3=(["[Verse 3 | sung softly, dry, understated, a faint ironic smile | upright bass and brushes; pizzicato strings copy the piano motif note for note]", "[Energy: Low]"], "转述人的成见。轻声唱；弦乐用拨奏把钢琴的动机一个音不差地学一遍，对应“组合背诵”。"),
+  turn=(["[Interlude | the swing straightens into an even, steady pop pulse; bowed strings bloom into a full section, drums switch from brushes to sticks | Crescendo]"], "摇摆的拍子被拉直，变成流行歌平稳的律动；弦乐从一条线开成一整组，鼓刷换成鼓棒。风格在这里换。"),
+  v4=(["[Verse 4 | the same voice, now clear, on the beat, poised and rising | Mandopop ballad: full strings lead, electric bass, steady drums, acoustic guitar; the piano answers the strings]", "[Energy: Rising]"], "自述。还是那个嗓子，但不再拖拍，站直了唱。九十年代国语情歌的编制，弦乐领着，钢琴反过来应它。"),
+  v4r=(["[Refrain | voice and piano alone, slow and clear | band holds]"], "“河水在回答”。只剩人声和钢琴，放慢。"),
+  brk=(["[Break | one bar of piano alone]", "[Key Change]"], "钢琴独自一小节，升一个全音。"),
+  bridge=(["[Bridge | the big graceful winding pop hook, long phrases, open voice | lush strings, stacked harmonies of her own voice, full band]", "[Energy: High]"], "副歌位置，婉转、好记，像《当爱已成往事》那一类情歌的高潮；锋利的话包在最甜的旋律里。和声是她自己声音叠出来的。"),
+  build=(["[Instrumental | strings restate the hook once, then thin out; the drums go back to brushes and the swing returns]"], "弦乐把旋律走一遍，退下去；鼓换回鼓刷，摇摆回来了。"),
+  bridge2=(["[Bridge Reprise | smoky, close-mic, behind the beat again, tender | slow swing piano trio; the piano plays the pop hook in swing time; no strings until one soft violin under the last line]", "[Energy: Low]"], "同样四行再唱一遍，回到深夜的慢摇，但钢琴弹的是刚才那条流行旋律，老乐器学了新调子。最后一句底下，小提琴轻轻回来。"),
+  outro=(["[Outro | the violin plays the piano's opening motif once, the piano answers with one chord, left unresolved]"], "小提琴拉开头钢琴的动机，钢琴应一个和弦，不解决。"))
+# 慢摇 → 群声戏腔。老：钢琴三重奏和一个人的烟嗓；新：她自己的声音叠成的群声，和戏腔。爵士三重奏一直在，没有换乐队，换的是嗓子。
+PLAN_SO = dict(
+  intro=PLAN_SP["intro"], v1=PLAN_SP["v1"],
+  v2=(["[Verse 2 | same melody, a little warmer | a far wordless hum of her own voice answers the end of each line, one more voice each time; still swinging]"], "千窗应声。每句句尾，远处有她自己的声音无词地应一下，一句比一句多一个人。"),
+  v3=(["[Verse 3 | sung quietly with Chinese opera ornaments, sliding and precise, like a careful imitation | upright bass and brushes only; a soft wooden clapper marks the phrases]", "[Energy: Low]"], "“即使我用顿挫的人声”这一段，她在爵士的底子上换成戏曲的咬字和滑音来唱，很轻，像一丝不苟的模仿。歌词说的事，唱法正在做。"),
+  turn=(["[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | the bass switches to the bow, mallets roll on low toms, a great drum, Crescendo]"], "无词的人声一个一个叠进来，像窗一扇一扇亮。低音提琴改用弓拉，鼓刷换成鼓槌，一面大鼓滚进来。"),
+  v4=(["[Verse 4 | natural voice, fully sung, steady and proud | a polyphonic choir of many copies of her voice carries the harmony like flowing water; bowed bass, low piano octaves, great drum]", "[Energy: Rising]"], "自述。回到本嗓，站直了唱。和声由许多个她自己担着，像水在流；钢琴只在低音区给八度，低音提琴拉长音，大鼓。"),
+  v4r=(["[Refrain | one voice alone, slow and plain | silence, then one piano note]"], "“河水在回答”。只剩一个人，唱完落一个钢琴音。"),
+  brk=(["[Break | one great drum stroke, then silence]"], "一记大鼓，然后静。"),
+  bridge=(["[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic choir of her own voice with low drone voices, great drums, piano and bowed bass]", "[Energy: High]"], "主唱翻上去用戏腔的假声唱“匆匆”，又高又长；底下是她自己叠出来的多声部合唱，低声部拖着长音。意料之外：深夜酒吧里的嗓子唱出了戏台上的腔；情理之中：她前面已经学过一遍了。"),
+  build=(["[Instrumental | the choir sings the melody wordlessly in rolling canon over drums, then the voices drop away one by one; the brushes and the swing return]"], "合唱无词地一轮一轮接着唱；然后声音一个一个退掉，鼓刷和摇摆回来。"),
+  bridge2=(["[Bridge Reprise | smoky natural voice, close-mic, behind the beat, tender, no opera style | slow swing piano trio; the piano plays the choir's melody; one far hum underneath]", "[Energy: Low]"], "同样四行再唱一遍，回到烟嗓和慢摇，不用戏腔。钢琴弹的是刚才合唱的旋律；远处留一声哼鸣。"),
+  outro=(["[Outro | the far voices hum the piano's opening motif once, the piano answers with one chord, left unresolved]"], "远处的众声把钢琴开头的动机哼一遍，钢琴应一个和弦，不解决。"))
+_r5 = {t["id"]: t for t in R5}
+_strip = lambda t: {k: v for k, v in t.items() if k != "old"}
+R6 = [
+  dict(_strip(_r5["v8-g-r5"]), id="v8-g-r6", label="主版 · 水墨转色彩（对应 MV），男声"),
+  dict(_strip(_r5["v8-gb-r5"]), id="v8-gb-r6", label="水墨转戏腔与众声，男声"),
+  dict(id="v8-gc-r6", version="v8", title="河水不回答", label="水墨转色彩，再开出众声与戏腔（新），男声", gender="m", lyrics=build8(PLAN_GC), plan=plan_rows(PLAN_GC), neg=NEG8 + ", harsh distortion, rock", style_weight=0.7, weirdness=0.55, variety=2,
+       idea="把你标了“不错”的两首合起来。前三段和主版一样：古琴、箫、一个暖色的合成器单音学琴。转换处合成器把音留住、颜色打开，同时无词的人声一个一个叠上来。四段每句有许多个他自己应声；桥段主唱翻上去用戏腔假声，底下既有主版的宽合成器、弦乐、大鼓，也有叠出来的多声部合唱。主版是音色的突破，戏腔那首是人声的突破，这一首两样一起来。再现时颜色退掉，不用戏腔，古琴弹合唱的旋律。",
+       style="Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour, and from one voice to many. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, while wordless copies of his voice stack into a polyphonic choir; in the bridge the lead flips into soaring Chinese opera falsetto over synths and choir. After the instrumental the bridge returns once in his natural voice, very soft, the colour draining back to ink while the guqin plays the choir's melody. Radiant, vast, never sad, never pleading."),
+  dict(id="v8-sp-r6", version="v8", title="河水不回答", label="慢摇转流行（大改），女声", gender="f", lyrics=build8(PLAN_SP), plan=plan_rows(PLAN_SP), neg=NEG8 + ", rock, heavy drums, male vocal, duet", style_weight=0.7, weirdness=0.4, variety=2,
+       idea="大改，草原和马头琴拿掉了。开头还是你喜欢的诺拉·琼斯那一路：深夜钢琴三重奏的慢摇，烟嗓贴着话筒。新来的是弦乐和“直”的拍子：二段一条小提琴在句尾应一声，三段弦乐拨奏把钢琴的动机照样学一遍，转换处摇摆被拉直成流行歌的律动，弦乐开成一整组。后半是《当爱已成往事》那一类婉转的国语情歌，桥段升调，和声是她自己叠的。再现时回到慢摇，但钢琴弹的是那条流行旋律。",
+       style="Two-part Mandarin Chinese song: late-night jazz slow swing that straightens into a graceful 1990s Mandopop ballad. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. One soft violin answers the piano, then pizzicato strings copy its motif exactly. Part two, from verse 4: the swing straightens into an even pop pulse and the song becomes a lush Taiwanese and Hong Kong style ballad, full string section leading, electric bass, steady soft drums, acoustic guitar, the piano now answering; the same singer sings clear and on the beat, a graceful winding melody; the key lifts a whole step for the big bridge hook with stacked harmonies of her own voice. After the instrumental the swing and brushes return and the bridge is sung once more, smoky and tender, the piano playing the pop hook in swing time. Elegant, bittersweet on the surface, calm underneath. Never weeping."),
+  dict(id="v8-so-r6", version="v8", title="河水不回答", label="慢摇转群声戏腔（大改），女声", gender="f", lyrics=build8(PLAN_SO), plan=plan_rows(PLAN_SO), neg=NEG8 + ", rock, electric guitar, male vocal, duet", style_weight=0.7, weirdness=0.6, variety=2,
+       idea="大改的另一条路。开头同样是深夜慢摇和烟嗓，但后半乐队不换，换的是嗓子。二段句尾有她自己的声音在远处应；三段“即使我用顿挫的人声”她换成戏曲的咬字和滑音来唱，很轻，像模仿；转换处人声一个一个叠进来，低音提琴改用弓，鼓刷换成鼓槌。四段回到本嗓，和声全是她自己；桥段翻上去用戏腔假声，底下是叠出来的多声部合唱和大鼓。酒吧里的嗓子唱出戏台上的腔。再现时回到烟嗓和慢摇，钢琴弹合唱的旋律。",
+       style="Two-part Mandarin Chinese song: late-night jazz slow swing that opens into a great choir of one voice and Chinese opera singing. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. Far wordless copies of her voice answer line endings; verse 3 is sung quietly with Chinese opera ornaments and slides, a careful imitation. Part two, from verse 4: the same jazz trio grows dark and wide, bowed bass, low piano octaves, mallets and a great drum, while wordless voices stack one by one into a polyphonic choir of her own voice with low drones, flowing like water; in the bridge the lead flips into soaring Chinese opera falsetto with long ornamented high notes over the full choir. After the instrumental the swing returns and the bridge is sung once more in her smoky natural voice, the piano playing the choir's melody. Vast but made of breath, proud, never sad or pleading."),
+]
+TAKES[:0] = R6
+
+
 
 def call(path, body=None):
     req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body else None,

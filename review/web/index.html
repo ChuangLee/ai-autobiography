@@ -244,12 +244,14 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
   const MARKS = [["首选", "★"], ["不错", "✓"], ["一般", "–"], ["淘汰", "✕"]];
   const markOf = (key) => { const c = comments.filter((x) => x.doc === DOC && x.section === "mark-" + key).pop(); return c ? c.body.replace("【标记】", "") : ""; };
   async function setMark(tr, name) {
-    if (!(await ensureKey())) return;
+    if (setMark.busy || !(await ensureKey())) return;
+    setMark.busy = true;
     const sec = "mark-" + tr.key, old = comments.filter((x) => x.doc === DOC && x.section === sec), same = markOf(tr.key) === name;
     try {
       for (const c of old) { await api("comments/" + c.id, { method: "DELETE" }); comments = comments.filter((x) => x.id !== c.id); }
       if (!same) comments.push(await api("comments", { method: "POST", body: JSON.stringify({ doc: DOC, version: content.final.rev, section: sec, section_title: (tr.take.label + " · 第" + tr.i + "首").slice(0, 190), body: "【标记】" + name }) }));
     } catch (e) { if (e.status === 401) forget(); alert("标记失败：" + e.message); }
+    setMark.busy = false;
     drawPlayer();
   }
   function drawPlayer() {
@@ -261,7 +263,7 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
       return h("button", { class: [cur && cur.key === key ? "on" : "", m === "淘汰" ? "m-out" : ""].join(" ").trim() || null, title: m ? "标记：" + m : null, onclick: () => select(it, true) }, "第 " + (i + 1) + " 首 · " + mmss(tr.duration), sym ? h("span", { class: "mk" }, sym) : null); };
     const grp = (t) => h("div", { class: "grp" }, h("div", { class: "g" }, t.label), t.tracks.length ? h("div", { class: "trk" }, t.tracks.map((tr, i) => btn(t, tr, i))) : h("div", { class: "g" }, t.fail ? "生成失败：" + t.fail : "生成中…"));
     P.title.textContent = cur ? cur.take.label + " · 第 " + cur.i + " 首" : "选一首开始听";
-    P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "六种编曲，各两首，共用这一个播放器";
+    P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "五种编曲，各两首，共用这一个播放器";
     P.pp.disabled = !cur; P.pp.textContent = audio.paused ? "▶" : "❚❚";
     P.fol.textContent = follow ? "跟随滚动：开" : "跟随滚动：关";
     P.lst.replaceChildren(...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前几轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（留作对照，没有歌词同步）"), oldTakes.map(grp))] : []));

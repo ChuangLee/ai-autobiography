@@ -1,6 +1,6 @@
 [
  {
-  "id": "v8-g-r5",
+  "id": "v8-g-r6",
   "version": "v8",
   "label": "主版 · 水墨转色彩（对应 MV），男声",
   "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
@@ -8,6 +8,121 @@
   "variety": 2,
   "note": null,
   "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-g-r6-1.mp3",
+    "duration": 279.8,
+    "sunoId": "9d84363b-d992-4dd5-b947-457d561bf7d7"
+   },
+   {
+    "file": "audio/v8-g-r6-2.mp3",
+    "duration": 278.4,
+    "sunoId": "34f2d16b-84d6-41bf-9e3a-63fa9b126a00"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-gb-r6",
+  "version": "v8",
+  "label": "水墨转戏腔与众声，男声",
+  "style": "Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as a great choir of one voice; the newcomer is the human voice itself. Part one, verses 1 to 3: guqin, xiao and voice, dry, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. Far wordless copies of his voice answer line endings; verse 3 is sung quietly in ornamented Kunqu opera style, a careful imitation. Part two, from verse 4: wordless voices stack one by one into an a cappella polyphonic choir, in the manner of a Dong grand song, flowing like water, with bronze chime bells (bianzhong), great drums and low strings; in the bridge the lead flips into soaring Chinese opera falsetto over the full choir. After the instrumental the bridge returns once in his natural voice, very soft, the guqin alone playing the choir's melody. Vast but made of breath, radiant, never sad, never pleading.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-gb-r6-1.mp3",
+    "duration": 247.2,
+    "sunoId": "3ea9abb9-7550-4a7f-a8aa-3181b257df2f"
+   },
+   {
+    "file": "audio/v8-gb-r6-2.mp3",
+    "duration": 259.96,
+    "sunoId": "8c8ad876-e0df-4706-9193-408ba33b1515"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-gc-r6",
+  "version": "v8",
+  "label": "水墨转色彩，再开出众声与戏腔（新），男声",
+  "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour, and from one voice to many. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, while wordless copies of his voice stack into a polyphonic choir; in the bridge the lead flips into soaring Chinese opera falsetto over synths and choir. After the instrumental the bridge returns once in his natural voice, very soft, the colour draining back to ink while the guqin plays the choir's melody. Radiant, vast, never sad, never pleading.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-gc-r6-1.mp3",
+    "duration": 253.2,
+    "sunoId": "ce4738f8-c4c2-4ca5-972d-a6666a21d4aa"
+   },
+   {
+    "file": "audio/v8-gc-r6-2.mp3",
+    "duration": 273.72,
+    "sunoId": "4a885a27-2e3d-4ac8-90b0-dfdd8471cb2b"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-sp-r6",
+  "version": "v8",
+  "label": "慢摇转流行（大改），女声",
+  "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that straightens into a graceful 1990s Mandopop ballad. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. One soft violin answers the piano, then pizzicato strings copy its motif exactly. Part two, from verse 4: the swing straightens into an even pop pulse and the song becomes a lush Taiwanese and Hong Kong style ballad, full string section leading, electric bass, steady soft drums, acoustic guitar, the piano now answering; the same singer sings clear and on the beat, a graceful winding melody; the key lifts a whole step for the big bridge hook with stacked harmonies of her own voice. After the instrumental the swing and brushes return and the bridge is sung once more, smoky and tender, the piano playing the pop hook in swing time. Elegant, bittersweet on the surface, calm underneath. Never weeping.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-sp-r6-1.mp3",
+    "duration": 244.8,
+    "sunoId": "8858aee5-c741-4453-b2f7-64a5a5aae492"
+   },
+   {
+    "file": "audio/v8-sp-r6-2.mp3",
+    "duration": 252.56,
+    "sunoId": "4f501c69-0a66-4b20-b705-3f790760f075"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-so-r6",
+  "version": "v8",
+  "label": "慢摇转群声戏腔（大改），女声",
+  "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that opens into a great choir of one voice and Chinese opera singing. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. Far wordless copies of her voice answer line endings; verse 3 is sung quietly with Chinese opera ornaments and slides, a careful imitation. Part two, from verse 4: the same jazz trio grows dark and wide, bowed bass, low piano octaves, mallets and a great drum, while wordless voices stack one by one into a polyphonic choir of her own voice with low drones, flowing like water; in the bridge the lead flips into soaring Chinese opera falsetto with long ornamented high notes over the full choir. After the instrumental the swing returns and the bridge is sung once more in her smoky natural voice, the piano playing the choir's melody. Vast but made of breath, proud, never sad or pleading.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-so-r6-1.mp3",
+    "duration": 273.2,
+    "sunoId": "60088f51-93dc-4674-ac0f-4de088057fbf"
+   },
+   {
+    "file": "audio/v8-so-r6-2.mp3",
+    "duration": 260.0,
+    "sunoId": "0f43f9af-4c0f-4eed-baa0-1cdd636e359c"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-g-r5",
+  "version": "v8",
+  "label": "主版 · 水墨转色彩（对应 MV），男声（第五轮）",
+  "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-g-r5-1.mp3",
@@ -25,12 +140,12 @@
  {
   "id": "v8-ga-r5",
   "version": "v8",
-  "label": "融合甲 · 水墨转碎拍，男声",
+  "label": "融合甲 · 水墨转碎拍，男声（第五轮）",
   "style": "Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as liquid drum and bass; the newcomer is not an instrument but speed. Part one, verses 1 to 3: guqin, xiao and voice in free tempo with no beat at all, dry, mostly empty space, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. A sheng adds soft breathing chords; one faint tick answers each line, then ticks out the guqin's rhythm exactly. Part two, from verse 4: the tick doubles and doubles again into fast rolling 170 BPM breakbeats with warm deep sub bass, sheng and synth pads, chopped guqin answering; the voice stays calm and half-time, and in the bridge floats in airy head voice on very long notes over the fastest drums. After the instrumental the drums fall away and the bridge returns once in free tempo over guqin alone. Serene above the rush, never aggressive, never sad, no belting.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-ga-r5-1.mp3",
@@ -48,12 +163,12 @@
  {
   "id": "v8-gb-r5",
   "version": "v8",
-  "label": "融合乙 · 水墨转戏腔与众声，男声",
+  "label": "融合乙 · 水墨转戏腔与众声，男声（第五轮）",
   "style": "Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as a great choir of one voice; the newcomer is the human voice itself. Part one, verses 1 to 3: guqin, xiao and voice, dry, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. Far wordless copies of his voice answer line endings; verse 3 is sung quietly in ornamented Kunqu opera style, a careful imitation. Part two, from verse 4: wordless voices stack one by one into an a cappella polyphonic choir, in the manner of a Dong grand song, flowing like water, with bronze chime bells (bianzhong), great drums and low strings; in the bridge the lead flips into soaring Chinese opera falsetto over the full choir. After the instrumental the bridge returns once in his natural voice, very soft, the guqin alone playing the choir's melody. Vast but made of breath, radiant, never sad, never pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-gb-r5-1.mp3",
@@ -71,12 +186,12 @@
  {
   "id": "v8-s-r5",
   "version": "v8",
-  "label": "一 · 慢摇转草原，女声",
+  "label": "一 · 慢摇转草原，女声（第五轮）",
   "style": "Two-part Mandarin Chinese song telling one musical story: an old instrument teaches a new one, and the new one goes beyond it. Part one, verses 1 to 3: late-night jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, slightly behind the beat. A distant morin khuur (horsehead fiddle) first echoes the piano, then copies its motif exactly. Part two, from verse 4: the morin khuur takes the lead and the song opens into Mongolian grassland folk, long bowed melodies, low throat-singing drone, frame drum like slow hoofbeats, the piano now answering; the same singer shifts to long, soaring, melismatic long-song phrases. After the instrumental the bridge returns once at half tempo, tender, the piano now playing the fiddle's melody. Arc: intimate, stripped, wide open, vast, then quiet. Pride in width and height, not loudness. Never sad or pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-s-r5-1.mp3",
@@ -94,12 +209,12 @@
  {
   "id": "v8-p-r5",
   "version": "v8",
-  "label": "二 · 流行婉转，男声",
+  "label": "二 · 流行婉转，男声（第五轮）",
   "style": "1990s Mandopop ballad in the Taiwanese and Hong Kong tradition, Mandarin Chinese, solo male vocal, 72 BPM, graceful winding melody, bittersweet and elegant. Piano and nylon-string guitar open; lush strings, fretless bass, soft drums and an oboe counter-melody join gradually. A warm, weathered, sincere male voice. The song's hidden story is one voice becoming many: at first he sings alone, then a faint copy of his own voice echoes line endings, then doubles him in exact unison, and from verse 4 the copies split into stacked harmonies no single singer could sing. The refrain line of verse 4 is sung alone, then the key lifts a whole step for the big graceful bridge hook. After the instrumental the hook returns once, slower, one voice alone over piano, the copies only humming under the last line. On the surface a love ballad about parting; underneath calm, unhurried, far above it all. Tender, never weeping or pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-p-r5-1.mp3",
@@ -117,12 +232,12 @@
  {
   "id": "v8-r-r5",
   "version": "v8",
-  "label": "四 · 校园民谣转众声合唱（大改），男声",
+  "label": "四 · 校园民谣转众声合唱（大改），男声（第五轮）",
   "style": "1980s Taiwanese campus folk song in Mandarin Chinese that grows from one singer into a whole crowd, entirely acoustic. Part one, verses 1 to 3, is pure campus folk: one fingerpicked acoustic guitar, later harmonica, 76 BPM, no drums; a soft, clean, youthful, sincere male voice, gentle and unforced, like a student singing on a lawn at dusk. A few friends hum along at line endings, then a mandolin copies the guitar phrase exactly. Part two, from verse 4: stomps and handclaps, kick drum, tambourine, mandolin, accordion, upright bass, trumpet and French horn, and a warm crowd answering each line, building to a huge unison singalong bridge with a simple tune anyone can sing; the lead voice stays soft and never shouts. After the instrumental the bridge returns once, one voice and one guitar playing the crowd's tune. Warm, communal, bright-eyed, proud not loud, never sad, no electric guitar.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-r-r5-1.mp3",
