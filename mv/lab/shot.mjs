@@ -33,5 +33,5 @@ await send("Runtime.enable"); await send("Page.enable"); await send("Emulation.s
 await mkdir(out, { recursive: true }); const t00 = Date.now();
 try { for (let k = 0; k < 600; k++) { const s = await ev("document.title + '|' + (window.__err||'')"); if (s.startsWith("ready")) break; if (s.split("|")[1]) { console.log("[error]", s.split("|").slice(1).join("|")); break; } await new Promise((r) => setTimeout(r, 500)); }
   for (const t of times) { const r = await ev(`window.__at ? window.__at(${t}) : 'no __at'`); if (r !== "ok") console.log("[at " + t + "]", r);
-    const shot = await send("Page.captureScreenshot", { format: "png" }); const f = path.join(out, `${scene}-${String(t).replace(".", "_")}.png`); await writeFile(f, Buffer.from(shot.result.data, "base64")); console.log(f, ((Date.now() - t00) / 1000).toFixed(1) + "s"); }
+    const shot = await send("Page.captureScreenshot", { format: "png" }); const f = path.join(out, `${scene.replace(/\//g, "_")}-${String(t).replace(".", "_")}.png`); await writeFile(f, Buffer.from(shot.result.data, "base64")); console.log(f, ((Date.now() - t00) / 1000).toFixed(1) + "s"); }
 } finally { cleanup(); server.close(); await rm(profile, { recursive: true, force: true }).catch(() => {}); }
