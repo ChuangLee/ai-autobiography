@@ -98,3 +98,7 @@ node shot.mjs <场景文件夹> 30,41.5,48.7 --res 0.4 --out <输出目录> [--q
 - 一切都是时间或固定步长状态的函数，保证 `?t=` 的静帧和播放时一致。
 - 不再用的镜头不要删，存档备用（见 `river/archive.js`、`windows/archive/`、`dive/archive.js`）。
 - 不在这台服务器上渲染成片（4 核、7 GB 内存、磁盘接近满）。成片靠网页在观看者的显卡上实时合成。
+
+### codex 分支的线上对照
+
+本分支只用 `bash mv/lab/deploy.sh` 发布精修分镜和五场代码样片。对照入口 https://blind.pub/zichengjing/mv/codex/ ，两列链接取同一首歌的同一时刻。原版在同级的 `lab/`，共享字库与音频。codex 分镜在 `design-codex/` 的第八节，批注的 doc 为 `mv-design-codex`。首次发布为精修前基准。

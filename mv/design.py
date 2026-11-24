@@ -62,7 +62,7 @@ td:first-child{{white-space:nowrap;font-weight:600}}@media (max-width:700px){{td
 </main>
 <script>
 (() => {{
-  const API = "../../api/", DOC = "mv-design", VER = "v5", KS = ["zcj-review-key", "aiedu-review-key"];
+  const API = "../../api/", DOC = "mv-design-codex", VER = "codex-1", KS = ["zcj-review-key", "aiedu-review-key"];
   let key = ""; try {{ for (const k of KS) key = key || localStorage.getItem(k) || ""; }} catch {{}}
   const api = async (p, o = {{}}) => {{ const r = await fetch(API + p, {{ ...o, headers: {{ "Content-Type": "application/json", "X-Review-Key": key }} }}); const d = await r.json().catch(() => ({{}})); if (!r.ok) throw Object.assign(new Error(d.error || r.statusText), {{ status: r.status }}); return d; }};
   const ensure = async () => {{ while (true) {{ if (!key) {{ key = (prompt("批注口令") || "").trim(); if (!key) return false; }} try {{ await api("auth"); try {{ localStorage.setItem(KS[0], key); }} catch {{}} return true; }} catch {{ key = ""; alert("口令不正确"); }} }} }};

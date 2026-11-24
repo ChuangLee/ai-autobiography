@@ -4,7 +4,9 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 PUBLISHED="river windows verse3 dive verse4"
-DEST=/var/www/zichengjing/mv/lab
+DEST=/var/www/zichengjing/mv/codex
+python3 ../design.py
+install -D -m 644 ../design.html /var/www/zichengjing/mv/design-codex/index.html
 install -d "$DEST"
 install -m 644 lib.js index.html "$DEST/"
 for d in $PUBLISHED; do
