@@ -1,6 +1,6 @@
 // 千窗 → 粼光: one fragment shader. A ray-cast ink city (grid traversal, interiors up close), a far field of light points,
 // and a moonlit sea; the same points of light serve as windows and as glints, and `u.s` carries the city into the water.
-const neighbour = new URLSearchParams(globalThis.location?.search).get("portrait") === "sitter"
+const neighbour = ["sitter","scan"].includes(new URLSearchParams(globalThis.location?.search).get("portrait"))
   ? (await import("./visitor-sitter.js")).NEIGHBOUR_SITTER : "";
 export const WGSL = /* wgsl */`
 struct U { res:vec2f, t:f32, tw:f32,

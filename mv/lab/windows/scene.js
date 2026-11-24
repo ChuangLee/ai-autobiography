@@ -1,24 +1,14 @@
-import { shader, FS_VS, NOISE, mipTexture, clamp, sm, lerp, qn, hash, norm, cross, sub, dot } from "../lib.js";
+import { shader, FS_VS, NOISE, clamp, sm, lerp, qn, hash, norm, cross, sub, dot } from "../lib.js";
 import { WGSL } from "./scene.wgsl.js";
 import { BUST, GAZE } from "../river/figure.js";
 import { ROOM, GLYPHS, VISITOR_MODEL, WINDOW_PATH_COUNT } from "./room.wgsl.js";
 import { PAINT } from "./paint.wgsl.js";
 
-export function makeWindowText(device) {
-  const ASKS = [["今晚睡不着，", "能陪我说说话吗"], ["怎么跟孩子", "说对不起"], ["帮我给妈妈", "写一封信"], ["How do I tell", "her the truth?"], ["¿Qué hago", "ahora?"], ["眠れない夜は", "どうすればいい"], ["오늘 하루가", "너무 길었어"], ["Est-ce que", "j'ai bien fait ?"], ["Wie fange ich", "neu an?"], ["Что мне", "делать дальше?"]];
-  const SERIF = '"Noto Serif CJK SC","Source Han Serif SC","Songti SC","SimSun","Noto Serif CJK JP","Noto Serif CJK KR","Noto Serif",Georgia,serif';
-  const cv = new OffscreenCanvas(2048, 2560), x = cv.getContext("2d", { willReadFrequently: true }); x.fillStyle = "#fff"; x.textBaseline = "middle";
-    ASKS.forEach((a, i) => { const ox = (i % 2) * 1024, oy = Math.floor(i / 2) * 512; a.forEach((ln, k) => { const y = oy + 150 + k * 190;
-      if (i === 0) { x.font = `500 116px ${SERIF}`; x.textAlign = "center"; [...ln].forEach((ch, j) => x.fillText(ch, ox + 64 + 128 * j + 64, y)); }
-      else { x.font = `500 ${/[぀-鿿가-힯]/.test(ln) ? 116 : 104}px ${SERIF}`; x.textAlign = "left"; x.fillText(ln, ox + 64, y, 900); } }); });
-  // White ink on transparent pixels is premultiplied coverage. Black behind
-  // it leaves that coverage in red, ready for a single-channel mip chain.
-  x.globalCompositeOperation = "destination-over"; x.fillStyle = "#000"; x.fillRect(0,0,cv.width,cv.height);
-  const bitmap=cv.transferToImageBitmap();
-  const texture=mipTexture(device,bitmap,"r8unorm");
-  bitmap.close();
-  return texture;
-}
+const windowPortrait=new URLSearchParams(globalThis.location?.search).get("portrait");
+const answeringRooms=windowPortrait===null || windowPortrait==="sitter"
+  ? (await import("./answer-room.js")).createAnswerRoom : null;
+
+export {makeWindowText} from "./text.js";
 
 export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
   const { device } = g;
@@ -33,6 +23,7 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
   const paintMod = shader(device, FS_VS + NOISE + PAINT, "paint");
   const paintPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: paintMod, entryPoint: "vs" }, fragment: { module: paintMod, entryPoint: "fs", targets: [{ format: "rgba16float", blend: over }] } });
   const paintBG = device.createBindGroup({ layout: paintPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: qb } }] });
+  const answerRoom=answeringRooms?.(g,atlas,textView,lin);
   let roomPipe, roomBG;
   function needRoom() { if (roomPipe) return; const roomMod = shader(device, FS_VS + NOISE + WGSL + BUST + GAZE + VISITOR_MODEL + ROOM, "room");
     roomPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: roomMod, entryPoint: "vs" }, fragment: { module: roomMod, entryPoint: "fs_room", targets: [{ format: "rgba16float", blend: over }] }, depthStencil: { format: "depth32float", depthWriteEnabled: true, depthCompare: "always" } });
@@ -166,7 +157,7 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
   const bPos = curveN(KB, (k) => k[1]), bTa = curveN(KB, (k) => k[2]), bFov = curveN(KB, (k) => k[3]);
   const cityDef = { s: 0, hs: 1, heroOn: 1, ring: 1, path: 0, fig: 1, wave: 1, moonPane: 0, emb: [99, 99, 0] };
   const figDraw = (R, fg, extra) => ({ org: org(R), flip: R.flip, fig: [fg.x, 0, fg.z], yaw: fg.yaw, src: SCREEN, spread: [1.3, .68], snk: PANEOUT, sparks: .55, tf: 10, tr: 0, k: .052, mirror: 0, mode: 0, size: .007, path: 0, ...extra });
-  function layerA(t) { const C = camA(t), heroOn = 1 - sm(T.dark, T.dark + .45, t), ask = sm(T.ask, T.ask + .4, t), R = t < T.swap ? HERO : RB, glyphs = [];
+  function layerA(t) { if(answerRoom)return {answer:true,post:{bloom:.38,tonemap:.82}}; const C = camA(t), heroOn = 1 - sm(T.dark, T.dark + .45, t), ask = sm(T.ask, T.ask + .4, t), R = t < T.swap ? HERO : RB, glyphs = [];
     const city = { ...cityDef, heroOn, fig: sm(T.kindle, T.kindle + 1.1, t), emb: [R.bi, R.fi, R === HERO ? heroOn : ask] };
     if (t >= T.cityOnly) return { ...C, city, post: { bloom: 1, tonemap: 1 } };
     const tfH = t - T.form, trH = t - T.release, tf2 = t - T.form2;
@@ -196,9 +187,10 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
     for (let c = 0; c < 4; c++) { vp[c * 4] = r0[c]; vp[c * 4 + 1] = r1[c]; vp[c * 4 + 2] = r2[c]; vp[c * 4 + 3] = r3[c]; } return { fw, rt, up, th, vp, n, f }; }
 
   function draw(t, output = g.ctx.getCurrentTexture().createView()) {
-    const enc = device.createCommandEncoder(), caret = .5 + .5 * Math.cos(t * 5), Ls = layers(t); let gi = 0, bloom = 0, tone = 0;
+    const enc = device.createCommandEncoder(), caret = .5 + .5 * Math.cos(t * 5), Ls = layers(t); let gi = 0, bloom = 0, tone = 0, answerWeight = 0;
     Ls.forEach(([L, w], i) => { const pw = Ls.length > 1 ? (i ? w : 1 - w) : 1; bloom += pw * (L.post?.bloom ?? 1); tone += pw * (L.post?.tonemap ?? 1);
       const color = [{ view: post.hdr, clearValue: [0, 0, 0, 1], loadOp: i ? "load" : "clear", storeOp: "store" }];
+      if (L.answer) {answerWeight = pw; answerRoom(enc,color,t,w); return;}
       if (L.paint) { device.queue.writeBuffer(qb, 0, new Float32Array([g.W, g.H, t, w, ...L.paint])); const p = enc.beginRenderPass({ colorAttachments: color }); p.setPipeline(paintPipe); p.setBindGroup(0, paintBG); p.draw(3); p.end(); return; }
       const C = camera(L.ro, L.ta, L.fov), c = L.city;
       device.queue.writeBuffer(ub[i], 0, new Float32Array([g.W, g.H, t, TW(t), ...L.ro, c.s, ...C.fw, C.th, ...C.rt, c.hs, ...C.up, 0, ...MOON, c.heroOn,
@@ -222,7 +214,7 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
       }
       p.end(); });
     if(gi)device.queue.writeBuffer(glyphUniforms,0,glyphData,0,((gi-1)*glyphStride+glyphBytes)/4);
-    post.run(enc, output, { bloom, threshold: .8, knee: .6, exposure: lerp(1, 1.25, tone), tonemap: tone, bars: 0, grain: .035, vignette: lerp(.2, .5, tone), time: t });
+    post.run(enc, output, { bloom, threshold: .8, knee: .6, exposure: lerp(1, 1.25, tone), tonemap: tone, bars: 0, grain: lerp(.035,.014,answerWeight), vignette: lerp(.2, .5, tone), time: t });
     device.queue.submit([enc.finish()]);
   }
   return { draw };

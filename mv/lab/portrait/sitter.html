@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>河岸上的目光</title><link rel="license" href="scan-source.txt"><canvas id="c"></canvas>
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>从此流着汇聚成我</title><link rel="license" href="scan-source.txt"><canvas id="c"></canvas>
 <script>
 const shotURL=new URL(location.href);
 if(!shotURL.searchParams.has("portrait")){
@@ -8,10 +8,17 @@ if(!shotURL.searchParams.has("portrait")){
 </script>
 <script type="module">
 import { initGPU, loadAtlas, run, fail } from "../lib.js";
-import { createSitterShot } from "./sitter-shot.js";
+
 try {
   const g=await initGPU(document.getElementById("c"));
-  const scene=await createSitterShot(g,await loadAtlas(g.device));
-  await run({g,scene,seg:[44.58,new URLSearchParams(location.search).has("film")?88.4:55.92],title:"河岸上的目光",notes:{9:"AI（大语言模型）由人类写下的文字训练而成"}});
+  const params=new URLSearchParams(location.search);
+  const archive=params.get("portrait")==="scan" || params.get("head")==="cage";
+  const [makeShot,atlas]=await Promise.all([
+    archive ? import("./sitter-shot.js").then(m=>m.createSitterShot)
+            : import("./tidal-shot.js").then(m=>m.createTidalShot),
+    loadAtlas(g.device)
+  ]);
+  const scene=await makeShot(g,atlas);
+  await run({g,scene,seg:[44.58,new URLSearchParams(location.search).has("film")?88.4:55.92],title:archive?"河岸上的目光":"从此流着汇聚成我",notes:{9:"AI（大语言模型）由人类写下的文字训练而成"}});
 } catch(error) {fail(error.stack||String(error));}
 </script></html>

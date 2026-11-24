@@ -1,7 +1,7 @@
 import { fail, initGPU, FS_VS, NOISE, loadAtlas, mipTexture, Post, run, shader, sm, norm, cross, sub } from "../lib.js";
 import { INK } from "../bridge/style.js";
 import { WGSL as CITY } from "../windows/scene.wgsl.js";
-import { makeWindowText } from "../windows/scene.js";
+import { makeWindowText } from "../windows/text.js";
 import { pourPlate } from "./pour.js";
 import { PAINTING, RELIEF } from "./painting.js";
 
@@ -29,12 +29,19 @@ try {
   const [atlas] = await Promise.all([loadAtlas(device),font.load()]);
   const post = new Post(g), fil = atlas.sampler;
   const text = inscription(device);
-  const plate = device.createTexture({size:[448,608],format:"rgba16float",usage:GPUTextureUsage.STORAGE_BINDING|GPUTextureUsage.TEXTURE_BINDING});
-  const bake = device.createComputePipeline({layout:"auto",compute:{module:shader(device,RELIEF,"河上的脸"),entryPoint:"main"}});
-  const init = device.createCommandEncoder(), compute=init.beginComputePass();
-  compute.setPipeline(bake);
-  compute.setBindGroup(0,device.createBindGroup({layout:bake.getBindGroupLayout(0),entries:[{binding:0,resource:plate.createView()}]}));
-  compute.dispatchWorkgroups(56,76); compute.end(); device.queue.submit([init.finish()]);
+  const portrait=new URLSearchParams(location.search).get("portrait");
+  let plate;
+  if(portrait===null || portrait==="sitter"){
+    const {tidalRelief}=await import("./tidal-relief.js");
+    plate=await tidalRelief(device,448,608);
+  }else{
+    plate = device.createTexture({size:[448,608],format:"rgba16float",usage:GPUTextureUsage.STORAGE_BINDING|GPUTextureUsage.TEXTURE_BINDING});
+    const bake = device.createComputePipeline({layout:"auto",compute:{module:shader(device,RELIEF,"河上的脸"),entryPoint:"main"}});
+    const init = device.createCommandEncoder(), compute=init.beginComputePass();
+    compute.setPipeline(bake);
+    compute.setBindGroup(0,device.createBindGroup({layout:bake.getBindGroupLayout(0),entries:[{binding:0,resource:plate.createView()}]}));
+    compute.dispatchWorkgroups(56,76); compute.end(); device.queue.submit([init.finish()]);
+  }
 
   const uniform = size => device.createBuffer({size,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
   const frame = uniform(32), city = uniform(160);

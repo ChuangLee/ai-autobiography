@@ -17,6 +17,8 @@ export const RELIEF = BUST + GAZE + `
   textureStore(plate,id.xy,sample);
 }`;
 
+const portraitVersion=new URLSearchParams(globalThis.location?.search).get("portrait");
+const tide=portraitVersion===null || portraitVersion==="sitter";
 export const PAINTING = `
 struct Frame{size:vec2f, t:f32, phase:f32, pane:vec2f, scale:f32, blank:f32}
 @group(0) @binding(0) var<uniform> f:Frame;
@@ -55,6 +57,12 @@ fn drawing(q:vec2f, t:f32, lod:f32)->Drawing{
   actor*=1.-smoothstep(waterLine-.008,waterLine+.007,q.y);
   let n=surf.xyz; let light=max(clamp(dot(n,normalize(vec3f(-.74,.59,-.38)))*.64+.47,.08,1.),1.23*max(0.,surf.w-1.));
   let script=inkGlyph(vec2f(pos.x*17.+.73*n.x,pos.y*27.+.81*n.y-.16*t),lod);
+  ${tide ? `
+  let rim=pow(clamp(1.-abs(n.z),0.,1.),1.30);
+  let fold=clamp((surf.w-1.)*1.9,0.,1.);
+  let dry=.61+.39*vnoise(q*vec2f(187.,420.));
+  let leaf=clamp(.65*rim+.60*fold+.52*script,0.,1.)*dry;
+  let veil=.20+.18*light+.56*leaf;` : ""}
   for(var i=0;i<7;i++){
     let layer=f32(i); let h=ridge(q.x,layer);
     let edge=q.y-h;
@@ -81,8 +89,17 @@ fn drawing(q:vec2f, t:f32, lod:f32)->Drawing{
     c=mix(c,rock*.68,woods*.85);
     c=mix(c,rock,cover); line=mix(line,max(cleft*.57,1.-smoothstep(.001,.006,abs(edge))),cover);
     curl=mix(curl,ch*.015,cover); band=mix(band,layer/6.,cover);
-    if(i==3){c=mix(c,mix(vec3f(.32,.255,.19),gold,light)*(1.+.28*script),actor);
-      line=mix(line,.31*script+.25*(1.-light),actor);}
+    if(i==3){
+      ${tide ? `
+      // Thin washes preserve the far ridge through the chest. Broken gold
+      // gathers on the silhouette, the folded planes and the letter strokes.
+      let wash=mix(c*vec3f(.74,.76,.72),vec3f(.77,.69,.51),.46+.21*light);
+      let gilded=mix(wash,vec3f(.97,.81,.51),leaf);
+      c=mix(c,gilded,actor*veil);
+      line=mix(line,.34*leaf+.17*(1.-light),actor*veil);` : `
+      c=mix(c,mix(vec3f(.32,.255,.19),gold,light)*(1.+.28*script),actor);
+      line=mix(line,.31*script+.25*(1.-light),actor);`}
+    }
     if(i>3){actor*=1.-cover;}
   }
   let delta=q.y-.438; let depth=max(delta,0.);
@@ -110,7 +127,7 @@ fn drawing(q:vec2f, t:f32, lod:f32)->Drawing{
   c=mix(c,water,wet);
   line=mix(line,glint,wet); line=max(line,(1.-smoothstep(.001,.005,abs(bank)))*smoothstep(.0,.035,delta)*(1.-actor));
   c*=.945+.065*grain+.033*fiber;
-  return Drawing(c,line,actor,light,wet,curl,band);
+  return Drawing(c,line,actor${tide ? "*veil" : ""},light,wet,curl,band);
 }
 fn strand(q:vec2f, frequency:f32, seed:f32)->f32{
   let p=q*vec2f(1.78,1.); let bend=p.y+.16*sin(p.x*5.+seed)+.08*sin(p.x*12.+p.y*5.+seed);

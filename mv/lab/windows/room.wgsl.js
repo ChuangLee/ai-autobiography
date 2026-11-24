@@ -1,5 +1,5 @@
 import { portraitStudy } from "../river/figure.js";
-const sitter = new URLSearchParams(globalThis.location?.search).get("portrait") === "sitter";
+const sitter = ["sitter","scan"].includes(new URLSearchParams(globalThis.location?.search).get("portrait"));
 const sitterRoom = sitter ? (await import("./visitor-sitter.js")).WINDOW_SITTER : "";
 const study = portraitStudy ? await import("./visitor.js") : null;
 export const VISITOR_MODEL = (study?.ATTENTIVE_VISITOR ?? "") + `

@@ -1,6 +1,6 @@
 // Keep the published take available while the proposed head is being reviewed.
 const portraitVersion = new URLSearchParams(globalThis.location?.search).get("portrait");
-const measuredSitter = portraitVersion === "sitter";
+const measuredSitter = portraitVersion === "sitter" || portraitVersion === "scan";
 export const portraitStudy = measuredSitter || portraitVersion === "anatomy";
 const [study, body] = portraitStudy ? await Promise.all([
   measuredSitter ? import("../portrait/sitter-shell.js") : import("../portrait/anatomy.wgsl.js"),

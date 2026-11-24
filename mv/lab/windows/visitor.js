@@ -1,6 +1,6 @@
 // The visitor's coat, hands and weight-bearing foot use room metres. The head
 // alone returns to the shared giant's coordinates, including its eye material.
-const sitter = new URLSearchParams(globalThis.location?.search).get("portrait") === "sitter";
+const sitter = ["sitter","scan"].includes(new URLSearchParams(globalThis.location?.search).get("portrait"));
 const gesture = sitter ? await import("./visitor-sitter.js") : null;
 export const ATTENTIVE_VISITOR = `
 fn visitorBody(p:vec3f)->vec3f { return p*.252+vec3f(0.,.78,0.); }

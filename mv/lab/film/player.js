@@ -4,7 +4,8 @@
 import { loadSong, clamp } from "../lib.js";
 
 const params = new URLSearchParams(location.search), still = params.has("t");
-const riverPortrait = params.get("portrait") === "sitter";
+if (!params.has("portrait")) params.set("portrait", "sitter");
+const riverPortrait = ["sitter", "scan"].includes(params.get("portrait"));
 const chapters = [
   [0, "prelude"], [18.9, "river"], ...(riverPortrait ? [[44.58, "sitter", "../portrait/sitter.html"]] : []), [55.92, "windows"], [88.4, "verse3"],
   [111.83, "dive"], [154.6, "verse4"], [192.7, "bridge"], [223, "finale"],
@@ -122,9 +123,8 @@ function prepare(slot, t) {
   slot.task = work.finally(() => { if (slot.job === job) slot.working = false; });
   return slot.task;
 }
-// The witness in the two river views occupies the same mark. Let the current
-// carry across on the song clock, so pausing or a dropped frame cannot leave a
-// second silhouette behind the listener after the new camera starts to climb.
+// Blend the river into the sea on the song clock so that the same frame
+// stays visible when playback pauses or resumes during the transition.
 function mixRiver(t) {
   const u = clamp((t - chapters[riverJoin.index][0]) / riverJoinSeconds, 0, 1);
   if (u === 1) { retire(); return; }

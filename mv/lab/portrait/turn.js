@@ -1,10 +1,11 @@
 const params=new URLSearchParams(location.search);
-const variants={planes:["雕塑","./planes.js"],wash:["水墨","./wash.js"],light:["内光","./light.js"]};
+const variants={tidal:["海上半身 · 素模","./tidal-study.js"],planes:["雕塑","./planes.js"],wash:["水墨","./wash.js"],light:["内光","./light.js"]};
 const study=Object.hasOwn(variants,params.get("study")) ? params.get("study") : "planes";
 const [title,url]=variants[study];
 // The bronze scene orbits its camera; the ink and light studies turn their model.
 const direction=study==="planes" ? -1 : 1;
 const canvas=document.querySelector("canvas"),range=document.querySelector("input"),value=document.querySelector("output"),status=document.getElementById("error");
+if(study==="tidal"){range.min=-100;range.max=100;}
 const initial={left:-20,front:0,right:36};
 document.querySelector("h1").textContent="巨像 · "+title;
 range.value=initial[params.get("view")]||0;

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>巨像 · 河岸上的目光</title>
+<title>海上巨像与窗中人 · 实帧对照</title>
 <style>
 :root{color-scheme:dark;--bg:#171916;--text:#eeeadd;--muted:#b3b5a7;--line:#42463d;--gold:#e5c991}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 system-ui,"Noto Sans CJK SC",sans-serif}main{max-width:1320px;margin:auto;padding:clamp(20px,4vw,64px)}header{margin:24px 0 18px}h1,h2,h3{font-family:"Songti SC","Noto Serif CJK SC",serif;font-weight:500}h1{font-size:clamp(32px,4.5vw,64px);line-height:1.18;margin:0 0 .28em}h2{font-size:22px}p{color:var(--muted);margin:0 0 1em;max-width:65em}a{color:var(--gold);text-underline-offset:.2em;text-decoration-thickness:1px}.tools{display:flex;gap:.45em;align-items:center;flex-wrap:wrap;margin:22px 0 14px}.tools span{margin-right:5px;color:var(--muted)}
@@ -11,11 +11,32 @@ button{font:inherit;background:transparent;border:1px solid var(--line);color:va
 
 .feature{border-block:1px solid var(--line);padding:20px 0;margin:24px 0 30px;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);align-items:center}.feature h2{font-size:clamp(23px,2.7vw,36px);line-height:1.36;margin:0 0 .35em}.feature img,.takes img{width:100%;aspect-ratio:16/9;object-fit:cover;height:auto}.play{display:inline-block;padding:.4em .85em;background:#dfc698;color:#251f16;text-decoration:none;border-radius:3px}.takes figcaption{margin:.55em 0;color:var(--muted)}.time{font-variant-numeric:tabular-nums}.gallery-title{margin-bottom:0}.history{margin:26px 0}.history summary{color:var(--gold);cursor:pointer}.history[open] summary{margin-bottom:16px}
 @media(max-width:700px){.feature{grid-template-columns:1fr}.old .takes{grid-template-columns:1fr}.feature img{max-height:230px;object-fit:contain}}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.6vw,24px)}.pair img{height:auto;aspect-ratio:16/9;background:#0b0d0e}.pair figcaption{color:var(--muted);font-size:.9rem;padding-top:6px;font-variant-numeric:tabular-nums}#sculpt>figure{max-width:960px;margin:20px 0}#sculpt figcaption{font-size:14px;color:var(--muted)}.live-caption{display:flex;align-items:baseline;justify-content:space-between;gap:.5em;flex-wrap:wrap}.versions button{font-size:12px;padding:.16em .56em}.compare-links{margin:20px 0 32px}@media(max-width:650px){.pair{grid-template-columns:1fr}.tools{gap:5px}.tools button{padding:.22em .52em}}
 </style>
 <main><a href="../">《河水不回答》版本对照</a>
-<header><h1>巨像 · 河岸上的目光</h1><p>“从此流着汇聚成我。”水面上先露出肩膀；等他睁开眼，我们才看清他在看谁。</p></header>
-<section class="feature"><a id="still-play" href="sitter.html?from=44.58" aria-label="播放当前镜头"><img id="shot-still" src="sitter-look.webp" width="768" height="432" alt="夜河边，淡金色的巨像睁眼望向画外的岸上人"></a><div><h2>从此流着汇聚成我</h2><p>站在岸边看他从水里成形，跟着他的目光靠近，再穿过颊上的“口”，进入一户人家。</p><div class="tools moments" role="group" aria-label="原声镜头实帧"><button data-still="bank" aria-pressed="false">水与岸</button><button data-still="look" aria-pressed="true">目光</button><button data-still="ink" aria-pressed="false">入窗</button><button data-still="room" aria-pressed="false">应人声</button></div><a class="play" href="../film/?portrait=sitter&amp;from=44.58">在原声里看</a>　<a href="planes-shot.html?from=44.58">上一版同段</a></div></section>
-<details class="history"><summary>查看历次留存的角色试稿</summary><h2 class="gallery-title">早期的三种画法</h2>
+<header><h1>海上巨像与窗中人</h1></header>
+<section id="compare" aria-label="KIE 原片与 WebGPU 实帧">
+<div class="tools" role="group" aria-label="选择镜头">
+<button type="button" data-pair="sea" aria-pressed="true">海上站起</button>
+<button type="button" data-pair="gather" aria-pressed="false">水面汇聚</button>
+<button type="button" data-pair="face" aria-pressed="false">俯首近景</button>
+<button type="button" data-pair="answer" aria-pressed="false">隔桌应答</button>
+<button type="button" data-pair="crossing" aria-pressed="false">熄灭过墙</button>
+<button type="button" data-pair="awaken" aria-pressed="false">另一户醒来</button>
+</div>
+<div class="pair">
+<figure><a id="ref-full" href="https://blind.pub/zichengjing/mv/design-codex/design-refs/sea-gold.webp"><img id="ref-frame" src="https://blind.pub/zichengjing/mv/design-codex/design-refs/sea-gold.webp" width="768" height="432" alt="KIE 原片，双臂垂入海面的金色巨人"></a><figcaption id="ref-title">KIE 原片 · s-sink · 7.625 秒</figcaption></figure>
+<figure><a id="live-full" href="tidal-sea.webp"><img id="live-frame" src="tidal-sea.webp" width="768" height="432" alt="WebGPU 正片，海上的淡金色巨人"></a><figcaption class="live-caption"><span id="live-title">WebGPU 实帧 · 原声 49.90 秒</span> <span class="versions" role="group" aria-label="代码画面版本"><button data-revision="final" aria-pressed="true">本轮正片</button><button data-revision="first" aria-pressed="false">首轮试绘</button></span></figcaption></figure>
+</div>
+<p class="compare-links"><a class="play" id="play-pair" href="../film/?from=44.58">播放这一段原声</a>　<a id="play-ref" href="../../clips/s-sink.mp4#t=6">看 KIE 片段</a>　<a id="play-prior" href="../film/?portrait=scan&amp;from=44.58">看上一稿</a>　<a href="turn.html?study=tidal">转动海上人物的素模</a></p>
+</section>
+<details class="history" id="sculpt"><summary>近看人物造型与室内光</summary>
+<figure><a href="tidal-head-studies.webp"><img loading="lazy" src="tidal-head-studies.webp" alt="原片与海上巨人的正面及 79 度侧面造型对照"></a><figcaption>海上的脸 · 眉弓、鼻翼、下颌和后颈</figcaption></figure>
+<figure><a href="tidal-room-studies.webp"><img loading="lazy" src="tidal-room-studies.webp" alt="按相近的头肩尺寸对照原片、上一轮与本轮伏案者"></a><figcaption>窗里的提问者 · 侧光、衣袖和伏案姿势</figcaption></figure>
+</details>
+<details class="history"><summary>上一稿 · 河岸上的目光与历次角色试稿</summary>
+<section class="feature"><a id="still-play" href="sitter.html?portrait=scan&amp;from=44.58" aria-label="播放当前镜头"><img id="shot-still" src="sitter-look.webp" width="768" height="432" alt="夜河边，淡金色的巨像睁眼望向画外的岸上人"></a><div><h2>从此流着汇聚成我</h2><p>站在岸边看他从水里成形，跟着他的目光靠近，再穿过颊上的“口”，进入一户人家。</p><div class="tools moments" role="group" aria-label="原声镜头实帧"><button data-still="bank" aria-pressed="false">水与岸</button><button data-still="look" aria-pressed="true">目光</button><button data-still="ink" aria-pressed="false">入窗</button><button data-still="room" aria-pressed="false">应人声</button></div><a class="play" href="../film/?portrait=scan&amp;from=44.58">在原声里看</a>　<a href="planes-shot.html?from=44.58">上一版同段</a></div></section>
+<h2 class="gallery-title">早期的三种画法</h2>
 <div class="tools" role="group" aria-label="三稿查看角度"><span>查看角度</span><button type="button" data-view="front" aria-pressed="true">正面</button><button type="button" data-view="left" aria-pressed="false">左转</button><button type="button" data-view="right" aria-pressed="false">右转</button></div>
 <div class="gallery">
 <figure class="portrait" data-study="planes"><a href="turn.html?study=planes"><img src="planes-front.webp" width="480" height="480" alt="雕塑稿正面实帧"></a><figcaption><h3>雕塑</h3><p>从眉骨、颧骨到下颌，观察同一张脸转过光源时的起伏。</p><a href="turn.html?study=planes">转动雕塑稿</a></figcaption></figure>
@@ -25,13 +46,50 @@ button{font:inherit;background:transparent;border:1px solid var(--line);color:va
 <section class="old"><h2>把第四稿放回原镜头</h2><p>这一稿用通用人脸地标校准面部体积。用同一首歌和同一机位，检查大特写、房间里两个人的距离，以及人物缩小后的剪影。<a href="../film/?from=3.8&amp;portrait=anatomy">从序章的第一次显影起看</a></p>
 <div class="tools" role="group" aria-label="同镜位实帧版本"><span>同镜位实帧</span><button data-take="anatomy" aria-pressed="true">重画</button><button data-take="old" aria-pressed="false">上版</button></div>
 <div class="gallery takes">
-<figure><img data-shot="river" data-label="字河近景" src="anatomy-river.webp" alt="试稿的字河近景"><figcaption class="time">0:53.8 · 字河近景<br><a href="../film/?from=53.2&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=53.2">看上版</a></figcaption></figure>
-<figure><img data-shot="room" data-label="第一间屋" src="anatomy-room.webp" alt="试稿的窗中人"><figcaption class="time">1:02.1 · 同处一室<br><a href="../film/?from=61.6&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=61.6">看上版</a></figcaption></figure>
-<figure><img data-shot="finale" data-label="山水巨像" src="anatomy-finale.webp" alt="试稿的山水巨像"><figcaption class="time">3:45 · 群山中的巨像<br><a href="../film/?from=224.8&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=224.8">看上版</a></figcaption></figure></div></section>
-</details>
+<figure><img data-shot="river" data-label="字河近景" src="anatomy-river.webp" alt="试稿的字河近景"><figcaption class="time">0:53.8 · 字河近景<br><a href="../film/?from=53.2&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=53.2&amp;portrait=legacy">看上版</a></figcaption></figure>
+<figure><img data-shot="room" data-label="第一间屋" src="anatomy-room.webp" alt="试稿的窗中人"><figcaption class="time">1:02.1 · 同处一室<br><a href="../film/?from=61.6&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=61.6&amp;portrait=legacy">看上版</a></figcaption></figure>
+<figure><img data-shot="finale" data-label="山水巨像" src="anatomy-finale.webp" alt="试稿的山水巨像"><figcaption class="time">3:45 · 群山中的巨像<br><a href="../film/?from=224.8&amp;portrait=anatomy">看试稿</a>　<a href="../film/?from=224.8&amp;portrait=legacy">看上版</a></figcaption></figure></div></section>
 <p class="refs">电影造型参照取自 2009 年《守望者》。可以打开制作人员的原片特写，对照眉眼、嘴和下颌。 本镜的头像几何改编自 Lee Perry-Smith 的扫描，原作者授权为 CC BY 3.0。<a href="scan-source.txt">模型来源与改编说明</a>　<a href="https://www.remingtonscott.com/watchmen" target="_blank" rel="noopener">Remington Scott 的角色特写</a>　<a href="anatomy-source.txt">通用脸部地标来源与许可</a></p>
-<footer><a href="../../design-codex/#s8">在角色分镜上批注</a></footer></main>
+</details>
+<footer><a href="../../design-codex/#s9">在这一版分镜上批注</a></footer></main>
 <script type="module">
+const pairs={
+  sea:["sea-gold","s-sink",7.625,"49.90",44.58,"正面半身，双臂垂入海面"],
+  gather:["sea-gathers","n-sink",4.625,"47.05",45,"字浪从两侧汇聚"],
+  face:["sea-detail","n-touch",.5,"53.68",52.6,"同一角色俯首，眉弓、眼睑与下颌的明暗"],
+  answer:["window-answer","s-window",.25,"62.10",59.73,"隔桌相向的提问者和回答者"],
+  crossing:["window-crossing","s-window",4.25,"65.38",63.23,"笔画离开旧窗，穿过两户之间的暗处"],
+  awaken:["window-awakens","s-window",7.5,"69.83",66.45,"另一户里的回答者聚拢成形"]
+};
+const el=id=>document.getElementById(id);
+let selected='sea',revision='final';
+function updateStill(){
+  const file=(revision==='first'?'first-':'tidal-')+selected+'.webp';
+  el('live-frame').src=el('live-full').href=file;
+  el('live-frame').alt='WebGPU 实帧 · '+pairs[selected][5];
+  el('live-title').textContent='WebGPU 实帧 · 原声 '+pairs[selected][3]+' 秒';
+}
+for(const button of document.querySelectorAll('[data-revision]')){
+  button.addEventListener('click',()=>{
+    revision=button.dataset.revision;
+    for(const other of document.querySelectorAll('[data-revision]'))other.setAttribute('aria-pressed',String(other===button));
+    updateStill();
+  });
+}
+for(const button of document.querySelectorAll('[data-pair]')){
+  button.addEventListener('click',()=>{
+    const key=button.dataset.pair,[ref,clip,clipTime,time,start,description]=pairs[key];
+    for(const choice of document.querySelectorAll('[data-pair]'))choice.setAttribute('aria-pressed',String(choice===button));
+    const reference=new URL(ref+'.webp',el('ref-frame').src).href;
+    el('ref-frame').src=el('ref-full').href=reference;
+    selected=key;updateStill();
+    el('ref-frame').alt='KIE 原片 · '+description;
+    el('ref-title').textContent='KIE 原片 · '+clip+' · '+clipTime+' 秒';
+    el('play-pair').href='../film/?from='+start;
+    el('play-ref').href='../../clips/'+clip+'.mp4#t='+Math.max(0,clipTime-1.4);
+    el('play-prior').href='../film/?portrait=scan&from='+start;
+  });
+}
 for(const button of document.querySelectorAll('[data-take]')){
   button.addEventListener('click',()=>{
     for(const choice of document.querySelectorAll('[data-take]')) choice.setAttribute('aria-pressed',String(choice===button));
@@ -47,8 +105,8 @@ for(const button of document.querySelectorAll('[data-still]')){
     const still=document.getElementById('shot-still');still.src='sitter-'+button.dataset.still+'.webp';
     still.alt=button.textContent+' · 原声镜头实帧';
     const start=button.dataset.still==='room' ? '61.6' : '44.58';
-    document.getElementById('still-play').href='../film/?portrait=sitter&from='+start;
-    document.querySelector('.feature .play').href='../film/?portrait=sitter&from='+start;
+    document.getElementById('still-play').href='../film/?portrait=scan&from='+start;
+    document.querySelector('.feature .play').href='../film/?portrait=scan&from='+start;
   });
 }
 for(const button of document.querySelectorAll('[data-view]')){

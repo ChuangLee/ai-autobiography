@@ -7,3 +7,5 @@ Kept for reuse; not wired into the page. Each set is a consistent snapshot (rena
 - `moon-v3.*` — two continuous camera moves with one dissolve; 月印万川 version: a moon in every dark pane and puddle, over-the-shoulder ink room, then the camera flies out through the gold figure and the glass, the city sinks into a photoreal moonlit sea (down to the wave crests and back up to the moon's road). The photoreal sea, the city-to-sea change (`u.s`, `u.hs`, `seaH`, `traceGround`, `lightField`) and the moon-in-panes code are all still in `scene.wgsl.js`; `layerB`/`KB`/`KB2` in this snapshot drive them.
 
 The current page (`index.html`, `scene.wgsl.js`, `room.wgsl.js`, `paint.wgsl.js`) no longer shows the photoreal sea or the moon-in-panes; use `moon-v3.*` (or `onetake-v1.*` for the original single pull-back to the sea) to get them back.
+
+- [窗内立像 · 归档样片](../?portrait=scan&from=60.8) 保留首户桌旁站立、实心身体与旧的两户机位，可和无参入口的隔桌对坐版按同一歌曲时码比较。

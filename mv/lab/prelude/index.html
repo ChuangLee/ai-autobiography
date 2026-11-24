@@ -6,7 +6,6 @@ import {initGPU,Post,run,shader,FS_VS,NOISE,loadAtlas,mipTexture,qn,sm,fail} fro
 import {buildSentence} from "../verse3/art.js";
 import {ROCK_FS} from "../river/rock.js";
 import {brush,writeInk} from "./ink.js";
-import {GIANT} from "./giant.js";
 import {PAPER} from "./paper.js";
 import {poem,peng} from "./previews.js";
 
@@ -34,8 +33,19 @@ try{
     ...(depth?{depthStencilAttachment:{view:depth,depthClearValue:1,depthLoadOp:"clear",depthStoreOp:"store"}}:{})});
   const G={w,h,lin,pipeline,bind,uniform,texture,write,pass};
   const sceneA=texture("rgba16float"), sceneB=texture("rgba16float");
-  const giant=pipeline(GIANT,"字身"), giantU=uniform(16), giantBG=bind(giant,[{buffer:giantU},atlas.sampler,atlasView]);
-  const pool=atlas.info.groupRanges["cn-kai"][0];
+  const portrait=new URLSearchParams(location.search).get("portrait");
+  const tidal=portrait===null || portrait==="sitter";
+  let drawGiant;
+  if(tidal){
+    const {createTidalStage}=await import("../portrait/tidal-shot.js");
+    const sea=await createTidalStage({...g,W:w,H:h},atlas);
+    drawGiant=(enc,t)=>sea.draw(enc,sceneA,48.8+.53*(t-1.96));
+  }else{
+    const {GIANT}=await import("./giant.js");
+    const giant=pipeline(GIANT,"字身"), ub=uniform(16), bg=bind(giant,[{buffer:ub},atlas.sampler,atlasView]);
+    const pool=atlas.info.groupRanges["cn-kai"][0];
+    drawGiant=(enc,t)=>{write(ub,[t,w,h,pool]);full(enc,giant,bg,sceneA);};
+  }
   const drawPoem=poem(g,G,atlas,sentence), drawPeng=peng(g,G);
   const rock=pipeline(FS_VS+NOISE+ROCK_FS,"第一段的纸"), rockU=uniform(96), rockBG=bind(rock,[{buffer:rockU},atlas.sampler,atlasView]);
   const paper=pipeline(PAPER,"落墨"), paperU=uniform(32), paperBG=bind(paper,[{buffer:paperU},lin,ink,sceneA,sceneB]);
@@ -48,14 +58,14 @@ try{
       post.run(enc,g.ctx.getCurrentTexture().createView(),{time:t,bloom:0,tonemap:0,bars:1,grain:.018,vignette:.22});
       device.queue.submit([enc.finish()]);return;
     }
-    if(t>=1.96 && t<=6.92){write(giantU,[t,w,h,pool]);full(enc,giant,giantBG,sceneA);}
+    if(t>=1.96 && t<=6.92)drawGiant(enc,t);
     if(t>=5.9 && t<=11.15)drawPoem(enc,sceneB,t);
     if(t>=10.19 && t<=15.5)drawPeng(enc,sceneA,t);
     if(t>=17.66){write(rockU,[18.9,0,w,h,0,0,0,0]);full(enc,rock,rockBG,sceneA);}
     write(paperU,[t,W,H,0,...brush(t)]);full(enc,paper,paperBG,post.hdr);
     const inside=sm(2.33,3.92,t)*(1-sm(14.02,15.37,t));
     post.run(enc,g.ctx.getCurrentTexture().createView(),{time:t,bloom:.29*inside,threshold:1.05,tonemap:inside,
-      vignette:.22+.09*inside,grain:.018,bars:1});
+      vignette:.22+.09*inside,grain:.018,bars:tidal?1.-.74*sm(2.65,3.82,t)*(1.-sm(5.75,6.86,t)):1});
     device.queue.submit([enc.finish()]);
   }};
   await run({g,seg:[0,18.9],scene,captions:[[0,3.55,"本视频全部由 Claude 用代码生成",true]],title:"序 · 字"});
