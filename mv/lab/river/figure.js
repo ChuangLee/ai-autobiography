@@ -1,9 +1,14 @@
-export const BUST = `
+// Keep the published take available while the proposed head is being reviewed.
+export const portraitStudy = new URLSearchParams(globalThis.location?.search).get("portrait") === "anatomy";
+const [study, body] = portraitStudy ? await Promise.all([
+  import("../portrait/anatomy.wgsl.js"), import("../portrait/body.wgsl.js"),
+]) : [null, null];
+const TORSO = `
 fn figureEll(p:vec3f, r:vec3f)->f32{ let k0=length(p/r); let k1=length(p/(r*r)); return k0*(k0-1.)/max(k1,1e-5); }
 fn figureCap(p:vec3f,a:vec3f,b:vec3f,r:f32)->f32{ let pa=p-a; let ba=b-a; let h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.); return length(pa-ba*h)-r; }
 fn figureUnion(a:f32,b:f32,k:f32)->f32{ let h=max(k-abs(a-b),0.)/k; return min(a,b)-h*h*k*.25; }
 // A colossal bust: about one head = 1.1 units; y up, facing -z, standing in the water at y = 0. Symmetric in x.
-fn torsoSd(q:vec3f)->f32{
+fn torsoCore(q:vec3f)->f32{
   var d=figureEll(q-vec3f(0.,.70,.02), vec3f(.70,.52,.36));                              // ribcage
   d=figureUnion(d, figureEll(q-vec3f(.29,.80,-.20), vec3f(.30,.21,.15)), .10);                  // pectoral
   d=figureUnion(d, figureEll(q-vec3f(0.,.02,.04), vec3f(.53,.72,.30)), .28);                    // waist
@@ -14,12 +19,18 @@ fn torsoSd(q:vec3f)->f32{
   d=figureUnion(d, figureCap(q, vec3f(0.,1.50,.13), vec3f(.66,1.13,.09), .115), .16);           // trapezius
   d=figureUnion(d, figureCap(q, vec3f(0.,1.10,.09), vec3f(0.,1.80,.03), .185), .14);            // neck
   d=figureUnion(d, figureCap(q, vec3f(.06,1.20,-.13), vec3f(.20,1.72,.06), .05), .06);          // sternomastoid
+  return d;
+}
+fn torsoSd(q:vec3f)->f32{
+  var d=torsoCore(q);
   // Upper arms fall under the deltoids; at sea the lower arms are submerged.
   d=figureUnion(d,figureCap(q,vec3f(.85,.84,.045),vec3f(.94,.30,.02),.18),.11);
   d=figureUnion(d,figureEll(q-vec3f(.93,.46,-.015),vec3f(.177,.30,.178)),.06);
   d=figureUnion(d,figureCap(q,vec3f(.94,.29,.02),vec3f(.96,-.32,-.09),.12),.09);
   d=figureUnion(d,figureEll(q-vec3f(.96,-.44,-.10),vec3f(.106,.185,.090)),.055);
   return d; }
+`;
+const PRIOR_HEAD = `
 fn faceSquare(x:f32)->f32{return x*x;}
 fn headSd(q:vec3f)->f32{
   // Model the forehead, cheeks and mouth on a continuous cranial surface.
@@ -59,11 +70,21 @@ fn headSd(q:vec3f)->f32{
   var helix=figureEll(ear,vec3f(.057,.108,.069));
   helix=max(helix,-figureEll(ear-vec3f(.050,.013,-.004),vec3f(.027,.066,.038)));
   return figureUnion(h,helix,.014); }
+`;
+export const BUST = `const anatomyStudy=${portraitStudy};
+` + TORSO + (body?.BODY ?? "") + (study?.HEAD ?? PRIOR_HEAD) + `
 fn headQ(q:vec3f)->vec3f{ let a=.19; let v=q-vec3f(0.,1.72,.02); return vec3f(v.x, v.y*cos(a)-v.z*sin(a), v.y*sin(a)+v.z*cos(a))+vec3f(0.,1.72,.02); }
-fn bust(p:vec3f)->f32{ var q=p; q.y-=.85; q.x=abs(q.x); if(q.y<1.2){ return torsoSd(q); } if(q.y>2.12){ return headSd(headQ(q)); } return figureUnion(torsoSd(q),headSd(headQ(q)),.10); }
+fn bust(p:vec3f)->f32{ var q=p; q.y-=.85;
+  if(anatomyStudy){
+    let turn=.10*smoothstep(1.05,1.78,q.y);
+    let old=q.xz;q.x=old.x*cos(turn)+old.y*sin(turn);q.z=old.y*cos(turn)-old.x*sin(turn);
+    q.y-=.055*q.x*(1.-smoothstep(1.04,1.55,q.y));
+  }
+  ${body ? `if(q.y<1.2){return emergingTorso(q);}` : ""}
+  q.x=abs(q.x); if(q.y<1.2){ return torsoSd(q); } if(q.y>2.12){ return headSd(headQ(q)); } return figureUnion(torsoSd(q),headSd(headQ(q)),.10); }
 fn bustN(p:vec3f)->vec3f{ let e=vec2f(.004,-.004); return normalize(e.xyy*bust(p+e.xyy)+e.yyx*bust(p+e.yyx)+e.yxy*bust(p+e.yxy)+e.xxx*bust(p+e.xxx)); }
 `;
-export const GAZE = `
+export const GAZE = study?.GAZE ?? `
 fn eyeColor(p:vec3f, base:vec3f)->vec3f {
   let q=headQ(vec3f(abs(p.x),p.y-.85,p.z));
   if(q.z>-.24){return base;}
@@ -75,6 +96,7 @@ fn eyeColor(p:vec3f, base:vec3f)->vec3f {
   let lens=mix(vec3f(.22,.16,.085),vec3f(.33,.27,.19),smoothstep(.008,.024,iris));
   return mix(base,lens,open*.72);
 }
+fn wakingEye(p:vec3f,base:vec3f,open:f32)->vec3f{return eyeColor(p,base);}
 `;
 
 // Cache the distance and outward normal for the particles. The close-up is marched

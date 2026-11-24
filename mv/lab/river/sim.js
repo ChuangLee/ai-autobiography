@@ -32,6 +32,19 @@ fn statueCol(q:vec3f, n:vec3f, rd:vec3f, t:f32)->vec3f{ let lit=.12*max(dot(n,-r
   let highlight=pow(max(dot(n,normalize(SKEY-rd)),0.),24.);
   let flesh=mix(vec3f(.044,.036,.031),vec3f(.82,.66,.42),lit);
   let under=flesh*(.42+.35*lit)+vec3f(.90,.79,.57)*(.13*highlight+.05*grazing);
+  if(anatomyStudy){
+    let head=smoothstep(2.13,2.42,q.y)*smoothstep(.09,-.10,q.z);
+    let edge=smoothstep(.23,.42,abs(q.x));
+    let retained=1.-head*(1.-.16*edge);
+    let key=clamp(.60*lit+.40*max(dot(n,normalize(vec3f(-.7,.39,-.58))),0.),0.,1.);
+    let ivory=mix(vec3f(.009,.011,.015),vec3f(.40,.29,.16),pow(key,1.42));
+    let mottling=vnoise3(q*24.)-.5;
+    let pores=vnoise3(q*137.+.28*vnoise3(q*43.))-.5;
+    let tissue=ivory*(1.+head*(.105*mottling+.075*pores))
+             +head*vec3f(.010,.002,-.002)*mottling;
+    let surface=tissue+.025*vec3f(.9,.84,.76)*grazing+vec3f(.57,.47,.32)*script*retained;
+    return wakingEye(q,surface,smoothstep(48.95,50.79,t-.06*sign(q.x)));
+  }
   return eyeColor(q,under+vec3f(.024,.023,.027)*(1.-lit)+vec3f(1.,.84,.59)*script*(.065+.7*lit)); }
 `;
 export const FLUID = {
@@ -124,6 +137,11 @@ fn figSpawn(i:u32)->Pt{ var p:Pt; let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y)
   let lam=max(dot(n,L),0.); let rim=pow(1.-abs(facing),2.5);
   let fill=max(dot(n,normalize(vec3f(.15,-.55,-.82))),0.); let sh=mix(.34, (.18+1.0*lam+.5*fill+.2*rim)*mix(.13,1.,smoothstep(-.3,.1,facing))*mix(.5,1.,smoothstep(.0,.55,facing)), near);
   p.ex=vec4f(a*(1.-topn)*mix(1.-.85*near,1.,p.ex.w), sh, smoothstep(.3,S*.22,p.pos.y), p.ex.w);      // the free streams thin out as they reach the body: no clots on it
+  if(portraitParticles){
+    let local=(p.pos-C)/S;
+    let face=smoothstep(2.20,2.57,local.y)*(1.-smoothstep(.15,.39,abs(local.x)))*smoothstep(.12,-.13,local.z);
+    p.ex.x*=1.-.98*face*near;
+  }
   if(p.age>life||p.pos.y>top+S*.36){ p=figSpawn(i); }
   P[i]=p; }
 `;

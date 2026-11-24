@@ -1,5 +1,8 @@
-export const VISITOR_MODEL = `
+import { portraitStudy } from "../river/figure.js";
+const study = portraitStudy ? await import("./visitor.js") : null;
+export const VISITOR_MODEL = (study?.ATTENTIVE_VISITOR ?? "") + `
 fn visitorDistance(pos:vec3f)->f32{
+  ${study ? "if(anatomyStudy){return attentiveDistance(pos);}" : ""}
   var q=pos;
   // The nearer hand opens towards the questioner; only the arm follows this bend.
   let arm=smoothstep(.62,.90,q.x)*(1.-smoothstep(1.10,1.76,q.y));
@@ -111,8 +114,39 @@ fn shade(p:vec3f, n:vec3f, m:f32, rd:vec3f, full:bool)->vec3f{ var q=p; q.x*=r.f
     let rim=pow(1.-abs(dot(n,rd)),3.);
     let base=mix(vec3f(.014,.012,.010),vec3f(.53,.39,.21),lit*lit);
     let highlight=pow(max(dot(n,normalize(key-rd)),0.),22.);
+${study ? `    if(anatomyStudy){
+      let body=visitorBody(model);
+      let skin=body.y>1.362 || (body.y>1.0 && body.y<1.20 && visitorHands(body)<.013);
+      let meeting=normalize(vec3f(-.78*r.flip,.41,.65));
+      let plane=clamp(.43+.57*dot(n,meeting),0.,1.);
+      let cloth=mix(vec3f(.012,.015,.017),vec3f(.123,.099,.065),plane*plane);
+      let fold=body.x+.079-.124*smoothstep(.89,1.34,body.y);
+      let opening=smoothstep(.009,.002,abs(fold))*smoothstep(-.06,-.11,body.z)
+                 *smoothstep(.64,.73,body.y)*(1.-smoothstep(1.28,1.37,body.y));
+      let hem=smoothstep(.012,.002,abs(body.y-(.693+.047*body.x)))*(1.-smoothstep(.17,.21,abs(body.x)));
+      let throatShadow=exp(-48.*abs(body.y-1.320))*exp(-90.*dot(body.xz,body.xz));
+      let seamShade=exp(-30.*abs(body.x-.10+.20*(body.y-.74)))*smoothstep(.75,.86,body.y)*(1.-smoothstep(1.12,1.24,body.y));
+      var color=cloth*(1.-.24*opening-.17*hem-.32*throatShadow-.13*seamShade);
+      if(body.y<.68){color*=.72;}
+      if(skin){
+        color=mix(vec3f(.048,.042,.032),vec3f(.42,.309,.174),plane*plane);
+        color*=.71+.29*smoothstep(1.385,1.43,body.y)+.29*(1.-smoothstep(1.19,1.23,body.y));
+        if(body.y>1.411){color=eyeColor(visitorHead(model),color);}
+      }
+      let glancing=pow(clamp(1.-abs(dot(n,rd)),0.,1.),4.);
+      color+=vec3f(.55,.41,.225)*glancing*(.13+.18*plane);
+      if(r.a.x>.5){
+        let painted=mix(vec3f(.086,.066,.039),vec3f(.380,.283,.149),smoothstep(.41,.52,plane));
+        color=mix(color,painted,.57);
+        if(body.y>1.411){color=eyeColor(visitorHead(model),color);}
+        return color;
+      }
+      return color*r.figAmt;
+    }
+` : ""}
     if(r.a.x>.5){
-      return mix(vec3f(.15,.12,.07),vec3f(.52,.39,.19),smoothstep(.20,.36,lit));
+      let plane=mix(vec3f(.15,.12,.07),vec3f(.52,.39,.19),smoothstep(.20,.36,lit));
+      return select(plane,eyeColor(model,plane),anatomyStudy);
     }
     return eyeColor(model,base+vec3f(.92,.81,.60)*(.18*highlight+.08*rim))*r.figAmt;
   }
@@ -153,7 +187,7 @@ fn shade(p:vec3f, n:vec3f, m:f32, rd:vec3f, full:bool)->vec3f{ var q=p; q.x*=r.f
   col+=PAPER*r.b.x*.75*max(dot(n,l),0.)*smoothstep(-.05,.5,dv.z)/(d2+.25);
   let ll=vec3f(LAMP.x*r.flip,LAMP.y,LAMP.z); dv=ll-p; d2=dot(dv,dv); l=dv/sqrt(d2); col+=PAPER*max(r.b.y,0.)*.26*(.25+.75*max(dot(n,l),0.))/(d2+.2);
   if(r.figAmt>.002){ let lf=r.fig; dv=lf-p; d2=dot(dv,dv); l=dv/sqrt(d2); var sh=1.; if(full){ sh=.25+.75*shadow(p+n*.01,lf); }
-    col+=GOLD*r.figAmt*.8*(.18+.82*max(dot(n,l),0.))*sh/(d2+.35); }
+    col+=GOLD*r.figAmt*select(.8,.28,anatomyStudy)*(.18+.82*max(dot(n,l),0.))*sh/(d2+.35); }
   col+=SILVER*.012*(.4+.6*max(dot(n,normalize(vec3f(0.,.3,-1.))),0.))*smoothstep(4.,0.,p.z);
   col*=alb;
   col*=mix(1.,.4,pow(1.-abs(dot(n,rd)),2.2));         // the wash pools at the edges of things
@@ -246,6 +280,13 @@ fn cr(a:vec3f,b:vec3f,c:vec3f,d:vec3f,f:f32)->vec3f{ let f2=f*f; let f3=f2*f; re
     pos+=ow*(.11*b+.02*b*b)+vec3f(sin(seed*13.+b*1.3)*.07*b,.09*b+.015*b*b,cos(seed*29.+b*1.1)*.07*b-.05*b);
     ang=(r6-.5)*3.2*b; grow=1.+.25*smoothstep(0.,2.,b);
     col=vec3f(1.,.84,.58)*(.45+.8*r2);
+    ${study ? `
+    let radial=normalize(vec2f(tl.x,1.65*(tl.z-.018)) + vec2f(1e-5));
+    var outward=vec3f(P_.org.w*(radial.x*cy+radial.y*sy),0.,-radial.x*sy+radial.y*cy);
+    if(P_.m.w>.5){outward.z=-outward.z;}
+    let grazing=1.-abs(dot(outward,cross(P_.rt.xyz,P_.up.xyz)));
+    let settled=smoothstep(.64,1.,a)*(1.-smoothstep(.04,.58,b));
+    vis*=mix(1.,.07+.72*pow(clamp(grazing,0.,1.),2.),settled);` : ""}
     if(r3<P_.snk.w){ let b2=max(b-.35,0.); let w2=smoothstep(0.,1.5,b2); pos=mix(pos,P_.snk.xyz+vec3f((r4-.5)*.9,(r6-.5)*.7,0.),w2*w2*(3.-2.*w2)); fade=1.-smoothstep(1.35,1.6,b2); col=mix(col,vec3f(1.,.5,.16)*(.5+1.1*r2),w2); }
     else { fade=exp(-b*.85)*(1.-smoothstep(2.4,3.6,b)); col=mix(col,vec3f(.5,.5,.52)*.12,smoothstep(0.,1.6,b)); } }
   pos.x*=P_.org.w; if(P_.m.w>.5){ pos.z=-.12-pos.z; }

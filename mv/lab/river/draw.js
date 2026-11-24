@@ -9,7 +9,17 @@ fn landH(xz:vec2f)->f32{ let w=fbm(xz*.012+5.); let a=1.-abs(2.*fbm(xz*.022+vec2
 fn core(ro:vec3f, rd:vec3f)->vec4f{ let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y); let oc=ro-(C+vec3f(0.,S*1.75,0.)); let b=dot(oc,rd); let cc=dot(oc,oc)-S*S*5.6; let h=b*b-cc; if(h<0.){ return vec4f(0.); }
   var t=max(-b-sqrt(h),0.); let te=-b+sqrt(h); var hit=false; for(var i=0;i<90;i++){ let local=(ro+rd*t-C)/S; let d=bust(local)*S; if(d<max(.006,.00024*t)){ hit=true; break; } t+=d*mix(.90,.53,smoothstep(2.45,2.8,local.y)); if(t>te){ break; } }
   if(!hit){ return vec4f(0.); } let p=ro+rd*t; let q=(p-C)/S; let rev=1.-smoothstep(G.m3.w-S*.22, G.m3.w, abs(p.y)); if(rev<=0.){ return vec4f(0.); }
-  return vec4f(statueCol(q,bustN(q),rd,G.cam.w)*G.heads[2].w, rev); }
+  let stone=statueCol(q,bustN(q),rd,G.cam.w)*G.heads[2].w;
+  if(anatomyStudy){
+    // Churning water and mist take the lower body back into the river. The
+    // advancing camera eventually looks above this layer at the dry face.
+    let eddy=fbm(q.xz*vec2f(4.1,6.3)+vec2f(.09*G.cam.w,0.));
+    let tide=.99+.32*(eddy-.5)+.075*sin(q.x*6.7+q.z*5.1+G.cam.w*.47);
+    let air=smoothstep(tide-.34,tide+.61,q.y);
+    let wet=mix(vec3f(.023,.027,.031),stone,.20+.80*air);
+    return vec4f(wet,rev*air);
+  }
+  return vec4f(stone,rev); }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
   let ndc=vec2f(fc.x/G.m2.x*2.-1., 1.-fc.y/G.m2.y*2.); let th=G.right.w; let night=G.fwd.w; let t=G.cam.w;
   let rd=normalize(G.fwd.xyz+G.right.xyz*ndc.x*th*G.up.w+G.up.xyz*ndc.y*th); let ro=G.cam.xyz;
@@ -61,9 +71,9 @@ fn core(ro:vec3f, rd:vec3f)->vec4f{ let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.
 `;
 export const GLYPH_VS_FS = `
 @group(0)@binding(0) var<uniform> G:GU; @group(0)@binding(1) var<storage,read> P:array<Pt>; @group(0)@binding(2) var<storage,read> L:array<u32>; @group(0)@binding(3) var samp:sampler; @group(0)@binding(4) var atlas:texture_2d<f32>; @group(0)@binding(5) var objT:texture_2d<f32>;
-struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cell:vec2f, @location(2) ink:f32, @location(3) light:vec3f, @location(4) bias:f32, @location(5) obj:f32 }
+struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cell:vec2f, @location(2) ink:f32, @location(3) light:vec3f, @location(4) bias:f32, @location(5) obj:f32, @location(6) face:vec2f }
 @vertex fn vs(@builtin(vertex_index) vi:u32, @builtin(instance_index) ii:u32)->VO{
-  var o:VO; o.pos=vec4f(2.,2.,2.,1.); o.uv=vec2f(0.); o.cell=vec2f(0.); o.ink=0.; o.light=vec3f(0.); o.bias=0.; o.obj=0.;
+  var o:VO; o.pos=vec4f(2.,2.,2.,1.); o.uv=vec2f(0.); o.cell=vec2f(0.); o.ink=0.; o.light=vec3f(0.); o.bias=0.; o.obj=0.; o.face=vec2f(2.);
   let p=P[ii]; if(p.ex.x<=.004){ return o; } var wp=p.pos; let flip=G.m1.z; let fig=step(.5,p.kind);
   if(flip<0.){ if(fig<.5||wp.y<.4){ return o; } wp.y=-wp.y; }
   let rel=wp-G.cam.xyz; let vz=dot(rel,G.fwd.xyz); if(vz<.35){ return o; } let vx=dot(rel,G.right.xyz); let vy=dot(rel,G.up.xyz);
@@ -74,12 +84,23 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cel
   // Close flotsam stays within the scale of the bank. At reduced density a
   // single enlarged inscription used to cover the whole person and horizon.
   if(fig<.5 && night>.65){size=min(size,(.054+.026*isObj)*G.m2.y/ppu);}
+  if(portraitParticles && fig>.5){
+    let approach=smoothstep(47.8,52.5,t);
+    size=min(size,mix(.12,.023,approach)*G.m2.y/ppu);
+    a*=1.-.70*approach;
+  }
   let px=size*ppu; if(px<1.4){ a*=(px/1.4)*(px/1.4); size=1.4/ppu; }
   let cs=array<vec2f,6>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(1.,1.),vec2f(-1.,-1.),vec2f(1.,1.),vec2f(-1.,1.)); let c=cs[vi];
   let ang=(r2-.5)*.45+.07*sin(t*.9+r1*50.)+fig*.25*sin(t*.6+r2*30.); let ca=cos(ang); let sa=sin(ang);
   let off=vec2f(c.x*ca-c.y*sa, c.x*sa+c.y*ca)*size*.5/.78;
   o.pos=vec4f((vx+off.x)/(th*G.up.w), (vy+off.y)/th, .5*vz, vz)*vec4f(1.,1.,1.,1.);
   o.pos=vec4f(o.pos.x, o.pos.y, .5*vz, vz);
+  if(portraitParticles && flip>0. && t>46.){
+    let head=vec3f(G.fig.x,2.98*G.fig.z,G.fig.y-.13*G.fig.z)-G.cam.xyz;
+    let depth=dot(head,G.fwd.xyz);
+    let centre=vec2f(dot(head,G.right.xyz),dot(head,G.up.xyz));
+    o.face=((vec2f(vx,vy)+off)*depth/vz-centre)/(vec2f(.45,.62)*G.fig.z);
+  }
   o.uv=vec2f(c.x*.5+.5, .5-c.y*.5*flip); o.bias=log2(1.+blur);
   // which real glyph: by family, and by how far downstream (later in time)
   let k=tribOf(ii); let zf=mix(clamp(p.pos.z/206.,0.,1.),1.,fig); var gid=0u;
@@ -95,7 +116,12 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cel
   o.light=li; return o; }
 fn inkAt(i:VO)->f32{ let g=textureSampleBias(atlas,samp,(i.cell+i.uv)/32.,i.bias).r; let ob=textureSampleBias(objT,samp,(i.cell+i.uv)/4.,i.bias).a; return mix(g,ob,i.obj); }
 @fragment fn fsInk(i:VO)->@location(0) vec4f{ return vec4f(vec3f(inkAt(i)*i.ink),1.); }
-@fragment fn fsLight(i:VO)->@location(0) vec4f{ return vec4f(i.light*inkAt(i),1.); }
+@fragment fn fsLight(i:VO)->@location(0) vec4f{ var light=i.light;
+  if(portraitParticles){
+    let boundary=smoothstep(.72,1.24,length(i.face));
+    light*=mix(1.,.012+.988*boundary,smoothstep(47.,51.5,G.cam.w));
+  }
+  return vec4f(light*inkAt(i),1.); }
 `;
 
 // the small figure on the bank, seen from behind: a robe, a head, a topknot. Drawn last, over the river (G.heads[3] = where he stands, .w = how present)

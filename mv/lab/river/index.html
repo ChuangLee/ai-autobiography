@@ -11,7 +11,7 @@ import { initGPU, Post, run, shader, FS_VS, NOISE, loadAtlas, mipTexture, clamp,
 import { buildWorld, cxf, MOUTH, FIG, QFLOW } from "./world.js";
 import { createWindowScene, makeWindowText } from "../windows/scene.js";
 import { createWindowHandoff } from "./handoff.js";
-import { BUST, GAZE, FIGURE_VOLUME, BAKE_FIGURE } from "./figure.js";
+import { BUST, GAZE, FIGURE_VOLUME, BAKE_FIGURE, portraitStudy } from "./figure.js";
 import { FLUID, PARTICLE_SIM, STATUE, COMMON } from "./sim.js";
 import { BG_FS, GLYPH_VS_FS, OVER_FS } from "./draw.js";
 import { drawSprites, OBJ_WGSL } from "./objects.js";
@@ -64,8 +64,9 @@ const bake = cpipe(BAKE_FIGURE, "figure-volume");
   pass.dispatchWorkgroups(...volumeSize.map(n => n / 4));
   pass.end(); device.queue.submit([enc.finish()]);
 }
-const P_sim = cpipe(COMMON + FIGURE_VOLUME + PARTICLE_SIM, "particles"), B_sim = bg(P_sim, [{ buffer: gub }, { buffer: pbuf }, lin, v(velA), v(fieldT), v(decoT), figureVolume]);
-const bgM = shader(device, FS_VS + NOISE + COMMON + BUST + GAZE + STATUE + BG_FS, "background"), glM = shader(device, NOISE + COMMON + OBJ_WGSL + GLYPH_VS_FS, "glyphs"), objTex0 = mipTexture(device, drawSprites(atlas)).createView();
+const particleMode = `const portraitParticles=${portraitStudy};\n`;
+const P_sim = cpipe(COMMON + particleMode + FIGURE_VOLUME + PARTICLE_SIM, "particles"), B_sim = bg(P_sim, [{ buffer: gub }, { buffer: pbuf }, lin, v(velA), v(fieldT), v(decoT), figureVolume]);
+const bgM = shader(device, FS_VS + NOISE + COMMON + BUST + GAZE + STATUE + BG_FS, "background"), glM = shader(device, NOISE + COMMON + particleMode + OBJ_WGSL + GLYPH_VS_FS, "glyphs"), objTex0 = mipTexture(device, drawSprites(atlas)).createView();
 const P_bg = device.createRenderPipeline({ layout: "auto", vertex: { module: bgM, entryPoint: "vs" }, fragment: { module: bgM, entryPoint: "fs", targets: [{ format: "rgba16float" }] } });
 atlas.bitmap.close();
 const B_bg = bg(P_bg, [{ buffer: gub }, lin, v(fieldT), v(decoT), atlas.sampler, atlas.tex.createView()]);

@@ -1,7 +1,7 @@
 // A relief plate for the fixed view in the coda. The same brow and clavicles
 // catch every new kind of paint; the light and ink move over their surface.
-import { BUST } from "../river/figure.js";
-export const RELIEF = BUST + `
+import { BUST, GAZE, portraitStudy } from "../river/figure.js";
+export const RELIEF = BUST + GAZE + `
 @group(0) @binding(0) var plate:texture_storage_2d<rgba16float,write>;
 @compute @workgroup_size(8,8) fn main(@builtin(global_invocation_id) id:vec3u){
   let size=textureDimensions(plate);
@@ -11,7 +11,7 @@ export const RELIEF = BUST + `
   let ro=side*((uv.x-.5)*2.72)+vec3f(0.,3.58-uv.y*3.69,0.)-rd*1.45;
   var d=0.; var sample=vec4f(0.);
   for(var j=0;j<70;j++){let p=ro+rd*d; let h=bust(p);
-    if(h<.0015){sample=vec4f(bustN(p),1.);break;}
+    if(h<.0015){sample=vec4f(bustN(p),${portraitStudy ? "1.+almond(p)" : "1."});break;}
     d+=max(h*.80,.001); if(d>2.65){break;}
   }
   textureStore(plate,id.xy,sample);
@@ -48,12 +48,12 @@ fn drawing(q:vec2f, t:f32, lod:f32)->Drawing{
   var line=0.; var curl=.15*q.y; var band=0.;
   let pos=(q-vec2f(.52,.095))/vec2f(.256,.610)+vec2f(.5,0.);
   let surf=textureSampleLevel(relief,fil,clamp(pos,vec2f(0.),vec2f(1.)),0.);
-  var actor=surf.w*select(0.,1.,all(pos>=vec2f(0.))&&all(pos<=vec2f(1.)));
+  var actor=min(1.,surf.w)*select(0.,1.,all(pos>=vec2f(0.))&&all(pos<=vec2f(1.)));
   // The torso enters the far water at the trailing bank. Rippled mist hides
   // the submerged arms; downstream water can never cover its chest.
   let waterLine=.514+.006*sin(q.x*71.+t*.4)+.007*vnoise(vec2f(q.x*55.,1.));
   actor*=1.-smoothstep(waterLine-.008,waterLine+.007,q.y);
-  let n=surf.xyz; let light=clamp(dot(n,normalize(vec3f(-.74,.59,-.38)))*.64+.47,.08,1.);
+  let n=surf.xyz; let light=max(clamp(dot(n,normalize(vec3f(-.74,.59,-.38)))*.64+.47,.08,1.),1.23*max(0.,surf.w-1.));
   let script=inkGlyph(vec2f(pos.x*17.+.73*n.x,pos.y*27.+.81*n.y-.16*t),lod);
   for(var i=0;i<7;i++){
     let layer=f32(i); let h=ridge(q.x,layer);

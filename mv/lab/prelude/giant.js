@@ -20,7 +20,9 @@ fn writing(p:vec2f,g:f32)->f32{let cell=vec2f(g%32.,floor(g/32.));return texture
     let diffuse=max(0.,dot(n,light));let fres=pow(1.-max(dot(n,-rd),0.),3.);
     let relief=smoothstep(.1,.8,ink);let cloth=fbm(p.xy*40.);
     col=vec3f(.065,.049,.029)*(.6+.4*cloth)+gold*(.08+.62*diffuse)+vec3f(1.,.92,.70)*pow(max(dot(n,normalize(light-rd)),0.),40.)*.53;
-    col=eyeColor(p,col); col*=.83+.2*cloth; col+=gold*relief*(.17+.55*fres+.24*diffuse)+vec3f(.55,.52,.39)*fres;
+    if(anatomyStudy){let face=smoothstep(2.35,2.75,p.y)*smoothstep(.05,-.15,p.z);
+      col=eyeColor(p,col+gold*relief*(1.-.94*face)*.22+vec3f(.17,.15,.12)*fres);
+    }else{ col=eyeColor(p,col); col*=.83+.2*cloth; col+=gold*relief*(.17+.55*fres+.24*diffuse)+vec3f(.55,.52,.39)*fres;}
   }else if(rd.y<-.001){let p=cam-rd*(cam.y/rd.y);let surf=p.xz;
     let rip=fbm(surf*vec2f(7.,32.)+vec2f(0.,-t*.65));
     let wake=exp(-abs(surf.x-.12*cos(surf.y))*(1.8+.22*abs(surf.y)))*exp(-abs(surf.y)*.12);
