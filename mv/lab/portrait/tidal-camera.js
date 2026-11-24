@@ -25,7 +25,7 @@ function path(t){
 }
 const mix=(a,b,k)=>a.map((n,i)=>n+(b[i]-n)*k);
 const glyphWidth=.060;
-export function tidalCamera(facePoint){
+export function tidalCamera(facePoint,drawing=false){
  let plane;
  function skin(){
    if(plane)return plane;
@@ -45,11 +45,21 @@ export function tidalCamera(facePoint){
      c.target=mix(c.target,centre,sm(53.72,54.74,t));
    }
    const f=norm(sub(c.target,c.eye)),r=norm(cross(f,[0,1,0])),up=cross(r,f);
-   return {...c,r,up,f,vp:M4.mul(M4.persp(c.fov,aspect,.0007,100),M4.look(c.eye,c.target))};
+   const nod=drawing ? .195*sm(50.8,53.45,t)*(1-sm(53.7,54.85,t)) : 0;
+   return {...c,r,up,f,nod,vp:M4.mul(M4.persp(c.fov,aspect,.0007,100),M4.look(c.eye,c.target))};
  }
  function portalUniform(cam,t,W,H,glyph){
    const frame=new Float32Array(16);frame.set([W,H,t,glyph]);
-   const {centre,east,north,normal}=skin(),rel=sub(centre,cam.eye);
+   let {centre,east,north,normal}=skin();
+   if(cam.nod){
+     // The painted letter follows the cheek as the head bows about the neck.
+     const c=Math.cos(cam.nod),s=Math.sin(cam.nod);
+     const rotate=([x,y,z])=>[x,c*y-s*z,s*y+c*z];
+     const pivot=[0,-.29,-.026];
+     centre=rotate(sub(centre,pivot)).map((v,i)=>v+pivot[i]);
+     east=rotate(east);north=rotate(north);normal=rotate(normal);
+   }
+   const rel=sub(centre,cam.eye);
    const tan=Math.tan(cam.fov/2),dist=dot(rel,normal);
    const rays=[cam.r.map(v=>v*tan*W/H),cam.up.map(v=>v*tan),cam.f];
    const den=rays.map(ray=>dot(ray,normal));

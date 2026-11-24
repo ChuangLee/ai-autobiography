@@ -168,7 +168,7 @@ function addBody(verts,inds){
  }
 }
 
-function addHead(verts,inds){
+function addHead(verts,inds,rows=170,cols=160){
  function rings(y0,y1,rows,cols,mat,sample){
    const base=verts.length/7;
    const angles=Array.from({length:cols},(_,j)=>[Math.sin(TAU*j/cols),Math.cos(TAU*j/cols)]);
@@ -181,7 +181,7 @@ function addHead(verts,inds){
      inds.push(a,b,a+cols,b,b+cols,a+cols);
    }
  }
- rings(head[0][0],head.at(-1)[0],170,160,1,y=>{const row=section(head,y);return (s,c)=>bow(headPoint(y,s,c,row));});
+ rings(head[0][0],head.at(-1)[0],rows,cols,1,y=>{const row=section(head,y);return (s,c)=>bow(headPoint(y,s,c,row));});
  for(const side of [-1,1]){
    rings(-.109,.037,30,44,3,y=>{
      const f=(y+.036)/.074,k=Math.sqrt(Math.max(.0001,1-f*f));
@@ -214,11 +214,86 @@ function addHead(verts,inds){
    }
  }
 }
+// Only the camera-facing skin is needed on the body in the river shot. Each
+// horizontal section has two strokes per side, from sternum to armpit and
+// from armpit to the outside of the arm. Their ends split below the armpit.
+function addPaintedBody(vertices,indices){
+ // The shoulder silhouette crosses the clavicle in one continuous stroke.
+ const shoulder=[
+   [-.65,.624],[-.605,.609],[-.571,.584],[-.546,.551],[-.527,.507],
+   [-.517,.465],[-.511,.418],[-.491,.354],[-.467,.281],[-.438,.191],[-.399,.139]
+ ];
+ const rows=94, chestCols=26, armCols=16;
+ const cols=chestCols+armCols+2;
+ for(const side of [-1,1]){
+   const base=vertices.length/7;
+   for(let j=0;j<=rows;j++){
+     const y=-2.16+1.985*j/rows;
+     const [width,depth,,cz]=section(body,y);
+     const [axis,radius,armDepth,az]=section(arm,y);
+     const visibleArm=y<arm.at(-1)[0];
+     const blendShoulder=smooth(-.65,-.56,y);
+     const span=y<-.399?section(shoulder,y)[0]:width;
+     const armSpan=visibleArm?Math.max(width,axis+radius):width;
+     const outer=armSpan+(span-armSpan)*blendShoulder;
+     const inner=visibleArm?Math.max(0,axis-radius):width;
+     const seam=Math.min(width,(inner+width)*.5);
+     const chestEdge=seam+(.76*outer-seam)*blendShoulder;
+     const armEdge=chestEdge+Math.max(0,inner-seam)*(1-blendShoulder);
+     const sample=(x,part)=>{
+       const c=Math.sqrt(Math.max(0,1-(x/width)**2));
+       const a=Math.sqrt(Math.max(0,1-((x-axis)/radius)**2));
+       const torso=cz+depth*c+bodyRelief(x,y)*smooth(0,.64,c);
+       const limb=az+(armDepth+.018*bell(y+1,.14))*a;
+       let z=torso;
+       if(visibleArm&&x>=inner){
+         if(x>=width){z=limb;}
+         else{
+           const blend=.042*smooth(-1,-.70,y);
+           const join=Math.max(0,blend-Math.abs(torso-limb));
+           z=Math.max(torso,limb)+join*join/(4*Math.max(.00001,blend));
+         }
+       }
+       if(blendShoulder>0){
+         const turn=Math.sqrt(Math.max(0,1-(x/outer)**2));
+         const cap=cz+depth*turn+bodyRelief(x,y)*smooth(0,.64,turn);
+         z+=(cap-z)*blendShoulder;
+       }
+       vertices.push(side*x,y,z,0,0,0,part);
+     };
+     for(let i=0;i<=chestCols;i++){
+       sample(chestEdge*Math.sin(Math.PI*.5*i/chestCols),0);
+     }
+     for(let i=0;i<=armCols;i++){
+       const u=(1-Math.cos(Math.PI*i/armCols))*.5;
+       sample(armEdge+(outer-armEdge)*u,2);
+     }
+   }
+   for(let j=0;j<rows;j++)for(let i=0;i<cols-1;i++){
+     if(i===chestCols)continue;
+     const a=base+j*cols+i,b=a+1,c=a+cols,d=c+1;
+     if(side>0)indices.push(a,b,c,b,d,c);else indices.push(a,c,b,b,c,d);
+   }
+ }
+}
+export function makeTidalDrawing(){
+ const vertices=[],indices=[];
+ addHead(vertices,indices,108,112);
+ addPaintedBody(vertices,indices);
+ return finishMesh(vertices,indices);
+}
+
 let cached;
 export function makeTidalMesh(){
- if(cached)return cached;
- const verts=[],inds=[];
- addHead(verts,inds);addBody(verts,inds);
+ if(!cached){
+   const verts=[],inds=[];
+   addHead(verts,inds);addBody(verts,inds);
+   cached=finishMesh(verts,inds);
+ }
+ return cached;
+}
+
+function finishMesh(verts,inds){
  // Vertex normals come from the same triangles the distant coda projects.
  for(let i=0;i<inds.length;i+=3){
    const a=7*inds[i],b=7*inds[i+1],c=7*inds[i+2];
@@ -239,8 +314,7 @@ export function makeTidalMesh(){
      verts[j+3]=verts[j]/r;verts[j+4]=0;verts[j+5]=verts[j+2]/r;
    }
  }
- cached={vertices:new Float32Array(verts),indices:new Uint32Array(inds),stride:28};
- return cached;
+ return {vertices:new Float32Array(verts),indices:new Uint32Array(inds),stride:28};
 }
 
 // Horizontal silhouette for the smaller window figures, sampled on the bowed

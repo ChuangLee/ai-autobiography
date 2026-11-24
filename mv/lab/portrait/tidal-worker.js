@@ -1,6 +1,6 @@
-import {makeTidalMesh} from "./tidal-mesh.js";
+import {makeTidalMesh,makeTidalDrawing} from "./tidal-mesh.js";
 
-self.onmessage=()=>{
-  const mesh=makeTidalMesh();
+self.onmessage=({data:drawing})=>{
+  const mesh=drawing?makeTidalDrawing():makeTidalMesh();
   self.postMessage(mesh,[mesh.vertices.buffer,mesh.indices.buffer]);
 };

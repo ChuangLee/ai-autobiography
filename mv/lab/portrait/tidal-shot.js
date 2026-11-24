@@ -34,8 +34,9 @@ function vocabulary(info){
 }
 export async function createTidalStage(g,atlas){
  const {device,W,H}=g,q=device.queue;
- const actor=await createTidalFigure(g,atlas,null);
- const {camera,portalUniform}=tidalCamera(tidalFacePoint);
+ const drawing=new URLSearchParams(location.search).get("figure")==="curves";
+ const actor=await createTidalFigure(g,atlas,drawing);
+ const {camera,portalUniform}=tidalCamera(tidalFacePoint,drawing);
  const buffer=uniform(device,144),data=new Float32Array(36);
  const sampler=device.createSampler({magFilter:"linear",minFilter:"linear"});
  const size=[Math.max(2,Math.ceil(W*.5)),Math.max(2,Math.ceil(H*.5))];

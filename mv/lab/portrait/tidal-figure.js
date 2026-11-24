@@ -4,7 +4,61 @@ import {TIDAL_SURFACE} from './tidal-ocean.js';
 import {tidalNod} from './tidal-mesh.js';
 export {makeTidalMesh,tidalFacePoint,tidalCheekPoint,tidalHeadRing,tidalHeadBounds,tidalWater} from './tidal-mesh.js';
 
-const actor=NOISE+TIDAL_SURFACE+`
+// The body unfolds with the lyric. The wrists trail the shoulders and head.
+// The drawing reaches its final pose before the lens starts into the cheek.
+const unfold=`
+ let t=frame.eyeTime.w;
+ let reach=1.-smoothstep(46.65,50.06,t);
+ let settle=smoothstep(48.96,50.28,t)*(1.-smoothstep(50.28,52.19,t));
+ let height=smoothstep(-1.80,-.32,p.y);
+ let wrist=(1.-smoothstep(-1.90,-.62,p.y))*smoothstep(.40,.56,abs(p.x));
+ let width=1.-.090*reach+.032*settle;
+ world.x*=width;
+ world.x+=sign(p.x)*wrist*(-.076*reach+.016*settle);
+ world.y+=height*(-.18*reach+.025*settle);
+ world.z+=height*(.052*reach-.012*settle);
+ let u=clamp((p.y+1.8)/1.48,0.,1.);
+ let dy=6.*u*(1.-u)/1.48;
+ normal=normalize(vec3f(n.x/width,(n.y-n.z*dy*(.052*reach-.012*settle))/
+            (1.+dy*(-.18*reach+.025*settle)),n.z));
+ let angle=frame.range.w*smoothstep(-.46,-.24,p.y);
+ let tilt=mat2x2f(cos(angle),sin(angle),-sin(angle),cos(angle));
+ let pivot=vec2f(-.29,-.026);
+ let turned=tilt*(world.yz-pivot)+pivot;
+ world=vec3f(world.x,turned);
+ normal=vec3f(normal.x,tilt*normal.yz);
+`;
+// Three light strokes follow the lower eyelid, the wing of the nose and the
+// lip. Their haloes grow with the camera move while the face stays in shadow.
+const faceStrokes=`
+   let gaze=smoothstep(49.38,51.98,t);
+   let eyelid=lid-.0048*arc;
+   let ink=thread(local.y-eyelid,.0019,px)+.28*bell(local.y-eyelid,.008);
+   let lowerOrbit=lid-.008-.024*arc+.004*u;
+   let cheekStroke=thread(local.y-lowerOrbit,.0042,px)*smoothstep(.043,.11,a);
+   let bridge=1.-smoothstep(.011,.042,abs(local.y+.069));
+   let wing=.017+.024*smoothstep(-.094,-.061,local.y);
+   let noseStroke=bridge*thread(a-wing,.0026,px);
+   let lowerLip=bell(a,.046)*thread(local.y-lip+.009,.0022,px);
+   color*=1.-.28*front;
+   color+=vec3f(.90,.68,.41)*front*(span*(ink*(.18+.44*gaze)*(.16+.84*arc)+.14*cheekStroke)+.13*noseStroke+.14*lowerLip);
+`;
+const fallingLight=`
+   // Cubic strokes start under the ribs and fan out as they reach the water.
+   let fall=clamp((-p.y-.94)/.91,0.,1.);
+   let a=abs(p.x);
+   var waterThreads=0.;
+   for(var j=0;j<6;j++){
+     let k=f32(j)/5.; let v=1.-fall;
+     let x0=.040+.178*k;let x1=.049+.192*k;
+     let x2=.017+.211*k;let x3=.034+.311*k;
+     let x=v*v*v*x0+3.*v*v*fall*x1+3.*v*fall*fall*x2+fall*fall*fall*x3;
+     let light=.55+.25*cos(17.*fall-1.5*t+f32(j)*2.4);
+     waterThreads+=light*(thread(a-x,.0024,px)+.17*bell(a-x,.015));
+   }
+   channels+=front*smoothstep(.04,.39,fall)*waterThreads*(1.-limb);
+`;
+const actor=(drawing)=>NOISE+TIDAL_SURFACE+`
 struct Frame{vp:mat4x4f,eyeTime:vec4f,range:vec4f}
 @group(0)@binding(0)var<uniform> frame:Frame;
 @group(0)@binding(1)var atlas:texture_2d<f32>;
@@ -12,9 +66,10 @@ struct Frame{vp:mat4x4f,eyeTime:vec4f,range:vec4f}
 struct Surface{@builtin(position) clip:vec4f,@location(0) p:vec3f,
  @location(1) n:vec3f,@location(2) @interpolate(flat) part:u32}
 @vertex fn vs(@location(0)p:vec3f,@location(1)n:vec3f,@location(2)id:f32)->Surface{
- var world=p;
+ var world=p;var normal=n;
+ ${drawing?unfold:""}
  if(frame.range.z>.5){world.y=-3.6-world.y;}
- var out:Surface;out.clip=frame.vp*vec4f(world,1.);out.p=p;out.n=n;out.part=u32(id+.5);
+ var out:Surface;out.clip=frame.vp*vec4f(world,1.);out.p=p;out.n=normal;out.part=u32(id+.5);
  return out;
 }
 fn bell(x:f32,w:f32)->f32{let d=x/w;return exp(-d*d);}
@@ -149,6 +204,7 @@ fn scripture(p:vec3f,front:f32,t:f32,px:f32)->f32{
    color*=1.-.26*span*thread(local.y-lid,.0022,px)-.32*nose-.34*mouth;
    color*=1.-.12*span*bell(local.y-lid-.014,.007);
    color+=vec3f(.078,.046,.030)*oval(local.x,local.y+.154,.052,.007)*front;
+   ${drawing?faceStrokes:""}
    faceRim=.13+.87*max(smoothstep(.103,.165,a),smoothstep(.146,.243,local.y)*.73);
    channels=.075*oval(a-.141,local.y+.073,.020,.048)*front;
    if(i.part==4u){
@@ -169,6 +225,7 @@ fn scripture(p:vec3f,front:f32,t:f32,px:f32)->f32{
  }else if(i.part==0u||i.part==2u){
    let limb=smoothstep(.40,.51,abs(p.x));
    let lines=torsoLight(p,px);channels=mix(lines.x*front,armLight(p,px)*(.27+.73*front),limb);
+   ${drawing?fallingLight:""}
    letter=scripture(p,front,t,px)*(1.-limb*.80)*(.38+.55*(1.-smoothstep(-1.76,-1.09,p.y)));
    let innerArm=smoothstep(.42,.56,abs(p.x))*max(0.,-sign(p.x)*n.x);
    let flank=bell(abs(p.x)-(.349+.072*smoothstep(-1.47,-1.0,p.y)),.046)*lobe(p.y,-1.91,-.85);
@@ -199,14 +256,14 @@ fn scripture(p:vec3f,front:f32,t:f32,px:f32)->f32{
  return vec4f(volume+rimLight,coverage);
 }`;
 
-export async function createTidalFigure(g,atlas,post){
- const {device}=g, mesh=await loadTidalMesh();
+export async function createTidalFigure(g,atlas,drawing=false){
+ const {device}=g, mesh=await loadTidalMesh(drawing);
  const upload=(arr,usage)=>{
    const buf=device.createBuffer({size:arr.byteLength,usage:usage|GPUBufferUsage.COPY_DST});
    device.queue.writeBuffer(buf,0,arr);return buf;
  };
  const vertex=upload(mesh.vertices,GPUBufferUsage.VERTEX),index=upload(mesh.indices,GPUBufferUsage.INDEX);
- const module=shader(device,actor,'月前的潮汐巨像');
+ const module=shader(device,actor(drawing),'月前的潮汐巨像');
  const layout=device.createBindGroupLayout({entries:[
    {binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{type:'uniform'}},
    {binding:1,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:'float'}},
@@ -227,7 +284,7 @@ export async function createTidalFigure(g,atlas,post){
  return {draw(pass,cam,t,mirror=false){
    if(t<=45.72)return;
    const slot=mirror?1:0;
-   data.set(cam.vp);data.set(cam.eye,16);data[19]=t;data[22]=slot;
+   data.set(cam.vp);data.set(cam.eye,16);data[19]=t;data[22]=slot;data[23]=cam.nod;
    device.queue.writeBuffer(uniforms[slot],0,data);
    pass.setPipeline(pipes[slot]);pass.setBindGroup(0,groups[slot]);
    pass.setVertexBuffer(0,vertex);pass.setIndexBuffer(index,'uint32');pass.drawIndexed(mesh.indices.length);
