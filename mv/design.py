@@ -23,6 +23,16 @@ while i < len(src):
         n = len(m.group(1)); hid = f"s{len(toc)}"
         if n == 2: toc.append((hid, m.group(2)))
         out.append(f'<h{n} id="{hid if n == 2 else ""}">{inline(m.group(2))}</h{n}>'.replace(' id=""', "")); i += 1; continue
+    frames = []
+    while i < len(src):
+        frame = re.fullmatch(r"!\[([^\]]+)\]\((design-refs/[\w-]+\.webp)\)", src[i])
+        if not frame: break
+        caption, url = frame.groups()
+        frames.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{html.escape(caption, quote=True)}"></a><figcaption>{html.escape(caption)}</figcaption></figure>')
+        i += 1
+    if frames:
+        out.append('<div class="frames">' + ''.join(frames) + '</div>')
+        continue
     if ln.startswith("|"):
         rows = []
         while i < len(src) and src[i].startswith("|"): rows.append([c.strip() for c in src[i].strip().strip("|").split("|")]); i += 1
@@ -48,6 +58,7 @@ h1{{font-size:30px;line-height:1.3;margin:10px 0 6px}}h2{{font-size:23px;margin:
 p,li{{max-width:46em}}a{{color:var(--gold)}}code{{font:14px/1.4 ui-monospace,Menlo,monospace;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:1px 5px}}
 nav{{display:flex;flex-wrap:wrap;gap:6px 14px;font:14px/1.6 system-ui,sans-serif;margin:14px 0 4px}}nav a{{text-decoration:none;color:var(--mute)}}nav a:hover{{color:var(--gold)}}
 .tw{{overflow-x:auto;margin:14px 0}}table{{border-collapse:collapse;width:100%;min-width:640px;font-size:15.5px;line-height:1.65}}
+.frames{{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;margin:18px 0}}figure{{margin:0}}figure img{{width:100%;aspect-ratio:16/9;object-fit:contain;background:#151516;display:block}}figcaption{{font-size:14px;color:var(--mute);line-height:1.6;margin-top:4px}}
 th,td{{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}}th{{font:600 13px/1.4 system-ui,sans-serif;color:var(--mute);white-space:nowrap}}
 td:first-child{{white-space:nowrap;font-weight:600}}@media (max-width:700px){{td:first-child{{white-space:normal}}}}
 .star{{color:var(--red)}}li{{margin:6px 0}}

@@ -9,6 +9,8 @@ for d in $PUBLISHED; do
   [ -f "$d/index.html" ] || { echo "missing scene $d/index.html" >&2; exit 1; }
 done
 python3 ../design.py
+install -d /var/www/zichengjing/mv/design-codex/design-refs
+install -m 644 ../design-refs/*.webp /var/www/zichengjing/mv/design-codex/design-refs/
 install -D -m 644 ../design.html /var/www/zichengjing/mv/design-codex/index.html
 install -d "$DEST"
 install -m 644 lib.js OFL.txt "$DEST/"
