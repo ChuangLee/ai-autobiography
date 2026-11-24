@@ -101,7 +101,7 @@ fn eyelids(x:f32)->vec3f{
    let pathAngle=1.10-.30*progress+.042*sin(p.y*7.);
    let lane=(meridian-pathAngle)/.058;
    let strand=floor(lane);
-   let along=(p.y+1.09)/.045+.47*strand;
+   let along=(p.y+1.09)/.045+.47*strand-.49*(t-49.);
    let idx=floor(along);
    let leftover=hash22(vec2f(strand,idx));
    let band=(1.-smoothstep(1.,3.2,abs(lane)))*smoothstep(-1.10,-.82,p.y)*(1.-smoothstep(-.35,.04,p.y));
