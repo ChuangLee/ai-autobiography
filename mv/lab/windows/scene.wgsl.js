@@ -14,7 +14,7 @@ struct U { res:vec2f, t:f32, tw:f32,
 @group(0)@binding(0) var<uniform> u:U; @group(0)@binding(1) var smp:sampler; @group(0)@binding(2) var txt:texture_2d<f32>;
 
 const CELL=40.; const FLOOR=3.4; const BAY=3.2; const HMAX=178.;
-const GOLD=vec3f(1.,.72,.3); const SILVER=vec3f(.86,.9,1.); const PAPER=vec3f(1.,.8,.46);   // lamps and screens: gold, like everything that is the new thing in this old world
+const GOLD=vec3f(1.,.83,.57); const SILVER=vec3f(.86,.9,1.); const PAPER=vec3f(1.,.8,.46);   // lamps and screens: gold, like everything that is the new thing in this old world
 const HEROF=12.;   // hero window: cell (0,0), face -z, bay 0, floor 12
 
 // x,y half extents; z height; w seed.  Cell c covers [c*40-20, c*40+20].
@@ -100,8 +100,11 @@ fn interior(o2:vec2f, dl:vec3f, h:vec3f, st:f32, hero:f32)->vec3f{
   if(u.misc3.x>.001){ let fx=.92*flip; col+=GOLD*u.misc3.x*.5*alb/(dot(q-vec3f(fx,1.2,1.6),q-vec3f(fx,1.2,1.6))+.5);
     let tf=1.62/d.z; if(tf<tr){ let p=o.xy+d.xy*tf-vec2f(fx,0.); var sd=length(p-vec2f(-.02*flip,1.57))-.1;
       sd=smin(sd,sdSeg(p,vec2f(-.17,1.36),vec2f(.17,1.36))-.075,.05); sd=smin(sd,sdSeg(p,vec2f(0.,1.3),vec2f(0.,.95))-.15,.06);
-      let rb=abs(p.x)-mix(.27,.16,clamp(p.y/1.05,0.,1.)); sd=smin(sd,max(rb,p.y-1.05),.06); sd=max(sd,-p.y+.02);
-      let gr=.45+.9*hash21(floor(p*90.)+h.xy*50.); let a=smoothstep(.02,-.03,sd); col+=GOLD*u.misc3.x*(.8*a*gr*smoothstep(-.02,.5,p.y)+.04*exp(-max(sd,0.)*9.)); } }
+      let limb=vec2f(abs(p.x),p.y);
+      sd=smin(sd,sdSeg(limb,vec2f(.084,.98),vec2f(.11,.085))-.061,.07);
+      sd=smin(sd,sdSeg(limb,vec2f(.18,1.36),vec2f(.23,.88))-.052,.04);
+      sd=smin(sd,sdSeg(p,vec2f(0.,1.39),vec2f(0.,1.51))-.048,.022);
+      let gr=.54+.36*smoothstep(-.18,.15,-p.x*flip)+.15*vnoise(p*24.+h.xy*50.); let a=smoothstep(.02,-.03,sd); col+=GOLD*u.misc3.x*(.8*a*gr*smoothstep(-.02,.5,p.y)+.04*exp(-max(sd,0.)*9.)); } }
   return col*st; }
 
 struct Fac{ col:vec3f, em:f32 }
@@ -130,6 +133,12 @@ fn facade(p:vec3f, n:vec3f, c:vec2f, b:vec4f, rd:vec3f, dist:f32, detail:bool)->
     }
   // floor lines and the wash under each sill
   wall*=1.-.35*smoothstep(.07,0.,abs(fv-.03))*smoothstep(260.,60.,dist);
+  // The jamb catches the light along its return; the sill casts one longer wash below.
+  let nearDetail=1.-smoothstep(45.,140.,dist);
+  let sillWet=smoothstep(1.15,.96,abs(fu))*exp(-abs(fv-.82)*6.);
+  wall*=1.-.27*sillWet*nearDetail;
+  let seam=abs(fract((uu+.18*fi)/1.65)-.5);
+  wall*=1.-.12*smoothstep(.014,.001,seam)*nearDetail*wash;
   if(!valid){ return wall; }
   let wq=abs(vec2f(fu,fv-1.76))-vec2f(1.02,.88); let wd=max(wq.x,wq.y);
   let lod=smoothstep(170.,70.,dist);

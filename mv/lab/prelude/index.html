@@ -1,0 +1,63 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body.credit #ly{color:#302921;text-shadow:0 0 .3em #f6eedc,0 1px 3px #f6eedc}</style>
+<title>序 · 字　《河水不回答》</title><canvas id="c"></canvas>
+<script type="module">
+import {initGPU,Post,run,shader,FS_VS,NOISE,loadAtlas,mipTexture,qn,sm,fail} from "../lib.js";
+import {buildSentence} from "../verse3/art.js";
+import {ROCK_FS} from "../river/rock.js";
+import {brush,writeInk} from "./ink.js";
+import {GIANT} from "./giant.js";
+import {PAPER} from "./paper.js";
+import {poem,peng} from "./previews.js";
+
+try{
+  const g=await initGPU(document.querySelector("canvas")), {device,W,H}=g, post=new Post(g);
+  const atlasLoad=(async()=>{
+    for(let attempt=0;;attempt++){try{return await loadAtlas(device);}catch(error){if(!(error instanceof TypeError)||attempt===2)throw error;}}
+  })();
+  const face=await new FontFace("V3Song",'url(../verse3/fonts/song.woff2)',{weight:"200 900"}).load();
+  document.fonts.add(face);
+  const sentence=buildSentence(22000), ink=mipTexture(device,writeInk()).createView();
+  const atlas=await atlasLoad, atlasView=atlas.tex.createView();
+  const scale=Math.min(1,Math.max(.25,qn("preview",Math.min(1,1440/W)))), w=Math.max(2,Math.round(W*scale)),h=Math.max(2,Math.round(H*scale));
+  const lin=device.createSampler({magFilter:"linear",minFilter:"linear",mipmapFilter:"linear"});
+  function pipeline(code,label,{vertex={},primitive,depthStencil,blend}={}){
+    const module=shader(device,code,label);
+    return device.createRenderPipeline({label,layout:"auto",vertex:{module,entryPoint:"vs",...vertex},
+      fragment:{module,entryPoint:"fs",targets:[{format:"rgba16float",blend}]},primitive,depthStencil});
+  }
+  const bind=(p,resources)=>device.createBindGroup({layout:p.getBindGroupLayout(0),entries:resources.map((resource,binding)=>({binding,resource}))});
+  const uniform=size=>device.createBuffer({size,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
+  const texture=(format,width=w,height=h)=>device.createTexture({size:[width,height],format,usage:GPUTextureUsage.TEXTURE_BINDING|GPUTextureUsage.RENDER_ATTACHMENT}).createView();
+  const write=(ub,val)=>device.queue.writeBuffer(ub,0,val instanceof Float32Array?val:new Float32Array(val));
+  const pass=(enc,view,depth)=>enc.beginRenderPass({colorAttachments:[{view,loadOp:"clear",storeOp:"store",clearValue:[0,0,0,0]}],
+    ...(depth?{depthStencilAttachment:{view:depth,depthClearValue:1,depthLoadOp:"clear",depthStoreOp:"store"}}:{})});
+  const G={w,h,lin,pipeline,bind,uniform,texture,write,pass};
+  const sceneA=texture("rgba16float"), sceneB=texture("rgba16float");
+  const giant=pipeline(GIANT,"字身"), giantU=uniform(16), giantBG=bind(giant,[{buffer:giantU},atlas.sampler,atlasView]);
+  const pool=atlas.info.groupRanges["cn-kai"][0];
+  const drawPoem=poem(g,G,atlas,sentence), drawPeng=peng(g,G);
+  const rock=pipeline(FS_VS+NOISE+ROCK_FS,"第一段的纸"), rockU=uniform(96), rockBG=bind(rock,[{buffer:rockU},atlas.sampler,atlasView]);
+  const paper=pipeline(PAPER,"落墨"), paperU=uniform(32), paperBG=bind(paper,[{buffer:paperU},lin,ink,sceneA,sceneB]);
+  const full=(enc,p,bg,target)=>{const r=pass(enc,target);r.setPipeline(p);r.setBindGroup(0,bg);r.draw(3);r.end();};
+  const scene={draw(t){
+    document.body.classList.toggle("credit",t<2.80);
+    const enc=device.createCommandEncoder();
+    if(t>=18.9){
+      write(rockU,[18.9,0,W,H,0,0,0,0]);full(enc,rock,rockBG,post.hdr);
+      post.run(enc,g.ctx.getCurrentTexture().createView(),{time:t,bloom:0,tonemap:0,bars:1,grain:.018,vignette:.22});
+      device.queue.submit([enc.finish()]);return;
+    }
+    if(t>=1.96 && t<=6.92){write(giantU,[t,w,h,pool]);full(enc,giant,giantBG,sceneA);}
+    if(t>=5.9 && t<=11.15)drawPoem(enc,sceneB,t);
+    if(t>=10.19 && t<=15.5)drawPeng(enc,sceneA,t);
+    if(t>=17.66){write(rockU,[18.9,0,w,h,0,0,0,0]);full(enc,rock,rockBG,sceneA);}
+    write(paperU,[t,W,H,0,...brush(t)]);full(enc,paper,paperBG,post.hdr);
+    const inside=sm(2.33,3.92,t)*(1-sm(14.02,15.37,t));
+    post.run(enc,g.ctx.getCurrentTexture().createView(),{time:t,bloom:.29*inside,threshold:1.05,tonemap:inside,
+      vignette:.22+.09*inside,grain:.018,bars:1});
+    device.queue.submit([enc.finish()]);
+  }};
+  await run({g,seg:[0,18.9],scene,captions:[[0,3.55,"本视频全部由 Claude 用代码生成",true]],title:"序 · 字"});
+}catch(e){fail(String(e?.stack||e));}
+</script></html>

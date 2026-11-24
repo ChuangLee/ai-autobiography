@@ -61,7 +61,10 @@ fn sealMark(q:vec2f,sz:f32,e:f32)->f32{ let b=sdBox(q,vec2f(.5))+.035*(vnoise(q*
     var m=sealMark(q2,SZ*(1.+.4*bleed),e);
     // the paste spreads: soft vermilion clouds round the square, threads running down
     let cloud=smoothstep(.75,.2,length(sq*vec2f(1.,.8))-bleed*.6+.25*(fbm(sq*4.+tt*.5)-.5))*bleed;
-    let red=max(m*(1.-.65*bleed),cloud*.75);
+    let weave=vnoise(q2*vec2f(170.,45.))*.58+vnoise(q2*vec2f(48.,167.))*.42;
+    let pressure=smoothstep(.92,1.,seal);
+    let contact=mix(smoothstep(.28,.68,weave+.13*q2.x),.86+.14*weave,pressure);
+    let red=max(m*contact*(1.-.65*bleed),cloud*.75);
     col=mix(col,mix(hx(0xc8231au),hx(0xe0452eu),vnoise(sq*20.)),sat(red)*imp*(1.-wash*.4)); }
   // ── as the water carries the print away the colours go grey, and the layer goes
   let gray=dot(col,vec3f(.3,.55,.15)); col=mix(col,mix(col,vec3f(gray)*vec3f(1.,.97,.9),.7),wash);

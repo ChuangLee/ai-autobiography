@@ -29,7 +29,7 @@ fn liftTime(i:i32,ord:f32)->f32{ return u.p[i].x+ord*.028+hash1(ord*7.13+f32(i)*
 // slots: p[0] (time since the nebula began, fade in, gather 0..1 start, -)  p[1] (pixel angle, core radius share, -, -)
 // p[2] final camera position (xyz, D)  p[3] its right×tan  p[4] its up×tan  p[5] its forward  p[6] (gather start, spread, glyph size at the line, line dim)
 export const GLYPHS = `
-struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) col:vec4f }
+struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) col:vec4f, @location(2) footprint:vec3f }
 @group(0)@binding(1) var gs:sampler; @group(0)@binding(2) var atlas:texture_2d<f32>;
 fn h1(x:f32)->f32{ return fract(sin(x*127.1+17.3)*43758.5453); }
 fn gauss(a:f32,b:f32)->f32{ return sqrt(-2.*log(max(a,1e-6)))*cos(6.2831853*b); }
@@ -55,11 +55,15 @@ fn gauss(a:f32,b:f32)->f32{ return sqrt(-2.*log(max(a,1e-6)))*cos(6.2831853*b); 
   let ang=(r4-.5)*6.28+tn*(r5-.5)*.6; let lq=rot(ang)*q*s2*.5; let wp=p+rt*lq.x+up*lq.y;
   o.pos=u.vp*vec4f(wp,1.); if(cp.w<.05){ o.pos=vec4f(2.,2.,2.,1.); }
   let core=smoothstep(u.p[1].y*.6,u.p[1].y,r)+ge; let big=1.-smoothstep(260.,700.,px);
-  let sub=min(1.,(px*px)/(ps*ps));
+  let sub=min(1.,(px*px)/(ps*ps)); o.footprint=vec3f(q,px);
   let cell=a.y; o.uv=(vec2f(cell%32.,floor(cell/32.))+.5+q*vec2f(.5,-.5)*.92)/32.;
   let tint=mix(vec3f(.78,.84,1.),vec3f(1.,.93,.82),exp(-r*.08)*.7);
   o.col=vec4f(tint*lum*u.p[0].y*sat(core)*big*sub*1.6,1.); return o; }
-@fragment fn fs(i:VO)->@location(0) vec4f{ let k=textureSample(atlas,gs,i.uv).r; return vec4f(i.col.rgb*k,0.); }
+@fragment fn fs(i:VO)->@location(0) vec4f{ let glyph=textureSample(atlas,gs,i.uv).r;
+  let r2=dot(i.footprint.xy,i.footprint.xy);
+  let unresolved=.57*exp(-2.1*r2)*(1.-smoothstep(.48,1.,r2));
+  let k=mix(unresolved,glyph,smoothstep(1.8,5.5,i.footprint.z));
+  return vec4f(i.col.rgb*k,0.); }
 `;
 
 // ── the sky: deep night with the nebula's own haze, the core; then the crack, the sentence in ice, the opening into light
@@ -95,20 +99,21 @@ fn vor(p:vec2f)->vec2f{ let n=floor(p); let f=fract(p); var d1=8.; var d2=8.; fo
     // the crack: a hair of white light with a cold glow; branches off it like lightning
     let core=smoothstep(1.3*pxs,.2*pxs,cr.x); let glow=exp(-cr.x*220.)*.25+exp(-cr.x*40.)*.025;
     let br=vor(uv*vec2f(ASP,1.)*13.+vec2f(5.,1.)); let branch=smoothstep(.02,.0,br.y)*exp(-cr.x*30.)*smoothstep(.0,.02,cr.x);
-    col+=(vec3f(.85,.93,1.)*core*5.+vec3f(.55,.7,1.)*glow*1.2+vec3f(.6,.75,1.)*branch*.35)*reach*u.p[0].w; }
+    col+=(vec3f(.85,.93,1.)*core*2.25+vec3f(.55,.7,1.)*glow*.85+vec3f(.6,.75,1.)*branch*.35)*reach*u.p[0].w; }
   // the sentence, in ice, split by the crack
   let ice=u.p[1].x; if(ice>0.){ let side=sign(uv.y-cr.y); let sp=u.p[1].y*side; let fc0=floor((uv*vec2f(ASP,1.))*38.+vor(uv*vec2f(ASP,1.)*38.).x*.0); let sh=(hash22(floor(uv*vec2f(ASP,1.)*34.+vec2f(fbm(uv*40.)*2.)))-.5)*vec2f(1./ASP,1.)*.0035; let su=uv-vec2f(0.,sp)+sh;
-    let k0=textureSampleLevel(sent,lin,su,0.).r; let k1=textureSampleLevel(sent,lin,su,1.5).r; let k2=textureSampleLevel(sent,lin,su,3.).r;
+    let lod=clamp(log2(2048./u.rt.w),0.,2.4);
+    let k0=textureSampleLevel(sent,lin,su,lod).r; let k1=textureSampleLevel(sent,lin,su,1.5).r; let k2=textureSampleLevel(sent,lin,su,3.).r;
     let ix=textureSampleLevel(sent,lin,su,0.).g*255./16.; let appear=sat(ice*16.-abs(ix-7.)*1.1-1.);
-    if(k2>.002){ let e=vec2f(1./2048.,0.); let gx=textureSampleLevel(sent,lin,su+e.xy,.5).r-textureSampleLevel(sent,lin,su-e.xy,.5).r; let gy=textureSampleLevel(sent,lin,su+e.yx*1.78,.5).r-textureSampleLevel(sent,lin,su-e.yx*1.78,.5).r;
+    if(k2>.002){ let e=vec2f(max(1./2048.,.65/u.rt.w),0.); let gx=textureSampleLevel(sent,lin,su+e.xy,lod).r-textureSampleLevel(sent,lin,su-e.xy,lod).r; let gy=textureSampleLevel(sent,lin,su+e.yx*1.78,lod).r-textureSampleLevel(sent,lin,su-e.yx*1.78,lod).r;
       let hx=textureSampleLevel(sent,lin,su+e.xy*3.,2.).r-textureSampleLevel(sent,lin,su-e.xy*3.,2.).r; let hy=textureSampleLevel(sent,lin,su+e.yx*5.3,2.).r-textureSampleLevel(sent,lin,su-e.yx*5.3,2.).r;
       let fp=su*vec2f(ASP,1.)*70.; let fac=vor(fp); let fid=hash21(floor(fp*1.3)); let facet=hash21(floor(fp+.5)+7.);
       let n=normalize(vec3f(-hx*5.+(facet-.5)*.5,-hy*5.+(hash21(floor(fp+.5))-.5)*.5,1.)); let L=normalize(vec3f(.0,sign(cr.y-uv.y)*.8,.6)); let spec=pow(max(dot(reflect(-L,n),vec3f(0.,0.,1.)),0.),40.);
       let rim=sat(length(vec2f(gx,gy))*1.6);                                               // the cut edge of every stroke
-      let inner=vec3f(.03,.07,.13)*(.5+facet)+vec3f(.35,.55,.8)*pow(facet,6.)*.5;           // dark, cold, a facet catching light here and there
-      let fract_=smoothstep(.025,.0,fac.y)*.55;                                             // fractures running through the ice
+      let inner=vec3f(.075,.14,.25)*(.65+facet)+vec3f(.31,.52,.77)*pow(facet,6.)*.4;           // dark, cold, a facet catching light here and there
+      let fract_=smoothstep(.025,.0,fac.y)*.40;                                             // fractures running through the ice
       let near=exp(-abs(uv.y-cr.y)*25.);
-      var ic=inner*k0+vec3f(.75,.88,1.)*(rim*1.3+spec*1.6*k1+fract_*k0)*(.55+.9*near);
+      var ic=inner*k0+vec3f(.69,.84,1.)*(rim*.91+spec*.78*k1+fract_*k0)*(.6+.64*near);
       let glint=step(.996,hash21(floor(fp*2.)))*k0*sin(tn*9.+facet*30.)*sin(tn*9.+facet*30.); ic+=vec3f(1.)*glint*3.;
       col=mix(col,col*.1,k1*appear)+ic*appear; } }
   // the crack opens: the jagged edges straighten into the edges of the lit screen behind it

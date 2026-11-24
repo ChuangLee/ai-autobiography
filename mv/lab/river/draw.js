@@ -1,13 +1,13 @@
 // Render shaders: the paper (and, at night, the sea and the body's dark core), and the characters.
 export const BG_FS = `
 @group(0)@binding(0) var<uniform> G:GU; @group(0)@binding(1) var samp:sampler; @group(0)@binding(2) var fieldT:texture_2d<f32>; @group(0)@binding(3) var decoT:texture_2d<f32>; @group(0)@binding(4) var atlasS:sampler; @group(0)@binding(5) var atlasT:texture_2d<f32>;
-const GOLD=vec3f(1.,.70,.30);
+const GOLD=vec3f(1.,.82,.55);
 fn sky(rd:vec3f,night:f32)->vec3f{ let day=vec3f(.905,.875,.80)*(1.+.03*rd.y); let h=exp(-abs(rd.y)*7.); let ni=mix(vec3f(.0045,.005,.0075), vec3f(.030,.033,.043), h); return mix(day,ni,night); }
 fn glyphCell(gid:f32, uv:vec2f)->f32{ if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.){ return 0.; } let cell=vec2f(gid%32., floor(gid/32.)); return textureSampleLevel(atlasT,atlasS,(cell+vec2f(uv.x,1.-uv.y))/32.,G.heads[1].w).r; }
 // the body under the characters: a statue standing in the sea, revealed from the water upward
 fn landH(xz:vec2f)->f32{ let w=fbm(xz*.012+5.); let a=1.-abs(2.*fbm(xz*.022+vec2f(3.,7.)+w)-1.); let b=1.-abs(2.*fbm(xz*.06+11.)-1.); return a*a*.75+b*b*.25*a; }
 fn core(ro:vec3f, rd:vec3f)->vec4f{ let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y); let oc=ro-(C+vec3f(0.,S*1.75,0.)); let b=dot(oc,rd); let cc=dot(oc,oc)-S*S*5.6; let h=b*b-cc; if(h<0.){ return vec4f(0.); }
-  var t=max(-b-sqrt(h),0.); let te=-b+sqrt(h); var hit=false; for(var i=0;i<72;i++){ let d=bust((ro+rd*t-C)/S)*S; if(d<.0012*t){ hit=true; break; } t+=d*.92; if(t>te){ break; } }
+  var t=max(-b-sqrt(h),0.); let te=-b+sqrt(h); var hit=false; for(var i=0;i<90;i++){ let local=(ro+rd*t-C)/S; let d=bust(local)*S; if(d<max(.006,.00024*t)){ hit=true; break; } t+=d*mix(.90,.53,smoothstep(2.45,2.8,local.y)); if(t>te){ break; } }
   if(!hit){ return vec4f(0.); } let p=ro+rd*t; let q=(p-C)/S; let rev=1.-smoothstep(G.m3.w-S*.22, G.m3.w, abs(p.y)); if(rev<=0.){ return vec4f(0.); }
   return vec4f(statueCol(q,bustN(q),rd,G.cam.w)*G.heads[2].w, rev); }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
@@ -19,7 +19,7 @@ fn core(ro:vec3f, rd:vec3f)->vec4f{ let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.
   var mtn=0.; if(G.heads[4].w>0.){ let az=atan2(rd.x,rd.z); let azF=atan2(G.fig.x-ro.x,G.fig.y-ro.z); let da=az-azF;
     for(var l=0;l<3;l++){ let fl=f32(l); let hgt=(.03+.05*fl)*(.4+1.7*fbm(vec2f(az*(11.-2.*fl)+fl*7.,fl*3.)))*smoothstep(.09+.05*fl,.36+.1*fl,abs(da));
       let m=smoothstep(hgt,hgt-.004,rd.y)*step(-.004,rd.y); let edge=smoothstep(.012,.0,abs(rd.y-hgt))*G.m1.x*G.m3.w/(G.fig.z*3.1);
-      col=mix(col, (vec3f(.011,.012,.015)*(1.+fl*.8)+GOLD*.012*G.m1.x*smoothstep(1.1,.2,abs(da)))*(.55+.45*smoothstep(hgt-.05,hgt,rd.y)), m*G.heads[4].w); col+=GOLD*.035*edge*smoothstep(.9,.15,abs(da))*G.heads[4].w; mtn=max(mtn,m); } }
+      col=mix(col, (vec3f(.011,.012,.015)*(1.+fl*.8)+GOLD*.042*G.m1.x*smoothstep(1.1,.2,abs(da)))*(.55+.45*smoothstep(hgt-.05,hgt,rd.y)), m*G.heads[4].w*smoothstep(0.,.028,rd.y)); col+=GOLD*.12*edge*smoothstep(.9,.15,abs(da))*G.heads[4].w; mtn=max(mtn,m); } }
   if(rd.y<-1e-4){ let tt=-ro.y/rd.y; let P=ro+rd*tt; let xz=P.xz; let uv=(xz-vec2f(-32.,-6.))/vec2f(64.,256.);
     let det=exp(-tt*.012);
     // xuan paper: cloudy sizing, long fibres, flecks
@@ -46,10 +46,13 @@ fn core(ro:vec3f, rd:vec3f)->vec4f{ let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.
       if(G.m1.x>0.){ let cr=core(P+vec3f(0.,.02,0.),rr); refl=mix(refl,cr.rgb*fres,cr.a*.9); let S=G.fig.z; let dx=(xz.x-G.fig.x)/S; let dz=(G.fig.y-xz.y)/S;
         refl+=GOLD*.10*G.m1.x*G.m3.w/(S*3.6)*exp(-dx*dx*3.)*exp(-max(dz,0.)*.30)*(.6+.8*vnoise(vec2f(xz.x*.6,xz.y*.12-t*.3))); }
       { let dx=(xz.x-G.fig.x)/G.fig.z; let dz=(G.fig.y-xz.y)/G.fig.z; refl+=vec3f(.10,.105,.12)*G.heads[4].z*exp(-dx*dx*9.)*exp(-max(dz-.3,0.)*.7)*smoothstep(-.4,.3,dz)*(.4+.9*vnoise(vec2f(xz.x*.5,xz.y*.10-t*.2))); }
+      let ribbon=sin(xz.y*2.1+t*.44+1.7*vnoise(xz*vec2f(.8,.17))+.54*xz.x);
+      let ripples=smoothstep(.58,.96,ribbon)*(.35+.65*vnoise(xz*vec2f(.42,.13)));
+      ni+=vec3f(.017,.019,.024)*ripples*(1.-smoothstep(45.,155.,tt))*smoothstep(-.05,.12,rd.y+.16);
       ni=mix(ni, ni*.5+refl, sea); }
     var c=mix(day,ni,night);
     let fog=1.-exp(-tt*mix(.0016,.0045,night)); col=mix(c, sky(vec3f(rd.x,0.,rd.z),night), fog);
-  } else if(G.m1.x>0.&&mtn<.5){ let cr=core(ro,rd); col=mix(col, vec3f(.0035,.0038,.005)+cr.rgb, cr.a); }
+  } else if(G.m1.x>0.){ let cr=core(ro,rd); col=mix(col, vec3f(.0035,.0038,.005)+cr.rgb, cr.a*(1.-mtn*smoothstep(.0,.06,rd.y))); }
   if(rd.y>=-1e-4){ } else if(G.m1.x>0.){ let cr=core(ro,rd); if(cr.a>0.){ col=mix(col, vec3f(.0035,.0038,.005)+cr.rgb, cr.a); } }
   if(G.heads[4].w>0.&&rd.y>0.&&mtn<.5){ let dF=length(vec2f(G.fig.x-ro.x,G.fig.y-ro.z)); let yb=ro.y+rd.y*dF/max(length(rd.xz),.05); let S=G.fig.z; let az=atan2(rd.x,rd.z);   // cloud bands at the height of its chest
     let band=exp(-pow((yb-S*1.45)/(S*.16),2.))*smoothstep(.35,.7,fbm(vec2f(az*7.-t*.012,yb*.05)))+.8*exp(-pow((yb-S*1.05)/(S*.11),2.))*smoothstep(.35,.7,fbm(vec2f(az*5.+t*.01+3.,yb*.06)));
@@ -67,7 +70,11 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cel
   let r1=rf(ii*5u+1u); let r2=rf(ii*11u+2u); let night=G.fwd.w; let th=G.right.w; let t=G.cam.w;
   let isObj=step(rf(ii*37u+13u),.11)*(1.-fig); var size=mix(G.pr.x*mix(1.,3.2,smoothstep(.6,.95,G.fwd.w)),G.fig.w,fig)*(.72+.6*r1)*(1.+1.7*isObj);
   let coc=G.pr.z*abs(vz-G.pr.y)/G.pr.y; let blur=min(coc/size,4.); var a=p.ex.x/(1.+blur*blur*1.2); size*=1.+blur;
-  let ppu=G.m2.y/(2.*th*vz); let px=size*ppu; if(px<1.4){ a*=(px/1.4)*(px/1.4); size=1.4/ppu; }
+  let ppu=G.m2.y/(2.*th*vz);
+  // Close flotsam stays within the scale of the bank. At reduced density a
+  // single enlarged inscription used to cover the whole person and horizon.
+  if(fig<.5 && night>.65){size=min(size,(.054+.026*isObj)*G.m2.y/ppu);}
+  let px=size*ppu; if(px<1.4){ a*=(px/1.4)*(px/1.4); size=1.4/ppu; }
   let cs=array<vec2f,6>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(1.,1.),vec2f(-1.,-1.),vec2f(1.,1.),vec2f(-1.,1.)); let c=cs[vi];
   let ang=(r2-.5)*.45+.07*sin(t*.9+r1*50.)+fig*.25*sin(t*.6+r2*30.); let ca=cos(ang); let sa=sin(ang);
   let off=vec2f(c.x*ca-c.y*sa, c.x*sa+c.y*ca)*size*.5/.78;
@@ -82,8 +89,9 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) cel
   let gold=p.ex.z;
   let far=1.-smoothstep(G.pr.y*1.6,G.pr.y*5.5,vz);
   o.ink=a*(1.-smoothstep(.5,.82,night))*(1.-fig)*.93*far;
-  let silver=vec3f(.72,.76,.86)*smoothstep(.62,.95,night)*.075*(.5+1.*r2)*far*step(rf(ii*43u+17u),.22);
-  var li=mix(silver, vec3f(1.,.66,.25)*p.ex.y*G.m1.w, gold)*a; if(flip<0.){ li*=.22*exp(-wp.y*-.012); }
+  let nearGlyph=step(rf(ii*43u+17u),.045);
+  let silver=vec3f(.72,.76,.86)*smoothstep(.62,.95,night)*(.042+.22*nearGlyph)*(.5+1.*r2)*far*step(rf(ii*43u+17u),.22);
+  var li=mix(silver, vec3f(1.,.82,.57)*p.ex.y*G.m1.w, gold)*a; if(flip<0.){ li*=.22*exp(-wp.y*-.012); }
   o.light=li; return o; }
 fn inkAt(i:VO)->f32{ let g=textureSampleBias(atlas,samp,(i.cell+i.uv)/32.,i.bias).r; let ob=textureSampleBias(objT,samp,(i.cell+i.uv)/4.,i.bias).a; return mix(g,ob,i.obj); }
 @fragment fn fsInk(i:VO)->@location(0) vec4f{ return vec4f(vec3f(inkAt(i)*i.ink),1.); }

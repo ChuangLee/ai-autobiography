@@ -23,15 +23,25 @@ const wsBase = await new Promise((ok, no) => { let b = ""; chrome.stderr.on("dat
 const dbg = new URL(wsBase).port, url = `http://127.0.0.1:${port}/mv/lab/${scene}/?res=${res}&t=${times[0]}${extra ? "&" + extra : ""}`;
 const tab = await (await fetch(`http://127.0.0.1:${dbg}/json/new?${encodeURIComponent("about:blank")}`, { method: "PUT" })).json();
 const ws = new WebSocket(tab.webSocketDebuggerUrl); await new Promise((r) => ws.addEventListener("open", r));
-let seq = 0; const waiters = new Map();
+let seq = 0, pageError = ""; const waiters = new Map();
 ws.addEventListener("message", (e) => { const m = JSON.parse(e.data); if (m.id && waiters.has(m.id)) { waiters.get(m.id)(m); waiters.delete(m.id); }
   if (m.method === "Runtime.consoleAPICalled") console.log("[page]", m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 2000));
-  if (m.method === "Runtime.exceptionThrown") console.log("[exception]", (m.params.exceptionDetails.exception?.description || m.params.exceptionDetails.text || "").slice(0, 2000)); });
+  if (m.method === "Runtime.exceptionThrown") { pageError = (m.params.exceptionDetails.exception?.description || m.params.exceptionDetails.text || "page exception").slice(0, 2000); console.error("[exception]", pageError); } });
 const send = (method, params = {}) => new Promise((r) => { const id = ++seq; waiters.set(id, r); ws.send(JSON.stringify({ id, method, params })); });
 const ev = async (expression) => { const m = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true }); if (m.result?.exceptionDetails) throw new Error(JSON.stringify(m.result.exceptionDetails).slice(0, 600)); return m.result.result.value; };
 await send("Runtime.enable"); await send("Page.enable"); await send("Emulation.setDeviceMetricsOverride", { width: W, height: H, deviceScaleFactor: 1, mobile: false }); await send("Page.navigate", { url });
 await mkdir(out, { recursive: true }); const t00 = Date.now();
-try { for (let k = 0; k < 600; k++) { const s = await ev("document.title + '|' + (window.__err||'')"); if (s.startsWith("ready")) break; if (s.split("|")[1]) { console.log("[error]", s.split("|").slice(1).join("|")); break; } await new Promise((r) => setTimeout(r, 500)); }
-  for (const t of times) { const r = await ev(`window.__at ? window.__at(${t}) : 'no __at'`); if (r !== "ok") console.log("[at " + t + "]", r);
+try {
+  let ready = false;
+  for (let k = 0; k < 600; k++) {
+    const state = await ev("({ready: document.title === 'ready', error: window.__err || ''})");
+    if (state.error || pageError) throw Error(state.error || pageError);
+    if (state.ready) { ready = true; break; }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  if (!ready) throw Error("Scene never reached its ready frame");
+  for (const t of times) {
+    const r = await ev(`window.__at(${t})`);
+    if (r !== "ok" || pageError) throw Error(pageError || r);
     const shot = await send("Page.captureScreenshot", { format: "png" }); const f = path.join(out, `${scene.replace(/\//g, "_")}-${String(t).replace(".", "_")}.png`); await writeFile(f, Buffer.from(shot.result.data, "base64")); console.log(f, ((Date.now() - t00) / 1000).toFixed(1) + "s"); }
 } finally { cleanup(); server.close(); await rm(profile, { recursive: true, force: true }).catch(() => {}); }

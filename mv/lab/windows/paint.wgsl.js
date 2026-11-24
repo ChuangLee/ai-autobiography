@@ -19,15 +19,33 @@ fn swellV(x:f32)->f32{ return q.c.x*exp(-(x+.75)*(x+.75)/.3); }
 
 // ───────── the print ─────────
 fn seaY(x:f32)->f32{ let t=q.t; let w=q.a.w; return -.42+.032*sin(x*2.7+t*.55)+.02*sin(x*6.1-t*.8+1.)+.008*sin(x*13.+t*1.1)+.085*w*exp(-(x-1.2)*(x-1.2)/.12)+.045*w*exp(-(x-.62)*(x-.62)/.03)+swellV(x)*(1.-smoothstep(0.,.5,w)); }
-// a hooked horn: a disc with a larger disc bitten out of it; the bite leaves a tip that points forward and inward
-fn claw(p:vec2f, cc:vec2f, f:vec2f, o:vec2f, s:f32)->f32{ let d=p-cc; let l=vec2f(dot(d,f),dot(d,o)); return max(length(l)-s,-(length(l-vec2f(-.58*s,-.62*s))-s*1.06)); }
+// A taper cut with a curved knife. The broad root joins the paper reserve;
+ // the pointed end turns back down towards the sea.
+fn claw(p:vec2f, cc:vec2f, f:vec2f, o:vec2f, s:f32)->f32{
+  let d=p-cc;
+  let q=vec2f(dot(d,f),dot(d,o))/s;
+  if(dot(q,q)>4.){return (length(q)-1.4)*s;}
+  var a=vec2f(-.48,-.35);
+  var width=.47;
+  var dist=2.;
+  for(var j=1;j<=5;j++){
+    let t=f32(j)*.2;
+    let b=vec2f(-.48+1.54*t,.94*sin(t*2.62)-.35-.29*t*t);
+    let end=.014+.45*(1.-t)*(1.-.50*t);
+    let ab=b-a;
+    let u=clamp(dot(q-a,ab)/dot(ab,ab),0.,1.);
+    dist=min(dist,length(q-a-u*ab)-mix(width,end,u));
+    a=b; width=end;
+  }
+  return dist*s;
+}
 fn rot(v:vec2f, a:f32)->vec2f{ let c=cos(a); let s=sin(a); return vec2f(v.x*c-v.y*s,v.x*s+v.y*c); }
 // claws fringed with claws, two generations down
 fn clawTree(p:vec2f, cc:vec2f, f:vec2f, o:vec2f, s:f32, seed:f32)->f32{ var d=claw(p,cc,f,o,s);
   if(length(p-cc)>s*2.1){ return d; }
-  for(var j=0;j<3;j++){ let fj=f32(j); let ph=-.55+.75*fj+.3*(hash11(seed+fj*3.3)-.5); let dir=f*cos(ph)+o*sin(ph); let s1=s*(.34+.16*hash11(seed*1.7+fj)); let c1=cc+dir*s*.97;
+  for(var j=0;j<3;j++){ let fj=f32(j); let ph=-.55+.75*fj+.3*(hash11(seed+fj*3.3)-.5); let dir=f*cos(ph)+o*sin(ph); let s1=s*(.34+.16*hash11(seed*1.7+fj)); let c1=cc+dir*s*.48+o*s*.22;
     let f1=rot(f,ph-.5); let o1=vec2f(-f1.y,f1.x)*sign(f.x*o.y-f.y*o.x); d=min(d,claw(p,c1,f1,o1,s1));
-    for(var m=0;m<2;m++){ let fm=f32(m); let ph2=-.4+.9*fm; let dir2=f1*cos(ph2)+o1*sin(ph2); d=min(d,claw(p,c1+dir2*s1*.97,rot(f1,(ph2-.5)*sign(f.x*o.y-f.y*o.x)),o1,s1*.4)); } }
+    for(var m=0;m<2;m++){ let fm=f32(m); let ph2=-.4+.9*fm; let dir2=f1*cos(ph2)+o1*sin(ph2); d=min(d,claw(p,c1+dir2*s1*.59+o1*s1*.21,rot(f1,(ph2-.5)*sign(f.x*o.y-f.y*o.x)),o1,s1*.4)); } }
   return d; }
 // colour (rgb) and distance to the nearest drawn contour (a)
 fn pr(p:vec2f)->vec4f{ let t=q.t; let w=q.a.w; let brk=q.b.w; let calm=q.b.z;
@@ -58,13 +76,16 @@ fn pr(p:vec2f)->vec4f{ let t=q.t; let w=q.a.w; let brk=q.b.w; let calm=q.b.z;
   if(w>.05){ let da=.2; let k0=floor(a/da);
     for(var i=-1;i<=1;i++){ let kk=k0+f32(i); let ac=(kk+.5+.3*(hash11(kk*5.1)-.5))*da; if(ac<aEnd-.1 || ac>aEnd+2.0){ continue; } let nr=smoothstep(aEnd+2.0,aEnd+.1,ac); let er=vec2f(cos(ac-rotb),sin(ac-rotb)); let fw=vec2f(er.y,-er.x);
       let Rc=R*(1.+.03*sin(ac*5.+t*.4)+.05*smoothstep(.6,1.7,ac)*smoothstep(2.6,1.7,ac)); let s1=R*(.035+.085*nr)*(.6+.8*hash11(kk*3.7))*(1.+.5*brk);
-      let c1=clawTree(p,C+er*(Rc+s1*.15),fw,er,s1,kk); if(c1<0.){ c=WHITE; } line=min(line,abs(c1));
+      let c1=clawTree(p,C+er*(Rc+s1*.15),fw,er,s1,kk); if(c1<0.){ c=WHITE; } if(arm>.0){line=min(line,abs(c1));}
       if(ac<aEnd+1.0){ let Ric=R*mix(.8,.34,pow(smoothstep(aEnd,aSolid,ac),1.3))*(1.-.4*brk); let s2=R*(.03+.085*nr*nr)*(.6+.8*hash11(kk*9.1));
-        let c2=clawTree(p,C+er*(Ric-s2*.15),fw,-er,s2,kk+40.); if(c2<0.){ c=WHITE; } line=min(line,abs(c2)); } }
+        let c2=clawTree(p,C+er*(Ric-s2*.15),fw,-er,s2,kk+40.); if(c2<0.){ c=WHITE; } if(arm>.0){line=min(line,abs(c2));} } }
     // drops flung off the lip like snow: bare paper in two sizes
     let tip=C+Ro*vec2f(cos(aEnd-rotb),sin(aEnd-rotb)); let dt=length((p-tip-vec2f(.12,.1)*R)*vec2f(1.,1.15))/R;
     for(var g=0;g<2;g++){ let sg=mix(.06,.034,f32(g)); let sc=floor(p/sg+f32(g)*7.); let sh=hash22(sc+7.+f32(g)*3.); let sd=length(p-(sc-f32(g)*7.+.2+.6*sh)*sg)-sg*(.1+.16*sh.x);
-      let dens=smoothstep(.5+.3*brk,.06,dt)*smoothstep(.45,1.,w)*(.75+.25*brk); if(sd<0. && sh.y<dens && arm>.01){ c=WHITE; line=min(line,abs(sd)*1.4); } } }
+      let dens=smoothstep(.5+.3*brk,.06,dt)*smoothstep(.45,1.,w)*(.75+.25*brk); if(sh.y<dens*.56 && arm>.015){
+        let width=1.6/q.res.y;
+        c=mix(c,WHITE,1.-smoothstep(-width,width,sd));
+      } } }
   // the sea, low in the picture: bands, small caps, and after the break a lace of foam
   let sy=seaY(p.x); if(p.y<sy){ let dp=sy-p.y; line=1e3; var sc2=mix(BLUE,BLUE*.72,smoothstep(0.,.5,dp));
     let band=sin((dp-.03*sin(p.x*4.3+t*.5)-.045*fbm(p*vec2f(1.6,5.)+vec2f(t*.05,0.)))*(42.+10.*sin(p.x*1.7))+sin(p.x*2.3)*2.+3.*fbm(p*2.2));
@@ -77,7 +98,10 @@ fn pr(p:vec2f)->vec4f{ let t=q.t; let w=q.a.w; let brk=q.b.w; let calm=q.b.z;
     c=sc2; line=min(line,abs(dp)*.8); line=min(line,abs(band-.58)*.03+.03*smoothstep(.02,.3,dp)); }
   return vec4f(c,line); }
 fn printAt(p:vec2f)->vec3f{ let off=vec2f(.0035,-.0025); let a=pr(p+off); let b=pr(p);           // the colour blocks sit a hair off the key block
-  var c=a.rgb; let lw=.0036*(.55+.9*vnoise(p*19.))*(1.+.5*vnoise(p*3.)); c=mix(c,vec3f(.04,.08,.2),smoothstep(lw,lw*.3,b.a));
+  // Medium blue over the paler block, deep indigo where the key block meets it.
+  let deposit=smoothstep(.68,.17,a.rgb.r)*(.42+.44*vnoise(p*vec2f(16.,4.)));
+  var c=mix(a.rgb,a.rgb*vec3f(.71,.85,.92),deposit);
+  let lw=.0036*(.55+.9*vnoise(p*19.))*(1.+.5*vnoise(p*3.)); c=mix(c,vec3f(.04,.08,.2),smoothstep(lw,lw*.3,b.a));
   // paper: long fibres, tooth, and the grain of the block where the ink sits thin
   let fib=vnoise(vec2f(p.x*9.+3.*vnoise(p*2.),p.y*260.))*vnoise(p*vec2f(300.,14.)); c*=.93+.1*fib+.05*(vnoise(p*120.)-.5);
   c=mix(c,vec3f(.86,.82,.7),.07*smoothstep(.45,.8,vnoise(p*vec2f(6.,90.))));
@@ -116,7 +140,8 @@ fn dashes(p:vec2f, c0:vec3f)->vec3f{ var c=c0; let H=hz(); let t=q.t; let arr=q.
     if(kr<1.){ c=mix(c,vec3f(1.,.95,.62)*(1.+.2*dd.y/dr),keep); continue; }
     let n=5.+4.*kr; let u=fract(ph/6.2832*n+hash11(kr*3.+f32(i))); let rl=kf-kr;
     if(u<.64 && abs(rl)<.33){ var rc=vec3f(1.,.98,.8); if(kr>1.5){ rc=vec3f(.99,.86,.42); } if(kr>2.5){ rc=vec3f(.74,.87,.62); } if(kr>3.5){ rc=vec3f(.45,.72,.64); } if(kr>4.5){ rc=vec3f(.25,.52,.58); }
-      rc*=(1.+.5*rl)*(.9+.2*vnoise(vec2f(u*9.,kr+f32(i)))); c=mix(c,rc,keep*smoothstep(6.3,4.5,kf)*select(fade,1.,kr<4. || i!=0)); } }
+      rc*=(1.+.5*rl)*(.9+.2*vnoise(vec2f(u*9.,kr+f32(i)))); let tip=smoothstep(0.,.085,u)*(1.-smoothstep(.54,.64,u));
+      c=mix(c,rc,tip*(1.-smoothstep(.20,.33,abs(rl)))*keep*smoothstep(6.3,4.5,kf)*select(fade,1.,kr<4. || i!=0)); } }
   for(var i=0;i<9;i++){ let fi=f32(i); let lx=lampX(i); let on=select(arr,1.,i==4)*fade;
     let ld=p-vec2f(lx,H+.022); let lr=length(ld*vec2f(1.,1.2)); if(lr<.016){ c=mix(c,vec3f(1.,.8,.3)*(1.+8.*ld.y),on*select(arr,1.,true)); }
     else if(lr<.05 && p.y>H){ let u=fract(atan2(ld.y,ld.x)/6.2832*7.+fi*.3); if(u<.55 && abs(lr-.032)<.008){ c=mix(c,vec3f(.98,.6,.16),on); } }

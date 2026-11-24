@@ -20,7 +20,7 @@ fn pose(a:vec4f,b:vec4f,c:vec4f,d:vec4f,t:f32)->Pose{ var o=Pose(vec3f(0.),0.,ve
     ang=mix(b.z,d.z,em)+wake*.03*sin(t*40.+seed); o.lift=sin(3.14159*m); }
   else { let k=sat((t-u.p[0].z-r1*.6)/.7); let ek=k*k*(3.-2.*k); if(abs(b.y)<.075&&abs(b.x)<.4){ let tz=sign(b.y+1e-4)*(.085+abs(b.y)*.6+r2*.04); p.z=mix(b.y,tz,ek); ang+=ek*(r3-.5)*.4; } }
   // the water: what floats drifts a little with it
-  let wt=t-wetTime(p.xz); if(wt>0.){ p.x+=.018*wt+.006*sin(wt*2.+seed); p.z+=.006*sin(wt*1.7+seed*3.); ang+=.05*wt*(r2-.5); }
+  let wt=t-wetTime(p.xz); if(wt>0.){ let wet=smoothstep(0.,.24,wt); p.x+=.018*wt+.006*wet*sin(wt*2.+seed); p.z+=.006*wet*sin(wt*1.7+seed*3.); o.tilt=vec2f(r2-.5,r3-.5)*.32*wet*exp(-wt*2.); ang+=.05*wt*(r2-.5); }
   o.p=p; o.ang=ang; return o; }
 fn corner(o:Pose,q:vec2f,hw:vec2f)->vec3f{ var l=vec3f(q.x*hw.x,0.,q.y*hw.y); let ca=cos(o.tilt.x); let sa=sin(o.tilt.x); l=vec3f(l.x,l.y*ca-l.z*sa,l.y*sa+l.z*ca);
   let cb=cos(o.tilt.y); let sb=sin(o.tilt.y); l=vec3f(l.x*cb-l.y*sb,l.x*sb+l.y*cb,l.z); let r=rot(o.ang)*l.xz; return o.p+vec3f(r.x,l.y,r.y); }
@@ -34,7 +34,7 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) w:v
   let e1=corner(ps,vec2f(1.,0.),hw)-corner(ps,vec2f(-1.,0.),hw); let e2=corner(ps,vec2f(0.,1.),hw)-corner(ps,vec2f(0.,-1.),hw); o.n=normalize(cross(e2,e1));
   let cell=a.x; let cc=vec2f(cell%8.,floor(cell/8.))+.5; var qq=q; if(c.y>.5){ qq.x=-qq.x; } o.uv=(cc*256.+qq*(vec2f(a.y,a.z)*.5+6.))/2048.;
   o.f=vec4f(c.y,a.w,ps.lift,c.x); return o; }
-@fragment fn fs(i:VO)->@location(0) vec4f{ let t=u.ro.w; let s0=textureSampleLevel(atl,lin,i.uv,0.); if(s0.a<.5){ discard; }
+@fragment fn fs(i:VO)->@location(0) vec4f{ let t=u.ro.w; let s0=textureSample(atl,lin,i.uv); if(s0.a<.5){ discard; }
   let wt=t-wetTime(i.w.xz); let w=sat(wt/1.1);
   var alb=lin3(s0.rgb);
   if(w>0.){ let dsp=vec2f(fbm(i.w.xz*60.+t*.3),fbm(i.w.xz*60.+7.-t*.2))-.5; let bl=textureSampleLevel(atl,lin,i.uv+dsp*w*.006,w*4.); let base=lin3(textureSampleLevel(atl,lin,i.uv,6.).rgb);
@@ -63,8 +63,10 @@ export const TABLE = `
   return vec4f(lin3(alb)*e*1.15,u.fw.w); }
 `;
 export const WATER = `
+@group(0)@binding(1) var lin:sampler; @group(0)@binding(2) var tabletop:texture_2d<f32>;
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{ let rd=rayDir(fc.xy); let t=u.ro.w; let tp=(.003-u.ro.y)/rd.y; let p=u.ro.xyz+rd*tp; let x=p.xz;
-  let wt=t-wetTime(x); if(wt<0.){ return vec4f(0.); }
+  let uv=fc.xy/vec2f(u.rt.w,u.up.w); let wt=t-wetTime(x);
+  if(wt<=0.){ return textureSampleLevel(tabletop,lin,uv,0.); }
   // a thin sheet of water: slow ripples; a window's light in it; a bright rim where it is still arriving
   let fl=vec2f(t*.05,0.); let e=.0015;
   let h=fbm(x*34.-fl*8.)*.7+fbm(x*95.+fl*20.)*.3; let hx=fbm((x+vec2f(e,0.))*34.-fl*8.)*.7+fbm((x+vec2f(e,0.))*95.+fl*20.)*.3-h; let hz=fbm((x+vec2f(0.,e))*34.-fl*8.)*.7+fbm((x+vec2f(0.,e))*95.+fl*20.)*.3-h;
@@ -77,5 +79,12 @@ export const WATER = `
   var A=mix(.14+.1*fr+.2*edge,1.,pale); var C=mix(vec3f(.2,.21,.2),vec3f(.84,.855,.845)*(.97+.06*fbm(x*5.)),pale);
   C=mix(C,vec3f(.34,.35,.35),ink*.8); A=max(A,ink*.75);
   C+=(vec3f(1.,1.,.97)*win*(1.-pale*.8)+vec3f(1.)*rim*.9)/max(A,.15); A=max(A,rim*.5);
-  return vec4f(C,min(A,1.)*u.fw.w); }
+  // Trace a transmitted ray through the growing film to the printed surface.
+  let depth=.012*smoothstep(0.,.38,wt);
+  let through=refract(rd,n,1./1.333);
+  let delta=(through.xz/max(-through.y,.05)-rd.xz/max(-rd.y,.05))*depth;
+  let proj=u.vp*vec4f(p+vec3f(delta.x,0.,delta.y),1.);
+  let beneath=textureSampleLevel(tabletop,lin,proj.xy/proj.w*vec2f(.5,-.5)+.5,0.).rgb;
+  let cover=smoothstep(0.,.024,wt);
+  return vec4f(mix(beneath,C,min(A,1.)*cover),1.); }
 `;

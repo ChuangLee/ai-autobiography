@@ -56,12 +56,14 @@ export function buildWorld(GX, GZ, info) { const psi0 = new Float32Array(GX * GZ
   // characters: where each one is when the picture starts. Family k = (i*37)%100 → 13/13/30/28/16 %, as in the shader
   const tribOf = (i) => { const m = (i * 37) % 100; return m < 13 ? 0 : m < 26 ? 1 : m < 56 ? 2 : m < 84 ? 3 : 4; }, cum = [0, .13, .26, .56, .84, 1];
   function particles(N, reserve) { const a = new Float32Array(N * 12);
+    let seed = 0x5f3759df;
+    const random = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296;
     for (let i = 0; i < N; i++) { const o = i * 12, k = tribOf(i); let x = 0, z = 0, y = 0, kind = 0, seaT = 0;
       if (((i * 53) % 1000) / 1000 < reserve) { kind = 2; x = FIG.x; z = FIG.z - 20; y = -1; }
-      else for (let n = 0; n < 60; n++) { z = TR[k].z0 + 1 + Math.random() * (MOUTH + 16 - TR[k].z0 - 1); const r = rel(z); if (Math.random() > .55 / Math.max(r, .2)) continue;
-        if (z > MOUTH) { x = cxf(MOUTH) + (Math.random() * 2 - 1) * hwm(z) * .95; seaT = (z - MOUTH) / 16 * 4.5; break; }   // some are already in the sea, so the heads are fed from the first second
-        const lo = cum[k] * 2 - 1, hi = cum[k + 1] * 2 - 1, u = Math.random(), xt = xk(k, z) + (u * 2 - 1) * Math.max(0, hwk(k, z)), H = Math.max(0, hwm(z)), xm = cxf(z) + (lo + (hi - lo) * u + (Math.random() - .5) * .25 * sm(100, 190, z)) * H * .97, m = sm(62, 84, z);
+      else for (let n = 0; n < 60; n++) { z = TR[k].z0 + 1 + random() * (MOUTH + 16 - TR[k].z0 - 1); const r = rel(z); if (random() > .55 / Math.max(r, .2)) continue;
+        if (z > MOUTH) { x = cxf(MOUTH) + (random() * 2 - 1) * hwm(z) * .95; seaT = (z - MOUTH) / 16 * 4.5; break; }   // some are already in the sea, so the heads are fed from the first second
+        const lo = cum[k] * 2 - 1, hi = cum[k + 1] * 2 - 1, u = random(), xt = xk(k, z) + (u * 2 - 1) * Math.max(0, hwk(k, z)), H = Math.max(0, hwm(z)), xm = cxf(z) + (lo + (hi - lo) * u + (random() - .5) * .25 * sm(100, 190, z)) * H * .97, m = sm(62, 84, z);
         x = xt * (1 - m) + xm * m; if (f(x, z) > .18) break; }
-      a[o] = x; a[o + 1] = y; a[o + 2] = z; a[o + 3] = 2 + Math.random() * 20; a[o + 5] = seaT; a[o + 7] = kind; a[o + 8] = kind ? 0 : 1; }
+      a[o] = x; a[o + 1] = y; a[o + 2] = z; a[o + 3] = 2 + random() * 20; a[o + 5] = seaT; a[o + 7] = kind; a[o + 8] = kind ? 0 : 1; }
     return a; }
   return { field, deco, lists, heads, particles, psi0 }; }

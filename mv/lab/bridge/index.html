@@ -1,0 +1,60 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body.bridge-paper #nt{color:#514b3f;text-shadow:0 1px 3px #f3eddf;opacity:.9}</style>
+<title>桥段 · 匆匆</title><canvas id="c"></canvas>
+<script type="module">
+import { initGPU, shader, run, fail } from '../lib.js';
+import { Drawing, orchard, afterimages } from './drawing.js';
+import { walker, embrace } from './people.js';
+import { BACKGROUND, FIGURES, PETALS, INK } from './style.js';
+try {
+  const g=await initGPU(document.getElementById('c')), device=g.device;
+  const uniform=device.createBuffer({size:16,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
+  const layout=device.createBindGroupLayout({entries:[{binding:0,visibility:GPUShaderStage.VERTEX|GPUShaderStage.FRAGMENT,buffer:{}}]});
+  const binding=device.createBindGroup({layout,entries:[{binding:0,resource:{buffer:uniform}}]});
+  const pipelineLayout=device.createPipelineLayout({bindGroupLayouts:[layout]});
+  const blend={color:{srcFactor:'src-alpha',dstFactor:'one-minus-src-alpha'},alpha:{srcFactor:'one',dstFactor:'one-minus-src-alpha'}};
+  function pipeline(label,code,buffers=[]){
+    const module=shader(device,code,label);
+    return device.createRenderPipeline({label,layout:pipelineLayout,vertex:{module,entryPoint:'vs',buffers},
+      fragment:{module,entryPoint:'fs',targets:[{format:g.format,blend}]},multisample:{count:4}});
+  }
+  const ground=pipeline('桥段·云与草坡',BACKGROUND);
+  const paint=pipeline('桥段·树枝与人物',FIGURES,[{arrayStride:16,attributes:[
+    {shaderLocation:0,format:'float32x2',offset:0},{shaderLocation:1,format:'float32x2',offset:8}]}]);
+  const petals=pipeline('桥段·叶、花与金箔',PETALS,[{arrayStride:32,stepMode:'instance',attributes:[
+    {shaderLocation:0,format:'float32x4',offset:0},{shaderLocation:1,format:'float32x4',offset:16}]}]);
+  const ink=pipeline('桥段·飞白',INK);
+  const mesh=new Drawing(), leaves=orchard(mesh), branches=mesh.data.length/4;
+  walker(mesh,1);walker(mesh,2);const family=mesh.data.length/4;
+  embrace(mesh);const coupleEnd=mesh.data.length/4;
+  afterimages(mesh);const total=mesh.data.length/4;
+  const vertexBuffer=(data)=>{
+    const buf=device.createBuffer({size:data.byteLength,usage:GPUBufferUsage.VERTEX,mappedAtCreation:true});
+    new Float32Array(buf.getMappedRange()).set(data);buf.unmap();return buf;
+  };
+  const pathBuffer=vertexBuffer(new Float32Array(mesh.data)), leafBuffer=vertexBuffer(leaves);
+  const totalLeaves=leaves.length/8;let air=0;
+  while(air<totalLeaves && leaves[air*8+5]!==3) air++;
+  const msaa=device.createTexture({size:[g.W,g.H],format:g.format,sampleCount:4,usage:GPUTextureUsage.RENDER_ATTACHMENT}).createView();
+  const scene={draw(t){
+    document.body.classList.toggle('bridge-paper',t>218.9);
+    device.queue.writeBuffer(uniform,0,new Float32Array([g.W,g.H,t,0]));
+    const enc=device.createCommandEncoder(),pass=enc.beginRenderPass({colorAttachments:[{view:msaa,resolveTarget:g.ctx.getCurrentTexture().createView(),clearValue:[.89,.86,.79,1],loadOp:'clear',storeOp:'discard'}]});
+    pass.setBindGroup(0,binding);
+    if(t<219.7){
+      pass.setPipeline(ground);pass.draw(3);
+      if(t<194.28){pass.setPipeline(paint);pass.setVertexBuffer(0,pathBuffer);pass.draw(total-coupleEnd,1,coupleEnd);}
+      if(t<210.85){
+        pass.setPipeline(paint);pass.setVertexBuffer(0,pathBuffer);pass.draw(branches);
+        pass.setPipeline(petals);pass.setVertexBuffer(0,leafBuffer);pass.draw(6,air);
+        pass.setPipeline(paint);pass.setVertexBuffer(0,pathBuffer);pass.draw(family-branches,1,branches);
+      }
+      if(t>208.15){pass.setPipeline(paint);pass.setVertexBuffer(0,pathBuffer);pass.draw(coupleEnd-family,1,family);}
+      if(t<217.8){pass.setPipeline(petals);pass.setVertexBuffer(0,leafBuffer);pass.draw(6,totalLeaves-air,0,air);}
+    }
+    if(t>216.2){pass.setPipeline(ink);pass.draw(3);}
+    pass.end();device.queue.submit([enc.finish()]);
+  }};
+  await run({g,scene,seg:[192.68,223],title:'桥段 · 匆匆',captions:[[193.15,199.3,'李煜：林花谢了春红，太匆匆'],[219.25,222.6,'飞白：墨快用完的时候才有']]});
+} catch(error){fail(error.message);throw error;}
+</script></html>

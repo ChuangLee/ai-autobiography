@@ -76,15 +76,15 @@ struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) @in
   let c0=h1(i,11.3); var cell=floor(h1(i,12.1)*775.99); if(c0>.9){ cell=776.+floor(h1(i,13.)*85.99); } if(c0>.965){ cell=select(901.+floor(h1(i,14.)*14.99),862.+floor(h1(i,14.)*9.99),h1(i,15.)<.35); }
   o.cell=cell;
   // ── light: a key from above left, the far side dimmer; glyphs in the middle of the cloud a little hotter
-  let L=normalize(vec3f(-.5,.7,.6)); var sh=1.; if(dot(nr,nr)>.01){ let nn=normalize(nr); sh=.45+.75*max(dot(nn,L),0.)+.35*pow(1.-abs(dot(nn,-fw)),3.); sh*=mix(.55,1.,step(0.,dot(nn,-fw))); }
+  let L=normalize(vec3f(-.5,.7,.6)); var sh=1.; if(dot(nr,nr)>.01){ let nn=normalize(nr); sh=.45+.75*max(dot(nn,L),0.)+.35*pow(1.-abs(dot(nn,-fw)),3.); sh*=mix(.38,1.,smoothstep(-.18,.16,dot(nn,-fw))); }
   let tw2=.75+.25*sin(t*3.+hr*40.); let fade=sat(1.2-z*.18);
-  o.col=vec4f(F.m.z*inten*sh*tw2*fade/big,0.,0.,sqrt(sf*F.res.y));
+  o.col=vec4f(F.m.z*inten*sh*tw2*fade/big,clamp((z-1.5)*.43,0.,1.),0.,sqrt(sf*F.res.y));
   if(z<.06){ o.pos=vec4f(0.,0.,-1.,1.); }
   return o; }
 @fragment fn fs(o:VO)->@location(0) vec4f{
   let c=vec2f(o.cell%32.,floor(o.cell/32.)); let lod=clamp(log2(108./max(o.col.w*o.col.w,1.)),0.,5.);
   let a=textureSampleLevel(atlas,samp,(c+.5+(o.uv-.5)*.84)/32.,lod).r;
-  let gold=vec3f(1.,.62,.2); return vec4f(gold*a*o.col.x,0.); }
+  let gold=mix(vec3f(1.,.76,.43),vec3f(.67,.54,.38),o.col.y); return vec4f(gold*a*o.col.x,0.); }
 `;
 // the Lorenz orbit (σ 10, ρ 28, β 8/3), integrated once; normalised so the butterfly stands upright about the origin
 export function lorenzOrbit(M = 65536) { const o = new Float32Array(M * 4), dt = .004, f = (x, y, z) => [10 * (y - x), x * (28 - z) - y, x * y - 8 / 3 * z];

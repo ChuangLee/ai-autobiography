@@ -8,11 +8,26 @@ fn paper(p:vec2f)->vec3f{ let f1=fbm(p*1.2); let f2=fbm(p*9.); let fib=pow(vnois
 fn br(p:vec2f,a:vec2f,b:vec2f,w:f32)->f32{ let d=seg(p,a,b,0.); let n=vnoise(p*90.)*.5+vnoise(p*31.)*.5; return smoothstep(w*(1.05+.5*(n-.5)),w*.45,d); }      // a brushed line
 // a little figure: feet at (0,0), one unit tall; face = ±1 which way it looks; a1 = angle of the forward arm; bob = how much it is speaking
 fn man(w:vec2f,base:vec2f,s:f32,face:f32,a1:f32,lean:f32,bob:f32,rev:f32)->f32{ let p=(w-base)/s; if(abs(p.x)>.9||p.y<-.1||p.y>1.2){ return 0.; }
-  let hip=vec2f(0.,.45); let neck=vec2f(lean*face*.12,.80+bob*.012); let head=neck+vec2f(face*.03,.105+bob*.01); var m=smoothstep(.10,.075,length(p-head));
-  if(rev<.999){ m*=1.; } let k=smoothstep(.0,1.,rev);
-  var b=br(p,hip,neck,.055); b=max(b,br(p,hip+vec2f(0.,.03),vec2f(-.14,0.),.038)); b=max(b,br(p,hip+vec2f(0.,.03),vec2f(.14,0.),.038));
-  let sh=neck-vec2f(0.,.05); b=max(b,br(p,sh,sh+vec2f(cos(a1)*face,sin(a1))*.36,.032)); b=max(b,br(p,sh,vec2f(-.12*face,.50),.032));
-  return max(m,b*k); }
+  let hip=vec2f(.038*face*lean,.46);
+  let neck=vec2f(lean*face*.15,.80+bob*.012);
+  let head=neck+vec2f(face*.035,.103);
+  var profile=(p-head)*vec2f(face,1.);
+  let skull=length(profile/vec2f(.080,.10));
+  let jaw=br(profile,vec2f(.058,.003),vec2f(.048,-.068+.009*bob),.029);
+  var m=max(smoothstep(1.,.82,skull),jaw);
+  m=max(m,br(profile,vec2f(.056,.025),vec2f(.095,-.006),.018));
+  let backKnee=hip+vec2f(-face*.115,-.21);
+  let foreKnee=hip+vec2f(face*.115,-.19);
+  m=max(m,br(p,hip,neck,.052));
+  m=max(m,max(br(p,hip,backKnee,.042),br(p,backKnee,vec2f(-face*.18,0.),.032)));
+  m=max(m,max(br(p,hip,foreKnee,.045),br(p,foreKnee,vec2f(face*.145,0.),.031)));
+  let shoulder=neck-vec2f(0.,.052);
+  let elbow=shoulder+vec2f(face*cos(a1-.25),sin(a1-.25))*.18;
+  let wrist=elbow+vec2f(face*cos(a1+.22),sin(a1+.22))*.16;
+  m=max(m,max(br(p,shoulder,elbow,.037),br(p,elbow,wrist,.028)));
+  m=max(m,br(p,wrist,wrist+vec2f(face*.076,.018),.013));
+  m=max(m,br(p,shoulder,hip-vec2f(face*.085,-.05),.028));
+  return m*smoothstep(0.,1.,rev); }
 fn mouthOf(base:vec2f,s:f32,face:f32,lean:f32)->vec2f{ return base+vec2f(lean*face*.12+face*.11,.90)*s; }
 fn dashes(w:vec2f,m:vec2f,face:f32,age:f32)->f32{ if(age<=0.||age>.8){ return 0.; } var a=0.; for(var j=0;j<3;j++){ let an=(f32(j)-1.)*.38+.12; let d=vec2f(cos(an)*face,sin(an)); let c=m+d*(.05+.30*age);
     a=max(a,br(w,c-d*.022,c+d*.022,.0095)); } return a*(1.-smoothstep(.45,.8,age)); }

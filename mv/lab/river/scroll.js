@@ -6,7 +6,7 @@ export const SCROLL_FS = `
 fn xm(z:f32)->f32{ let d=max(34.-z,0.); return .0105*d*d; }
 fn spreadAt(z:f32)->f32{ return smoothstep(26.,70.,z)*17.+max(z-52.,0.)*.46; }
 fn rxk(k:f32,z:f32)->f32{ let s=smoothstep(30.,95.,z); return xm(z)+(k-2.)*spreadAt(z)+s*(21.*sin(z*.024+k*1.9)+9.*sin(z*.057+k*4.3)); }
-fn rwk(k:f32,z:f32)->f32{ return mix(10.5, 3.6+.7*sin(k*2.3)+.8*sin(z*.05+k), smoothstep(22.,58.,z))*(1.-.3*smoothstep(220.,460.,z)); }
+fn rwk(k:f32,z:f32)->f32{ return mix(12.5, 4.7+.9*sin(k*2.3)+.85*sin(z*.05+k), smoothstep(22.,58.,z))*(1.-.3*smoothstep(220.,460.,z)); }
 // signed distance to the nearest river (x only: the rivers run mostly along z), and which one
 fn river(p:vec2f)->vec3f{ var d=1e5; var kk=0.; var u=0.; for(var i=0;i<5;i++){ let k=f32(i); let dx=p.x-rxk(k,p.y); let w=rwk(k,p.y); let dd=abs(dx)-w; if(dd<d){ d=dd; kk=k; u=dx/w; } } return vec3f(d,kk,u); }
 fn ridged(p:vec2f)->f32{ var a=.5; var s=0.; var q=p; for(var i=0;i<4;i++){ let n=1.-abs(2.*vnoise(q)-1.); s+=a*n*n; q=mat2x2f(1.6,1.2,-1.2,1.6)*q+7.3; a*=.5; } return s; }
@@ -20,7 +20,8 @@ fn objAt(oi:f32,uv:vec2f,lod:f32)->f32{ if(uv.x<0.||uv.y<0.||uv.x>1.||uv.y>1.){ 
 fn cargo(k:f32,uw:f32,z:f32,t:f32,dist:f32)->f32{ var ink=0.; let ku=u32(k); let zf=clamp(1.-z/300.,0.,1.);
   for(var l=0;l<3;l++){ let cs=array<f32,3>(2.1,3.6,6.4)[l]; let sp=array<f32,3>(5.,4.,3.2)[l]; let col=floor(uw/cs); let v=(z+t*sp*(.8+.4*hash11(col*7.1+f32(l))))/cs+hash11(col*3.3)*9.;
     let c=vec2f(col,floor(v)); let f=vec2f(fract(uw/cs),fract(v)); let h=hash22(c+k*17.+f32(l)*31.); if(h.x>array<f32,3>(.85,.62,.42)[l]){ continue; }
-    let a=(h.y-.5)*.7; let q=f-.5-(h-.5)*.16; let r=vec2f(q.x*cos(a)-q.y*sin(a), q.x*sin(a)+q.y*cos(a))/.84+.5; let lod=clamp(log2(dist/cs*.012*128.),0.,5.);
+    let a=(h.y-.5)*.7; let q=f-.5-(h-.5)*.16; let r=vec2f(q.x*cos(a)-q.y*sin(a), q.x*sin(a)+q.y*cos(a))/.84+.5; let footprint=2.*G.right.w*dist/G.m2.y;
+    let lod=clamp(log2(max(1.,footprint*128./(.84*cs))),0.,5.);
     if(l==2&&h.x<.16){ ink=max(ink,objAt(objOf(ku,hash21(c+5.)),vec2f(r.x,1.-r.y),clamp(lod-1.,0.,5.))*.9); } else { ink=max(ink,glyphAt(pickGlyph(ku,hash21(c+9.),h.y,zf),vec2f(r.x,1.-r.y),lod)); } }
   return ink; }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
@@ -37,7 +38,9 @@ fn cargo(k:f32,uw:f32,z:f32,t:f32,dist:f32)->f32{ var ink=0.; let ku=u32(k); let
     ink+=.10*smoothstep(0.,6.,h0)*pf;                                                       // a wash over the high ground
     ink=clamp(ink*1.45,0.,.95); var c=paper*(1.-ink);
     if(rv.x<0.){ let w=rwk(rv.y,p.z); let tone=array<f32,5>(.95,.8,1.,.72,.86)[u32(rv.y)]; let edge=smoothstep(0.,-.5,rv.x);
-      c=paper*(1.-(.30+.62*smoothstep(60.,300.,tt))*edge*tone); c*=1.-tone*edge*cargo(rv.y,rv.z*w,p.z,t,tt)*.97; c*=1.-.3*smoothstep(-.6,0.,rv.x)*edge; }
+      c=paper*(1.-(.15+.29*smoothstep(60.,300.,tt))*edge*tone); let filament=sin(rv.z*16.+.105*p.z+.55*sin(.18*p.z-.8*t));
+      let ribbon=.053*smoothstep(.30,.95,filament)+.035*smoothstep(.22,.95,1.-abs(rv.z));
+      c*=1.-ribbon*edge; c*=1.-tone*edge*cargo(rv.y,rv.z*w,p.z,t,tt)*.97; c*=1.-.3*smoothstep(-.6,0.,rv.x)*edge; }
     else { c*=1.-.16*exp(-rv.x*.7); }                                                       // wet bank
     // the sea at one side is unpainted; mist lies in the valleys; the far ranges are pale washes
     let seaM=smoothstep(40.,110.,p.x-xm(p.z))*smoothstep(70.,15.,p.z); c=mix(c,paper*(1.-.03*smoothstep(.4,.6,vnoise(vec2f(p.x*.05,p.z*.4+t*.2)))),seaM*step(0.,rv.x));

@@ -13,7 +13,7 @@ try {
 const g = await initGPU(document.getElementById("c")), { device } = g, post = new Post(g);
 // ───────── words set in type (made before the atlas loads) ─────────
 const SERIF = '"V4Serif","Noto Serif CJK SC","Source Han Serif SC","Songti SC","SimSun",serif';
-try { const ff = new FontFace("V4Serif", 'local("Noto Serif CJK SC Bold"), local("Noto Serif CJK SC"), local("Source Han Serif SC"), local("Songti SC"), url("../../glyphs/src/fonts/NotoSerifSC[wght].ttf")', { weight: "200 900" }); document.fonts.add(ff);
+try { const ff = new FontFace("V4Serif", 'url("./fonts/inscriptions.woff2") format("woff2")', { weight: "200 900" }); document.fonts.add(ff);
   await Promise.race([ff.load(), new Promise((r) => setTimeout(r, 6000))]); } catch (e) { console.log("font: " + e.message); }
 // Leonardo's own sentences (from the notebooks), written right to left in mirror hand
 const NOTES = [["La meccanica è il paradiso", "delle scienze matematiche,", "perché con quella si viene", "al frutto matematico."], ["L'acqua è il vetturale", "della natura. Il moto è", "causa d'ogni vita."]];
@@ -66,7 +66,7 @@ const drawForms = (pass, i, t, res) => { device.queue.writeBuffer(formUB[i], 0, 
 // the print: [t, …] split (the frozen form divides into four), ink (the colours are pulled across), seal (comes down), wash (the paste runs, the names go with the water)
 const PR = { split: [174.6, 175.35], ink: [175.0, 175.9], seal: [176.55, 177.05], run: [177.05, 178.4], wash: [177.3, 179.2] };
 // the scroll: [t, x, zoom] in scroll units; a handscroll is read from right to left, so the camera moves left
-const camScroll = curveN([[177.4, .72, .04, .98], [178.8, .70, .05, 1.02], [180.6, .55, .045, 2.0], [181.6, .54, .04, 2.2], [183.0, .40, -.08, 1.95], [185.2, .20, -.15, 1.8], [188.0, -.08, -.22, 1.65], [190.5, -.22, -.2, 1.45], [192.7, -.32, -.18, 1.3]]);
+const camScroll = curveN([[177.4, .72, .04, .98], [178.8, .70, .05, 1.02], [180.6, .55, -.054, 1.67], [181.6, .54, -.058, 1.70], [183.0, .40, -.08, 1.95], [185.2, .20, -.15, 1.8], [188.0, -.08, -.22, 1.65], [190.5, -.22, -.2, 1.45], [192.7, -.32, -.18, 1.3]]);
 // the people's own clock: almost still while the river answers, then racing
 const clockAt = (t) => { let c = 0; const n = 240, a = 177.4, h = (t - a) / n; for (let i = 0; i < n; i++) { const s = a + (i + .5) * h; c += (.05 + 1.2 * sm(181.5, 183.4, s)) * h; } return Math.max(0, c); };
 const L = {
@@ -95,7 +95,6 @@ function draw(t) { const enc = device.createCommandEncoder(), Ls = layers(t), P 
     const k = Lr.pw ?? Lr.w, po = { exposure: 1, ...Lr.post }; for (const key in P) P[key] = lerp(P[key], po[key], k); }
   post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: P.bloom, threshold: .9, knee: .5, exposure: P.exposure, tonemap: P.tonemap, bars: 0, grain: P.grain, vignette: P.vignette, time: t });
   device.queue.submit([enc.finish()]); }
-for (let i = 0; i < 3; i++) { try { await fetch("../../song.json", { cache: "no-store" }); break; } catch (e) { await new Promise((r) => setTimeout(r, 300)); } }
-run({ g, seg: [154.6, 192.7], title: "样片　第四段 · 每句一个画种", scene: { draw }, captions: [[154.6, 157.2, "本视频全部由 Claude 用代码生成"]], notes: { 29: "现在的 AI 可以通过图灵测试" } });
+await run({ g, seg: [154.6, 192.7], title: "样片　第四段 · 每句一个画种", scene: { draw }, captions: [[154.6, 157.2, "本视频全部由 Claude 用代码生成"]], notes: { 29: "现在的 AI 可以通过图灵测试" } });
 } catch (e) { fail(e.stack || String(e)); }
 </script></html>

@@ -111,7 +111,9 @@ fn shade(p:vec3f,rd:vec3f,full:bool)->vec3f{ let n=nrm(p); let v=-rd; var ao=1.;
   if(full){ for(var i=1;i<=4;i++){ let h=.025*f32(i); ao-=(h-map(p+n*h))*(1.1/f32(i)); } ao=sat(ao); }
   // bronze with the warmth of gold; dark green-brown where the polisher's hand does not reach
   let cav=smoothstep(.85,.35,ao); let pat=sat(cav*.85+.3*smoothstep(.55,.8,fbm3(p*16.))*cav+.15*smoothstep(.6,.8,fbm3(p*9.+3.)));
-  let F0=mix(lin3(hx(0xe7a955u)),lin3(hx(0x3f4630u))*.55,pat*.8); let rough=mix(.26,.6,pat)+.06*fbm3(p*40.);
+  let band=smoothstep(.015,.006,abs(p.y-1.0))*smoothstep(.085,.12,length(p.xz));
+  let engraving=band*(.5+.5*cos(atan2(p.z,p.x)*32.))*smoothstep(.018,.004,abs(p.y-1.0));
+  let F0=mix(lin3(hx(0xe7a955u)),lin3(hx(0x3f4630u))*.55,sat(pat*.8+.42*engraving)); let rough=mix(.24,.58,pat)+.055*fbm3(p*40.)+.10*engraving;
   var col=vec3f(0.); let r=reflect(rd,n); let ndv=max(dot(n,v),1e-3); let fr=F0+(1.-F0)*pow(1.-ndv,5.);
   col+=fr*mix(env(r),env(n)*.45+env(r)*.25,rough)*ao;
   for(var i=0;i<2;i++){ let l=normalize(select(vec3f(.65,.35,-.6),vec3f(-.55,.72,.55),i==0)); let lc=select(lin3(hx(0xa9c4ffu))*1.3,lin3(hx(0xffe2b8u))*2.4,i==0);

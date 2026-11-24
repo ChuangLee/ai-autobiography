@@ -31,22 +31,82 @@ fn sunrise(uv:vec2f)->vec3f{
     c=mix(c,vec3f(.14,.25,.36),.60*smoothstep(.56,.74,vnoise(vec2f(uv.x*11.+t*.02,uv.y*47.))*.6+.4*vnoise(vec2f(uv.x*4.,uv.y*13.+3.))));     // short dark touches, no two alike
     c=mix(c,vec3f(.64,.68,.74),.40*smoothstep(.60,.80,vnoise(vec2f(uv.x*14.-t*.015,uv.y*58.+7.))*.6+.4*vnoise(vec2f(uv.x*5.+9.,uv.y*11.))));
     let hh=hillH(uv.x); let m=max(smoothstep(hh.x,hh.x-.03,d)*.4,smoothstep(hh.y,hh.y-.04,d)*.6); c=mix(c,vec3f(.30,.39,.52),m*.6);
-    let wob=(vnoise(vec2f(uv.y*38.,t*.25))-.5)*.030; let wd=.009+.05*d;
-    let colm=smoothstep(wd*1.5,wd*.4,abs(uv.x-SX+wob)); let brk=smoothstep(.36,.54,vnoise(vec2f(uv.x*9.,uv.y*64.-t*.12)));
+    let waveRow=log(1.+12.*d)*19.;
+    let wavePhase=waveRow+.45*sin(uv.x*13.+t*.42)+.29*t;
+    let wob=(vnoise(vec2f(waveRow*.8,t*.19))-.5)*(.014+.054*d); let wd=.009+.06*d;
+    let colm=smoothstep(wd*1.5,wd*.4,abs(uv.x-SX+wob)); let ripple=.5+.5*cos(wavePhase*3.16);
+    let brk=smoothstep(.25,.76,ripple*.78+.22*vnoise(vec2f(uv.x*41.,waveRow)));
     c=mix(c,vec3f(1.,.47,.12),colm*brk*smoothstep(u.par2.y,u.par2.y*.3,d)*smoothstep(0.,.010,d));
-    var b=boatS(uv-vec2f(.165,.705),.80); c=mix(c,vec3f(.06,.10,.18),b*.96);
+    let boat=vec2f(.165,.705);
+    let wake=uv-boat;
+    let mirror=boatS(vec2f(wake.x+wob*.40,-wake.y*1.6),.80)*smoothstep(.0,.023,wake.y);
+    c=mix(c,vec3f(.20,.24,.35),.52*mirror*(.62+.38*ripple));
+    var b=boatS(wake,.80); c=mix(c,vec3f(.085,.14,.24),b*.96);
     b=boatS(uv-vec2f(.30,.60),.45); c=mix(c,vec3f(.17,.25,.37),b*.8); b=boatS(uv-vec2f(.42,.535),.3); c=mix(c,vec3f(.30,.38,.50),b*.65);
   }
-  let d=length((uv-vec2f(SX,sunY))*vec2f(1.78,1.)); c=mix(c,vec3f(1.,.30,.06),smoothstep(.034,.027,d));
+  let d=length((uv-vec2f(SX,sunY))*vec2f(1.78,1.));
+  let pigment=mix(vec3f(.99,.36,.075),vec3f(.96,.455,.19),smoothstep(.40,.76,vnoise(uv*140.)));
+  c=mix(c,pigment,smoothstep(.032,.026,d));
   return c;
 }
 fn pads(p:vec2f, cs:vec2f, raft:f32, sd:f32, c:ptr<function,vec3f>){
+  if(raft<=.0001){return;}
   let q=p/cs; let i=floor(q); var pad=0.; var pc=vec3f(0.); var blo=0.; var bc=vec3f(0.);
   for(var dy=-1;dy<=1;dy++){ for(var dx=-1;dx<=1;dx++){ let cc=i+vec2f(f32(dx),f32(dy)); let h=hash22(cc+sd); if(hash21(cc+11.+sd)>clamp(raft,0.,1.)*.9){ continue; }
-      let e=(q-(cc+.5+(h-.5)*.8))/(.30+.42*hash21(cc+5.+sd)); let dd=length(e); let nt=smoothstep(.10,.0,abs(atan2(e.y,e.x)-(h.x*5.-2.5)))*step(.25,dd);       // each pad has its notch
-      let a=smoothstep(1.,.84,dd)*(1.-nt); if(a>pad){ pad=a; pc=mix(vec3f(.07,.30,.24),vec3f(.34,.62,.46),clamp(.5-.5*e.y+.3*(h.y-.5),0.,1.)); pc=mix(pc,vec3f(.70,.84,.70),smoothstep(.70,.95,dd)*step(e.y,-.1)*.8); pc=mix(pc,vec3f(.42,.30,.50),.35*step(.8,h.x)); }
-      if(hash21(cc+23.+sd)>.80){ let e2=(e-vec2f(.1,-.4))/vec2f(.55,.70); let b2=smoothstep(1.,.55,length(e2)); if(b2>blo){ blo=b2; bc=mix(mix(vec3f(1.,.95,.94),vec3f(.96,.50,.58),step(.55,h.y)),vec3f(.99,.80,.28),smoothstep(.40,.12,length(e2))); } } } }
-  *c=mix(*c,pc,pad*.96); *c=mix(*c,mix(bc,vec3f(.98,.52,.18),u.par2.x*.8),blo); }
+      let radius=.30+.42*hash21(cc+5.+sd);
+      let bob=.026*sin(u.par.x*.74+h.y*6.28);
+      let e=(q-(cc+.5+(h-.5)*.8))/radius-vec2f(.0,bob);
+      let angle=atan2(e.y,e.x)-h.x*6.283;
+      let dd=length(e)*(.98+.028*sin(angle*3.+h.y)+.022*cos(angle*5.));
+      let gap=smoothstep(.99,.925,cos(angle))*smoothstep(.08,.35,dd);
+      let leaf=smoothstep(1.,.90,dd)*mix(1.,gap,smoothstep(.12,.36,dd));
+      let skirt=smoothstep(1.09,.82,length(e-vec2f(.035,.16)))*(1.-leaf);
+      if(skirt>.001){ *c=mix(*c,vec3f(.095,.15,.24),skirt*.43); }
+      if(leaf>pad){
+        pad=leaf;
+        let ribs=.5+.5*cos(angle*9.+dd*.55);
+        let curl=smoothstep(.69,.96,dd)*max(-e.y,0.);
+        let light=clamp(.49-.33*e.y+.15*ribs*dd+.30*curl+.17*(h.y-.5),0.,1.);
+        pc=mix(vec3f(.10,.25,.25),vec3f(.51,.68,.45),light);
+        pc=mix(pc,vec3f(.67,.71,.61),curl*.48);
+      }
+      if(hash21(cc+23.+sd)>.80){
+        let petal=(e-vec2f(.12,-.47))/vec2f(.52,.85);
+        let phi=atan2(petal.y,petal.x);
+        let rr=length(petal);
+        let flutes=.5+.5*cos(8.*phi+h.y*5.);
+        let silhouette=.54+.29*flutes-.14*petal.y;
+        let edge=smoothstep(silhouette+.06,silhouette-.05,rr);
+        if(edge>blo){
+          blo=edge;
+          let pink=mix(vec3f(.80,.45,.54),vec3f(.93,.73,.74),h.y);
+          bc=mix(pink,vec3f(.99,.92,.85),smoothstep(.12,.65,rr)*(.45+.55*flutes));
+          bc=mix(bc,vec3f(.91,.67,.27),smoothstep(.28,.12,length(petal-vec2f(0.,.10))));
+        }
+      }
+  } }
+  *c=mix(*c,pc,pad*.96); *c=mix(*c,mix(bc,vec3f(.98,.52,.18),u.par2.x*.65),blo); }
+// A close blossom. Three staggered whorls share a centre; upturned inner petals
+// catch warm light while the lower ones meet the blue reflection.
+fn blossom(p:vec2f, base:vec3f)->vec3f{
+  var c=base;
+  for(var k=0;k<3;k++){
+    let ring=f32(k);
+    let q=p*vec2f(1.+ring*.24,1.+ring*.16)+vec2f(.04*ring,.13*ring);
+    let petals=9.-ring;
+    let angle=atan2(q.y,q.x);
+    let sector=round((angle+.39*ring)*petals/6.2832);
+    let axis=sector*6.2832/petals-.39*ring;
+    let dir=vec2f(cos(axis),sin(axis));
+    let along=dot(q,dir);
+    let halfWidth=(.23-.03*ring)*sin(3.1416*clamp(along,0.,1.));
+    let across=dot(q,vec2f(-dir.y,dir.x));
+    let coverage=smoothstep(.04,-.04,max(abs(across)-halfWidth,max(-along,along-.93)));
+    let fold=clamp(.43+.38*dir.y-.60*across+.25*along,0.,1.);
+    c=mix(c,mix(vec3f(.68,.34,.48),vec3f(.99,.90,.82),fold+.04*ring),coverage);
+  }
+  return mix(c,vec3f(.98,.72,.27),.9*smoothstep(.16,.07,length(p+vec2f(.015,.11))));
+}
 fn lilies(p:vec2f)->vec3f{                                   // p.y runs on down the tall canvas
   var c=mix(vec3f(.10,.13,.34),vec3f(.03,.17,.15),smoothstep(.30,.60,fbm(vec2f(p.x*3.4,p.y*.8+2.))));
   c=mix(c,vec3f(.02,.08,.09),.75*smoothstep(.50,.72,fbm(vec2f(p.x*9.,p.y*.55+6.))));                      // trees that are not in the picture, standing in the water
@@ -54,12 +114,17 @@ fn lilies(p:vec2f)->vec3f{                                   // p.y runs on down
   c=mix(c,vec3f(.50,.47,.76),.55*smoothstep(.60,.80,fbm(vec2f(p.x*1.5+9.,p.y*1.2))));                     // openings of lilac sky
   c=mix(c,vec3f(.90,.70,.70),.40*smoothstep(.70,.88,fbm(vec2f(p.x*2.2+1.,p.y*1.7+5.))));                  // one pink cloud
   let raft=smoothstep(.48,.60,fbm(vec2f(p.x*1.5+3.,p.y*4.2)))+exp(-pow((p.x-SX)/.11,2.))*smoothstep(.85,1.05,p.y)*smoothstep(1.7,1.3,p.y);
-  pads(p,vec2f(.105,.044),raft*.85,0.,&c); pads(p+vec2f(.03,.01),vec2f(.052,.023),raft*smoothstep(.40,.62,fbm(p*vec2f(5.,9.)+8.)),40.,&c);
+  pads(p,vec2f(.157,.068),raft*.85,0.,&c); pads(p+vec2f(.03,.01),vec2f(.052,.023),raft*smoothstep(.40,.62,fbm(p*vec2f(5.,9.)+8.)),40.,&c);
+  let centre=vec2f(.56+.0009*sin(u.par.x*.65),1.385+.0016*sin(u.par.x*.83));
+  let flower=(p-centre)/vec2f(.063,.051);
+  if(length(flower)<1.12){c=blossom(flower,c);}
   return c;
 }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
   let uv=fc.xy/u.res.xy; let Y=uv.y+u.par.y; let p=vec2f(uv.x,Y);
-  let c=mix(sunrise(p),lilies(p),smoothstep(.98,1.22,Y)); return vec4f(c,1.); }
+  if(Y<=.98){return vec4f(sunrise(p),1.);}
+  if(Y>=1.22){return vec4f(lilies(p),1.);}
+  return vec4f(mix(sunrise(p),lilies(p),smoothstep(.98,1.22,Y)),1.); }
 `;
 export const INK = HILLS + `
 fn hills(uv:vec2f, hor:f32, soft:f32)->f32{
@@ -105,7 +170,7 @@ fn reach(p:vec2f, c0:vec2f)->f32{ let q=(p-c0)*vec2f(1.7778,1.); return min(leng
 fn dabs(uv:vec2f, pan:f32, t:f32, ink:vec3f, fr:f32, c0:vec2f)->vec3f{
   let cv=vec2f(uv.x*1.7778,uv.y+pan); let whole=step(3.1,fr);
   var col=mix(ink,textureSampleLevel(study,samp,uv,0.).rgb*.88+vec3f(0.,.01,.025),max(whole,smoothstep(fr-.30,fr-.75,reach(vec2f(uv.x,uv.y+pan),c0))));
-  for(var L=0;L<3;L++){ let fl=f32(L); let cs=vec2f(.070,.034)*pow(.60,fl); let dr=vec2f(t*.004*(fl+1.),0.); let q=(cv+dr)/cs; let i=floor(q);
+  for(var L=0;L<3;L++){ let fl=f32(L); let cs=vec2f(.070,.034)*pow(.60,fl); let dr=vec2f(t*.003*(fl+1.)*smoothstep(.455,.62,cv.y)*(1.-smoothstep(.97,1.22,cv.y)),0.); let q=(cv+dr)/cs; let i=floor(q);
     for(var dy=-1;dy<=1;dy++){ for(var dx=-1;dx<=1;dx++){ let cc=i+vec2f(f32(dx),f32(dy)); let h=hash22(cc+fl*37.); let h2=hash21(cc*1.7+fl*11.);
         if(h2<.10*fl){ continue; }
         let ctr=(cc+.5+(h-.5)*.9)*cs-dr; let on=max(whole,smoothstep(fr,fr-.07,reach(vec2f(ctr.x/1.7778,ctr.y),c0)+.22*h.y-.05*fl)); if(on<.01){ continue; }
@@ -114,15 +179,25 @@ fn dabs(uv:vec2f, pan:f32, t:f32, ink:vec3f, fr:f32, c0:vec2f)->vec3f{
         let d=length(l); let br=vnoise(vec2f(l.x*2.2+h2*9.,l.y*7.+h.x*20.)); let a=smoothstep(1.,.70,d+.28*(br-.5))*on;
         if(a>.01){ var c=textureSampleLevel(study,samp,vec2f(ctr.x/1.7778,ctr.y-pan),0.).rgb; let j=hash33(vec3f(cc,fl+3.))-.5;
           c=c*(1.+.18*j.x)+vec3f(j.y,-.5*j.y,j.z)*.08; let m=max(c.r,max(c.g,c.b)); c=mix(vec3f(m),c,1.22); c*=.94+.14*br+.10*l.y;
-          col=mix(col,c,a*.93); } } } }
-  return col; }
+          let bristles=cos(l.y*24.+br*2.5)*smoothstep(1.,.3,d);
+          c*=1.+.038*bristles;
+          let preserve=mix(.93,.56,smoothstep(1.04,1.27,ctr.y));
+          col=mix(col,c,a*preserve); } } } }
+  // A final thin glaze restores the petal edges and negative space between leaves.
+  let layer=textureSampleLevel(study,samp,uv,0.).rgb;
+  let edge=max(0.,layer.r-layer.g*.88);
+  col=mix(col,layer,smoothstep(1.02,1.30,cv.y)*(.26+.37*smoothstep(.02,.26,edge)));
+  // Keep the vermilion disc intact where the reflected light breaks into strokes below.
+  let sunY=mix(.455,.405,smoothstep(120.,124.5,t));
+  let sun=1.-smoothstep(.026,.041,length(cv-vec2f(c0.x*1.7778,sunY)));
+  return mix(col,layer,sun*whole*.85); }
 `;
 export const LAND = `
 fn pk(x:f32)->f32{ var s=0.; var a=.62; var f=1.; for(var i=0;i<4;i++){ s+=a*pow(1.-abs(2.*vnoise(vec2f(x*f,f*7.3))-1.),1.5); a*=.48; f*=2.6; } return s; }
 fn silk(uv:vec2f)->f32{ return .5*vnoise(uv*vec2f(1920.,60.))+.5*vnoise(uv*vec2f(60.,1080.)); }
 fn landscape(uv0:vec2f, hor:f32, t:f32, zoom:f32, ce:vec2f, te:f32)->vec3f{
   let asp=1.7778; var uv=uv0; let sk=silk(uv0);
-  let GOLD=vec3f(.97,.80,.36); let AZ=vec3f(.06,.25,.58); let MA=vec3f(.10,.52,.38); let OC=vec3f(.62,.45,.22); let SILK=vec3f(.80,.67,.43);
+  let GOLD=vec3f(.97,.80,.36); let AZ=vec3f(.105,.258,.445); let MA=vec3f(.155,.418,.348); let OC=vec3f(.62,.45,.22); let SILK=vec3f(.80,.67,.43);
   // the water lifts over the body before it comes through, then tears
   let qe=(uv0-ce)*vec2f(asp,1.); let re=length(qe*vec2f(1.,3.2)); let swell=smoothstep(-1.6,0.,te)*(1.-smoothstep(0.,2.5,te)); uv.y+=.045*swell*exp(-re*re*9.)*step(hor,uv0.y);
   var col=mix(SILK,vec3f(.60,.47,.27),smoothstep(hor,hor-.9,uv.y))*(.95+.08*sk);
@@ -138,11 +213,15 @@ fn landscape(uv0:vec2f, hor:f32, t:f32, zoom:f32, ce:vec2f, te:f32)->vec3f{
     let y=base-uv.y; let rel=y/max(H,1e-4);
     if(y>-.012/zoom&&y<H){ let lit=smoothstep(-.02,.02,(H-Hl)/max(H,.02)+.9*(vnoise(vec2f(x*5.,rel*3.5+f))-.5)); let fold=vnoise(vec2f(x*7.,rel*5.+f*3.)); let cre=abs(fract(rel*2.6+fold*1.6+x*1.3)-.5);
       var c=mix(AZ,MA,lit*.85+.15*fold); c=mix(c,AZ*.8,smoothstep(.55,.95,rel)*(1.-lit)*.7); c=mix(OC,c,smoothstep(.02,.34,rel+.14*(fold-.5)));          // malachite on the lit slope over azurite, ochre feet
-      c*=.90+.18*vnoise(vec2f(x*13.,y*zoom*9.));
+      let face=fbm(vec2f(x*7.2+rel*.52,rel*1.5+f*6.));
+      c*=.76+.31*face+.09*vnoise(vec2f(x*13.,y*zoom*9.));
+      let schist=vnoise(vec2f(x*83.+face*4.,rel*12.));
+      c=mix(c,AZ*.64,smoothstep(.56,.83,schist)*(.16+.20*(1.-lit))*near);
       c=mix(c,vec3f(.03,.13,.26),.55*smoothstep(.05,.0,cre)*smoothstep(.12,.3,rel));                                                                     // the facets of the rock drawn in
-      c=mix(c,GOLD,.50*smoothstep(.03,.0,abs(cre-.25))*smoothstep(.2,.4,rel)*near);
+      c=mix(c,GOLD,.26*smoothstep(.018,.0,abs(cre-.25))*smoothstep(.2,.4,rel)*near*smoothstep(.54,.72,fold));
       c=mix(mix(SILK,vec3f(.55,.66,.66),.6),c,mix(.30,1.,sqrt(near)));                                                                                     // far ranges go pale into the silk
-      c=mix(c,GOLD,smoothstep((.010+.006*near)/zoom,.0,H-y)*.9);
+      let sunlit=smoothstep(-.03,.07,(H-Hl)/max(.035,H))*smoothstep(.29,.66,fold);
+      c=mix(c,GOLD,smoothstep((.003+.003*near)/zoom,.0,H-y)*sunlit*.70);
       c=mix(c,mix(SILK,vec3f(.90,.86,.74),.6),smoothstep(.16,.0,rel)*.75*(.6+.4*vnoise(vec2f(x*2.,f))));                                                  // mist lies along the feet
       col=mix(col,c,smoothstep(-.012/zoom,0.,y)); } }
   if(te>-1.6){ let an=atan2(qe.x,-qe.y); let rr=length(qe); let up=pow(max(cos(an*.85),0.),.6); let g=smoothstep(0.,.4,te)*(1.-smoothstep(1.6,3.4,te));

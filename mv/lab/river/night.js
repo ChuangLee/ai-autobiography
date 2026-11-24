@@ -18,9 +18,10 @@ fn flame(p:vec2f,F:vec2f,sz:f32,t:f32)->vec3f{ var q=(p-F)/sz; q.x+=(fbm(q*2.2+v
 `;
 export const CANGJIE_FS = HEAD + `
 fn man(p:vec2f)->f32{                                                 // feet at (0,0), about one unit tall, leaning to the rock on his right
+  let swing=.040*sin(U.a.x*4.8);
   var d=seg(p,vec2f(-.07,0.),vec2f(-.03,.45),.048); d=min(d,seg(p,vec2f(.10,0.),vec2f(.05,.45),.048));
   d=min(d,seg(p,vec2f(.0,.36),vec2f(.07,.74),.135)); d=min(d,length(p-vec2f(.13,.905))-.078); d=min(d,length(p-vec2f(.115,.995))-.032);
-  d=min(d,seg(p,vec2f(.09,.71),vec2f(.33,.80),.036)); d=min(d,seg(p,vec2f(.33,.80),vec2f(.40,.87),.012)); d=min(d,seg(p,vec2f(.02,.68),vec2f(.19,.55),.036)); return d; }
+  d=min(d,seg(p,vec2f(.09,.71),vec2f(.33,.80+swing),.036)); d=min(d,seg(p,vec2f(.33,.80+swing),vec2f(.40,.87+.42*swing),.012)); d=min(d,seg(p,vec2f(.02,.68),vec2f(.19,.55),.036)); return d; }
 fn human(p:vec2f)->f32{                                               // a plain standing figure, one unit tall
   var d=length(p-vec2f(0.,.915))-.07; d=min(d,seg(p,vec2f(0.,.54),vec2f(0.,.75),.10)); d=min(d,seg(p,vec2f(-.14,.77),vec2f(-.22,.43),.034)); d=min(d,seg(p,vec2f(.14,.77),vec2f(.22,.43),.034));
   d=min(d,seg(p,vec2f(-.085,0.),vec2f(-.045,.5),.05)); d=min(d,seg(p,vec2f(.085,0.),vec2f(.045,.5),.05)); return d; }
@@ -41,7 +42,7 @@ fn rockTex(p:vec2f)->f32{ let w=fbm(p*1.7); let st=fbm(vec2f(p.x*2.6+w*1.6,p.y*9
     if(p.y<gy){ let gt=fbm(vec2f(p.x*6.,p.y*18.)); col=(.22+.3*gt)*Lf*smoothstep(-1.1,-.6,p.y)*.9+vec3f(.003); }
     let sd=man((p-B)/hs)*hs; let e2=vec2f(.004,0.); let n=normalize(vec2f(man((p+e2.xy-B)/hs)-man((p-e2.xy-B)/hs), man((p+e2.yx-B)/hs)-man((p-e2.yx-B)/hs))+1e-5);
     let inside=smoothstep(.003,-.003,sd); col=mix(col,vec3f(.0035),inside); col+=Lf*1.6*smoothstep(.014,.0,abs(sd+.006))*max(dot(n,normalize(F-p)),0.)*step(sd,.004);
-    col+=WARM*5.*smoothstep(.012,.0,length(p-(B+vec2f(.40,.87)*hs)))*(.5+.5*sin(t*31.));                                   // the point of the tool
+    col+=WARM*5.*smoothstep(.012,.0,length(p-(B+vec2f(.40,.87+.0168*sin(t*4.8))*hs)))*(.48+.28*cos(t*4.8));                                   // the point of the tool
     col+=flame(p,F,.12,t); col+=millet(p,t,F)*(1.-inside);
     let sy=(p.y-F.y-.1)/1.9; if(sy>0.&&sy<1.2){ let sx=p.x-F.x-.10*sy*sy-.06*sin(sy*5.-t*1.1); let sw=.03+.11*sy; col+=vec3f(.20,.21,.24)*exp(-sx*sx/(sw*sw))*smoothstep(0.,.25,sy)*smoothstep(.15,.7,fbm(vec2f(sx*9.,sy*5.-t*.8)))*smoothstep(-.2,.9,u)*(.55+.5*smoothstep(.6,1.1,u)); col+=vec3f(.22,.23,.27)*exp(-dot((p-vec2f(-.50+.07*.74,-.92+.86*1.55))/vec2f(.07,.11),(p-vec2f(-.50+.07*.74,-.92+.86*1.55))/vec2f(.07,.11)))*smoothstep(.75,1.15,u)*.6; }
   } else {                                                            // the carved character alone by the fire; its shadow is a standing person

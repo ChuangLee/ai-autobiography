@@ -90,7 +90,13 @@ fn fleshCol(n:vec3f,H:Hit,F:vec2f,e:f32,cav:f32)->vec3f{
   let acr=H.al*H.len+.45*H.r*(1.-sqrt(max(1.-H.ac*H.ac,0.)))*sign(H.ac+1e-4); let ht=fract(acr*380.+.25*vnoise(F*90.))-.5; let hm=smoothstep(.52,.25,w)*step(.3,vnoise(F*140.+H.id));
   c*=1.-.32*hm*ln(ht/380.,.0005,e*.5+.0002);
   let ht2=fract((acr*.6+H.ac*H.r*.8)*420.)-.5; c*=1.-.25*smoothstep(.3,.12,w)*ln(ht2/420.,.0005,e*.5+.0002);
-  if(H.kind==9.){ c=mix(c,c*vec3f(1.07,.92,.88),.45); }
+  // The pink on the knuckles goes on wet lime. Broken short strokes let
+  // the green underpainting show through as the plane turns from the light.
+  let chalk=vnoise(F*vec2f(360.,213.));
+  let scumble=smoothstep(.53,.78,chalk)*smoothstep(.22,.55,w)*(1.-smoothstep(.69,.89,w));
+  c=mix(c,hx(0xc8bd98u),scumble*.105);
+  if(H.kind==9.){ c=mix(c,c*vec3f(1.09,.91,.86),.51); }
+  if(H.kind==10.){c=mix(c,hx(0xb2ac8bu),.11*smoothstep(.21,.68,abs(H.ac)));}
   // the creases at the joints and the nail of each finger
   if(H.kind>=4.&&H.kind<=6.){ let jd=H.al*H.len; c*=1.-.45*ln(jd-.0018,.0006,e)*step(abs(H.ac),.8)*step(H.kind,5.5)*step(4.5,H.kind)
       *1.-.0; if(H.kind>5.5){ let nl=length(vec2f((1.-H.al)*H.len*1.4-.006,H.ac*H.r-H.r*.25)); c=mix(c,mix(c,hx(0xf2dccau),.45),smoothstep(.0055,.0045,nl)); c*=1.-.4*ln(nl-.005,.0005,e); } }

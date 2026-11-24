@@ -23,50 +23,91 @@ fn moss(p:vec2f,dens:f32,sz:f32,e:f32)->f32{ let g=sz*3.2; let q=p/g; let id=flo
 // a dry stroke along a contour: width varies, the brush runs dry in places
 fn dry(d:f32,w:f32,s:f32,e:f32)->f32{ return ln(d,w*(.6+.8*vnoise(vec2f(s*30.,1.7))),e)*smoothstep(.18,.45,vnoise(vec2f(s*90.,4.1))+.25); }
 // ── the main peak (Fan Kuan): upright columns of rock, ledges across them, dense strokes in the clefts, a crown of small trees, a waterfall
-fn mainPeak(S:vec2f,e:f32,ink0:vec2f)->vec2f{ var ink=ink0; let cx=.72; let w=.34; let base=-.03; let H=.53; let u=(S.x-cx)/w; if(abs(u)>1.25){ return ink; }
-  let core=pow(sat(1.-pow(abs(u/.78),2.8)),.42); let shL=.72*pow(sat(1.-pow(abs((u+.85)/.42),2.2)),.5); let shR=.62*pow(sat(1.-pow(abs((u-.9)/.38),2.2)),.5);
-  let prof=max(core,max(shL,shR))*(1.+.035*sin(u*11.+1.)+.025*(vnoise(vec2f(S.x*40.,2.))-.5)); let top=base+H*prof; let y=S.y-top; if(y>.01){ return ink; }
-  let hgt=(S.y-base)/H; let mn=fbm(S*vec2f(3.,8.)+2.); let mist=smoothstep(.04,.38,hgt+.18*(mn-.5)); if(mist<.01){ return ink; }
-  let inside=fill(y,e);
-  // columns: their widths vary, they lean and wander a little as they rise
-  let xw=(S.x-cx)/w; let cxw=xw*5.2+.7*sin(xw*4.3+1.)+.35*sin(S.y*7.+xw*3.)+.5*fbm(S*vec2f(5.,11.)); let ci=floor(cxw); let cf=fract(cxw); let ed=min(cf,1.-cf);
-  let lit=smoothstep(.0,.5,cf)*smoothstep(1.,.7,cf);                                 // light from the right: the left part of each column is turned away
-  // ledges: across each column, at heights of their own
-  let ly=S.y*8.5+hash11(ci)*3.+.25*sin(cxw*2.3); let lf=fract(ly); let under=smoothstep(.55,1.,lf)*step(.35,hash11(floor(ly)+ci*7.));
-  let crown=smoothstep(-.11,-.0,y); let cleft=1.-smoothstep(.0,.2,ed);
-  let dens=(.08+.45*cleft+.32*under+.22*(1.-lit)+.35*crown)*smoothstep(.0,.2,hgt);
-  let fallOn=step(.1,S.y)*step(S.y,top-.035); let wfm=mix(1.,smoothstep(.0045,.0075,abs(S.x-cx-.075-.006*sin(S.y*20.))),fallOn);   // the waterfall's bare silk
-  ink=put(ink,inside*mist*wfm*(.07+.09*(1.-lit)+.12*cleft+.14*crown),.32);
-  ink=put(ink,inside*mist*wfm*rain(S,dens,e)*.85,.88);
-  let cd=ed/7.*w; let brk=smoothstep(.3,.55,vnoise(vec2f(ci*3.1,S.y*9.)));                                                   // a cleft runs, stops, starts again
-  ink=put(ink,inside*mist*wfm*dry(cd,.0008,S.y+ci,e)*brk*smoothstep(.05,.3,hgt)*.85,1.);
-  ink=put(ink,inside*mist*wfm*ln((lf-.02)/8.5,.0005,e)*step(.55,hash11(floor(ly)+ci*7.))*.7,1.);                 // ledge lines
-  ink=put(ink,mist*dry(y,.0016,S.x,e),1.);                                                                          // the outline
-  ink=put(ink,inside*moss(S,.85,.0011,e)*crown*mist,1.);
-  { let tx=S.x/.0085; let ti=floor(tx); if(hash11(ti*1.7)>.35){ let x0=(ti+.25+.5*hash11(ti*3.))*.0085; let u0=(x0-cx)/w; let pr0=max(pow(sat(1.-pow(abs(u0/.78),2.8)),.42),max(.72*pow(sat(1.-pow(abs((u0+.85)/.42),2.2)),.5),.62*pow(sat(1.-pow(abs((u0-.9)/.38),2.2)),.5)));
-      let yb=base+H*pr0-.004; let th=.01+.016*hash11(ti); let q=S-vec2f(x0,yb); if(q.y>-.002&&q.y<th*1.1){ ink=put(ink,ln(q.x-.001*sin(q.y*400.),.00045,e)*step(q.y,th),1.);
-        ink=put(ink,moss(q*vec2f(1.,1.5)+ti,.95,.001,e)*step(th*.3,q.y)*step(abs(q.x),.0035*(th-q.y)/th+.0008),1.); } } }
-  // the waterfall's edges
-  let fx=abs(S.x-cx-.075-.006*sin(S.y*20.)); ink=put(ink,ln(fx-.006,.0005,e)*step(.1,S.y)*step(S.y,top-.03)*mist,1.);
-  return ink; }
+// Overlapping projecting spurs: their uneven caps and joints continue down into
+// washes whose weight depends on the orientation of each face.
+fn cliffCap(u:f32, centre:f32, left:f32, right:f32, crown:f32)->f32{
+  let x=u-centre;
+  let edge=abs(x)/select(left,right,x>0.);
+  return crown*(1.-smoothstep(.27,1.,edge))-.044*x;
+}
+fn summit(u:f32)->f32{
+  let central=cliffCap(u,-.16,.84,.58,1.);
+  let shoulder=cliffCap(u,.34,.36,.72,.79);
+  let lower=cliffCap(u,-.71,.53,.39,.57);
+  let chipped=.032*vnoise(vec2f(u*15.+20.,.25))+.012*vnoise(vec2f(u*52.,8.));
+  return -.03+.53*(max(central,max(shoulder,lower))+chipped);
+}
+fn mainPeak(S:vec2f,e:f32,ink0:vec2f)->vec2f{
+  let u=(S.x-.72)/.34;
+  if(abs(u)>1.26){return ink0;}
+  let top=summit(u);
+  let y=S.y-top;
+  if(y>.025||S.y<-.05){return ink0;}
+  let h=(S.y+.03)/.53;
+  let rock=vnoise(S*vec2f(19.,11.)+4.);
+  let air=smoothstep(.02,.38,h+.13*(rock-.5));
+  let inside=fill(y,e)*air;
+  let fork=u+.33*(1.-h)+.052*sin(11.*h+u)+.05*(rock-.5);
+  let front=1.-smoothstep(.035,.53,abs(fork+.16));
+  let flank=smoothstep(-.86,-.48,fork)*(1.-smoothstep(-.45,-.19,fork));
+  let notch=1.-smoothstep(.018,.15,abs(fork+.41));
+  let chippedFace=vnoise(vec2f(fork*8.+h*1.8,h*3.+5.));
+  let gully=smoothstep(.48,.79,chippedFace)*smoothstep(.09,.29,h);
+  let face=sat(.22+.28*flank+.34*notch-.14*front+.26*gully+.22*(rock-.5));
+  let strata=h*6.1+.86*u+1.26*(vnoise(vec2f(u*2.9+5.,h*3.+3.))-.5);
+  let strataBreak=vnoise(S*vec2f(27.,32.)+vec2f(21.,1.));
+  let lip=1.-smoothstep(.02,.15,abs(fract(strata)-.55));
+  let shelf=lip*smoothstep(.52,.72,strataBreak)*(.38+.62*flank);
+  let waterfallX=.812+.014*sin(h*3.5)-.012*smoothstep(.38,.54,h);
+  let waterfall=(1.-smoothstep(.002,.005+e,abs(S.x-waterfallX)))*smoothstep(.18,.28,h)*(1.-smoothstep(.59,.65,h));
+  let mask=inside*(1.-waterfall);
+  var ink=put(ink0,mask*(.12+.66*face+.16*shelf),.69);
+  ink=put(ink,mask*(.22+.78*face)*rain(S+vec2f(.014*h,0.),.16+.59*face+.22*shelf,e),.97);
+  let spurEdge=abs(fork+.41)*.34;
+  ink=put(ink,mask*dry(spurEdge,.0017,S.y+.03,e)*smoothstep(.18,.48,rock),1.);
+  ink=put(ink,mask*shelf*.17,.91);
+  // Rows of accumulating ink tilt into the gullies and fade onto the light face.
+  let slant=.20+.32*flank-.29*front;
+  let strokeCoord=vec2f(S.x+slant*S.y,S.y);
+  let innerWash=smoothstep(.41,.67,vnoise(strokeCoord*vec2f(53.,12.)+13.));
+  ink=put(ink,mask*innerWash*(.11+.25*gully+.12*flank),.87);
+  ink=put(ink,air*dry(y,.0015,S.x,e),.91);
+  let crown=smoothstep(-.052,-.005,y);
+  ink=put(ink,inside*crown*moss(S,.65,.0018,e)*.8,.98);
+  if(y>-.023){
+    let id=floor(S.x/.015);
+    let x=(id+.20+.60*hash11(id+21.))*.015;
+    let treeH=.003+.012*hash11(id*7.+3.);
+    let local=S-vec2f(x,summit((x-.72)/.34)-.002);
+    let width=.001+.29*treeH*(1.-sat(local.y/treeH));
+    let clump=fill(max(abs(local.x)-width,max(-local.y,local.y-treeH)),e);
+    ink=put(ink,clump*air*(.5+.35*hash11(id)),.93);
+  }
+  return ink;
+}
 // side peaks and far ranges: same manner, lighter, fewer strokes
 fn sidePeak(S:vec2f,cx:f32,w:f32,H:f32,base:f32,seed:f32,tone:f32,e:f32,ink0:vec2f)->vec2f{ var ink=ink0; let u=(S.x-cx)/w; if(abs(u)>1.){ return ink; }
   let prof=pow(sat(1.-pow(abs(u),2.4)),.5)*(1.+.06*sin(u*7.+seed))+.03*(vnoise(vec2f(S.x*30.,seed))-.5); let top=base+H*prof; let y=S.y-top; if(y>.01){ return ink; }
   let hgt=(S.y-base)/H; let mist=smoothstep(.05,.45,hgt+.2*(fbm(S*vec2f(3.,7.)+seed)-.5)); if(mist<.01){ return ink; }
   let inside=fill(y,e); let cxw=u*4.+.2*sin(S.y*6.+seed); let ed=min(fract(cxw),1.-fract(cxw)); let crown=smoothstep(-.08,0.,y);
   ink=put(ink,inside*mist*(.06+.08*crown+.06*(1.-smoothstep(0.,.25,ed)))*tone,.3);
+  let backSpur=vnoise(S*vec2f(14.,6.)+seed);
+  ink=put(ink,inside*mist*smoothstep(.46,.73,backSpur)*(.15+.13*crown)*tone,.64);
   ink=put(ink,inside*mist*rain(S+seed,(.05+.35*(1.-smoothstep(0.,.25,ed))+.3*crown)*tone,e)*.7*tone,.8);
   ink=put(ink,mist*dry(y,.0012,S.x+seed,e)*tone,1.); ink=put(ink,inside*moss(S+seed,.7,.001,e)*crown*mist*tone,1.);
   return ink; }
 // ── the middle ground (Guo Xi): rounded hills with curling contours inside, like clouds
 fn cloudHill(S:vec2f,cx:f32,w:f32,H:f32,base:f32,seed:f32,e:f32,ink0:vec2f)->vec2f{ var ink=ink0; let u=(S.x-cx)/w; if(abs(u)>1.1){ return ink; }
-  let wq=S+vec2f(fbm(S*9.+seed),fbm(S*9.+seed+4.))*.025*w/.2;
-  var f=-1.; for(var i=0;i<5;i++){ let fi=f32(i); let c=vec2f(cx+w*(fi-2.)*.42+w*.12*(hash11(fi+seed)-.5),base+H*(.15+.35*hash11(fi*3.+seed))); let r=w*(.22+.12*hash11(fi*5.+seed)); f=max(f,1.-length((wq-c)/vec2f(r*1.4,r*.62))); }
-  f=min(f,1.); if(f<-.03||S.y<base-.02){ return ink; }
-  let inside=smoothstep(-.004/w,.004/w,f)*smoothstep(base-.01,base+.03,S.y);
+  let x=u+.10*(vnoise(S*17.+seed)-.5);
+  let top=base+H*(.12+max(cliffCap(x,-.27,.68,.65,.86),cliffCap(x,.36,.42,.63,.55))
+                  +.085*vnoise(vec2f(x*9.,seed))+.035*vnoise(vec2f(x*24.,seed)));
+  let f=(top-S.y)/H;
+  if(f<-.045||S.y<base-.025){return ink;}
+  let inside=fill(S.y-top,e)*smoothstep(base-.022,base+.042,S.y);
   // curling strokes: the contours of the mound turned into hooks by a swirl, broken, drawn only in places
   let sw=atan2(S.y-base,S.x-cx)*2.+6.*fbm(S*7.+seed); let curl=abs(fract(f*3.2+.25*sin(sw))-.5); let dark=smoothstep(.7,.0,f)*.4+.4*smoothstep(.3,.0,curl);
-  ink=put(ink,inside*(.08+.12*dark),.35);
+  let foldShade=smoothstep(.10,.50,f)*smoothstep(-.70,.02,x+.3*f);
+  ink=put(ink,inside*(.10+.19*dark+.28*foldShade),.58);
   ink=put(ink,inside*ln(curl/3.2*w,.0005,e)*smoothstep(.55,.7,vnoise(S*26.+seed))*.6*smoothstep(.1,.3,f)*smoothstep(.85,.5,f),1.);
   ink=put(ink,inside*rain(S*1.2+seed,.12+.25*smoothstep(.2,.0,curl),e)*.6,.8);
   ink=put(ink,dry(f*w*.85,.0012,S.x+seed,e)*smoothstep(base,base+.03,S.y),1.);
@@ -89,8 +130,11 @@ fn pine(S:vec2f,root:vec2f,h:f32,lean:f32,seed:f32,e:f32,ink0:vec2f)->vec2f{ var
   for(var i=0;i<5;i++){ let fi=f32(i); let by=h*(.45+.12*fi); let side=select(-1.,1.,(i+i32(seed))%2==0); let ss=sat(by/h); let bx=lean*h*ss*ss+.05*h*sin(ss*5.+seed);
     let a=vec2f(bx,by); let L=h*(.32-.04*fi)*(.75+.5*hash11(fi+seed)); let mid=a+vec2f(side*L*.5,h*.03); let b=a+vec2f(side*L,-h*(.02+.04*hash11(fi*2.+seed)));
     ink=put(ink,ln(min(sdSeg(q,a,mid),sdSeg(q,mid,b)),.0004*(1.-fi*.08)+.0002,e),1.);
-    for(var c=0;c<3;c++){ let cp=mix(mid,b,f32(c)*.5)+vec2f(0.,h*.012); let R=h*(.07-.006*fi); let cq=q-cp; let rr=length(cq);
-      if(rr<R*1.05&&cq.y>-R*.25){ let an=atan2(cq.y,cq.x); let n=14.; let ai=round(an/PI*n)/n*PI; let dl=rr*abs(sin(an-ai)); ink=put(ink,ln(dl,.00028,e)*step(R*.18,rr)*step(rr,R*(.85+.15*hash11(ai*9.+fi+seed))),1.);
+    for(var c=0;c<3;c++){ let cp=mix(mid,b,f32(c)*.5)+vec2f(0.,h*.012); let R=h*(.085-.006*fi); let cq=q-cp; let rr=length(cq);
+      if(rr<R*1.05&&cq.y>-R*.25){
+        let plume=fill(length(cq*vec2f(.93,1.62))-R*.9,e)*smoothstep(-.22,.17,cq.y/R);
+        ink=put(ink,plume*(.27+.3*fbm(q*90.+fi)),.94);
+        let an=atan2(cq.y,cq.x); let n=14.; let ai=round(an/PI*n)/n*PI; let dl=rr*abs(sin(an-ai)); ink=put(ink,ln(dl,.00028,e)*step(R*.18,rr)*step(rr,R*(.85+.15*hash11(ai*9.+fi+seed))),1.);
         ink=put(ink,fill(rr-R*.22,e)*.9,1.); } } }
   return ink; }
 // a boulder: a few rounded masses with a strong outline, hemp-fibre strokes following its shape, dark underneath, moss on top
@@ -139,19 +183,26 @@ fn house(q:vec2f,b:f32,e:f32)->vec2f{ var l=0.; let posts=sat(b*3.); let beam=sa
   let f=fill(rd,e)*rm+fill(sdBox(q-vec2f(0.,.25),vec2f(.5,.25)),e)*step(.01,beam)*.5; l=max(l,fill(rd,e)*rm*ln(fract((rq.x*.6+rq.y)*14.)-.5,.12,.08)*.6); return vec2f(l,f); }
 fn addFp(fp:vec4f,acc:vec4f,wk:f32)->vec4f{ let c=fp.x+(1.-fp.x)*acc.x*wk; return vec4f(c,mix(fp.y,acc.y,acc.x*wk/max(c,1e-3)),max(fp.z,acc.z*wk),fp.w); }
 // one runner on a lane: a stroboscopic string of positions, with a dotted arc through the hips and a line through the heads
-fn runner(S:vec2f,fj:f32,lane:i32,clock:f32,fut:f32,e:f32,fp0:vec4f)->vec4f{ var fp=fp0; let dir=select(-1.,1.,hash11(fj*3.1)<.5); let spd=.7+.6*hash11(fj*7.7);
-  let sz=select(.055,.1,lane==1); let x0r=select(-.62,-.66,lane==1); let span=select(1.5,1.35,lane==1);
-  let pos=fract(hash11(fj*1.9)+dir*spd*clock*.25/span);
+fn runner(S:vec2f,fj:f32,lane:i32,clock:f32,fut:f32,e:f32,fp0:vec4f)->vec4f{ var fp=fp0; let dir=select(1.,-1.,lane==1);
+  let spd=select(.81,1.03,lane==1);
+  let sz=select(.067,.104,lane==1)*(.95+.10*hash11(fj+5.));
+  let x0r=-1.38; let span=2.85;
+  let index=select(fj,fj-6.,lane==1);
+  let phase=(index+.17*hash11(fj+9.))/select(6.,4.,lane==1);
+  let pos=fract(phase+dir*spd*clock*.25/span);
   let xh=x0r+pos*span; let yb=select(farBank(xh)+.003,nearPath(xh),lane==1);
   if(abs(S.y-yb-sz*.5)>sz*.85){ return fp; } if((S.x-xh)*dir>sz*.7||(S.x-xh)*dir<-sz*.7-.2*fut){ return fp; }
-  let M=8; var hipPrev=vec2f(0.); var hdPrev=vec2f(0.);
-  for(var k=0;k<M;k++){ let ck=clock-f32(k)*.13; let pk=fract(hash11(fj*1.9)+dir*spd*ck*.25/span); if(abs(pk-pos)>.5){ break; }
+  let M=5; var hipPrev=vec2f(0.); var hdPrev=vec2f(0.);
+  for(var k=0;k<M;k++){ let ck=clock-f32(k)*select(.12,.17,lane==1); let pk=fract(phase+dir*spd*ck*.25/span); if(abs(pk-pos)>.5){ break; }
     let xk=x0r+pk*span; let byk=select(farBank(xk)+.003,nearPath(xk),lane==1); let q=(S-vec2f(xk,byk))/sz*vec2f(dir,1.);
     let po=walk(xk*dir/(.6*sz)*.5+hash11(fj*5.),1.,0.); let wk=pow(1.-f32(k)/f32(M),1.4)*fut;
-    if(abs(q.x)<.8&&q.y>-.2&&q.y<1.2){ fp=addFp(fp,body(q,po,e/sz,vec4f(0.,.5,0.,0.)),wk); }
+    let entrance=smoothstep(.0,.055,pk)*(1.-smoothstep(.945,1.,pk));
+    if(abs(q.x)<.8&&q.y>-.2&&q.y<1.2){
+      fp=addFp(fp,body(q,po,e/sz,vec4f(0.,.5,0.,0.)),wk*entrance);
+    }
     let hipW=vec2f(xk,byk)+po.hip*vec2f(dir,1.)*sz; let hdW=vec2f(xk,byk)+po.hd*vec2f(dir,1.)*sz;
-    if(k>0){ let sd=sdSeg(S,hipPrev,hipW); let al=length(S-hipPrev); fp.z=max(fp.z,ln(sd,.0005,e)*step(.5,fract(al/(.006*sz/.055)))*wk*.9);
-      fp.z=max(fp.z,ln(sdSeg(S,hdPrev,hdW),.00035,e)*wk*.7); }
+    if(k>0){ let sd=sdSeg(S,hipPrev,hipW); let al=length(S-hipPrev); fp.z=max(fp.z,ln(sd,.0005,e)*step(.5,fract(al/(.006*sz/.055)))*wk*.34*entrance);
+      fp.z=max(fp.z,ln(sdSeg(S,hdPrev,hdW),.00035,e)*wk*.24*entrance); }
     hipPrev=hipW; hdPrev=hdW; }
   return fp; }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
@@ -214,9 +265,18 @@ fn runner(S:vec2f,fj:f32,lane:i32,clock:f32,fut:f32,e:f32,fp0:vec4f)->vec4f{ var
         for(var b=0;b<2;b++){ let bxo=select(-.95,.95,b==1); let bsz=.055; let bq0=(S-vec2f(hx0+bxo*hs,hb-.002))/bsz; if(abs(bq0.x)>.9||bq0.y<-.2||bq0.y>1.3){ continue; }
           for(var k=0;k<7;k++){ let ck=clock-f32(k)*.045; let po=walk(ck*2.4+fi+f32(b)*.5,0.,1.); let wk=(1.-f32(k)/7.)*fut; fp=addFp(fp,body(bq0*vec2f(select(1.,-1.,b==1),1.),po,e/bsz,vec4f(0.,.5,0.,0.)),wk); } } } } }
   // ── people on both banks. Before: a few small figures, still. After: stroboscopic strings of positions, racing both ways.
-  for(var j=0;j<13;j++){ let fj=f32(j); let lane=select(0,1,j>=9);
-    if(fut<.02){ if(j%4==0){ let x0=-.62+hash11(fj*1.9)*1.5; let by=select(farBank(x0)+.003,nearPath(x0),lane==1); let sz=select(.05,.09,lane==1); let pp=person((S-vec2f(x0,by))/sz,0.,e/sz); ink=put(ink,pp.x,1.); white=max(white,pp.y); } continue; }
-    fp=runner(S,fj,lane,clock,fut,e,fp); }
+  for(var j=0;j<10;j++){ let fj=f32(j); let lane=select(0,1,j>=6);
+    if(fut<1. && j%3==0){
+      let idx=select(fj,fj-6.,lane==1);
+      let phase=(idx+.17*hash11(fj+9.))/select(6.,4.,lane==1);
+      let dir=select(1.,-1.,lane==1); let speed=select(.81,1.03,lane==1);
+      let x0=-1.38+fract(phase+dir*speed*clock*.25/2.85)*2.85;
+      let by=select(farBank(x0)+.003,nearPath(x0),lane==1);
+      let sz=select(.067,.104,lane==1)*(.95+.10*hash11(fj+5.));
+      let pp=person((S-vec2f(x0,by))/sz,0.,e/sz);
+      ink=put(ink,pp.x*(1.-fut),1.); white=max(white,pp.y*(1.-fut));
+    }
+    if(fut>.001){fp=runner(S,fj,lane,clock,fut,e,fp);} }
   // the woodcutter: he gets up and hurries down to the village, his positions left behind him
   if(rise>=.02){ let M=12; var hipPrev=vec2f(0.);
     for(var k=0;k<M;k++){ let rk=sat(rise-f32(k)*.05); let mv=sat((rk-.12)/.88); let pos=TER+vec2f(.07-.27*mv,-.003-.19*pow(mv,1.3));

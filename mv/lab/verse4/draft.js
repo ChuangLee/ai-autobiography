@@ -8,6 +8,12 @@ fn wheel(p:vec2f,c:vec2f,R:f32,ang:f32,leo:f32,teeth:f32,w:f32,e:f32)->f32{ let 
   k+=ln(a*r,w*.8,e)*step(.13*R,r)*step(r,.86*R)*mix(1.,1.-odd,leo);
   k+=ln(r-.13*R,w,e)+ln(r-.045*R,w*.7,e);
   let tb=rot(.55)*vec2f(a*r,r-.93*R); k+=ln(sdBox(tb,vec2f(.085*R,.028*R)),w*.7,e)*(1.-leo);
+  // A paddle is hollow: its lip and inner shade follow it through the water.
+  let bowl=rot(.55)*vec2f(a*r,r-.93*R);
+  let lip=ln(sdBox(bowl-vec2f(0.,.018*R),vec2f(.064,.013)*R),w*.52,e);
+  let peg=ln(length(vec2f(a*r,r-.78*R))-.019*R,w*.58,e);
+  let grain=ln((r/R-.93+.012*sin(th*22.))*R,w*.47,e)*smoothstep(.45,.78,vnoise(q*54.));
+  k+=(lip+peg+.7*grain)*(1.-leo);
   return min(k,1.); }
 fn spiral(p:vec2f,c:vec2f,R:f32,t:f32,w:f32,e:f32)->f32{ let q=p-c; let r=length(q); if(r>R){ return 0.; } let th=atan2(q.y,q.x);
   let s=fract(log(r/R)*1.6-th/TAU+t*.25)-.5; return ln(s*r*1.9,w,e)*smoothstep(R,R*.75,r)*smoothstep(.004,.012,r); }

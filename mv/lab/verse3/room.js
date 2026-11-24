@@ -31,13 +31,19 @@ fn sdPerson(p:vec3f)->vec2f{
   let hc=vec3f(0.,1.635+bob,lean*.7+.01);
   var dk=cap(p,vec3f(0.,1.46+bob,lean*.55),hc,.047); dk=smin(dk,(length((p-hc)/vec3f(.078,.105,.095))-1.)*.08,.02);
   dk=min(dk,(length((vec3f(abs(p.x),p.y,p.z)-hc-vec3f(.078,-.005,-.005))/vec3f(.012,.03,.018))-1.)*.012);
-  dk=min(dk,length(p-haL)-.042); dk=min(dk,length(p-haR)-.043);
+  dk=min(dk,capT(p,haL,haL+vec3f(.006,-.056,.009),.034,.019));
+  dk=min(dk,capT(p,haL+vec3f(.019,-.014,.01),haL+vec3f(.022,-.041,.023),.013,.009));
+  dk=min(dk,capT(p,haR,haR+vec3f(.006,.005,.023),.033,.023));
   if(dk<r.x){ r=vec2f(dk,4.); }
   // hair: a cap over the skull, cut off at the forehead (which faces +z)
   let hh=(length((p-hc-vec3f(0.,.012,-.012))/vec3f(.084,.108,.1))-1.)*.08; let dh=max(hh,-(p.y-hc.y+.045- (p.z-hc.z)*.9 - .01*sin(p.x*40.)));
   if(dh<r.x){ r=vec2f(dh,5.); }
   // the cup
-  let c=p-cup; let dc=max(length(c.xz)-(.036+.05*c.y),abs(c.y)-.052)-.004; if(dc<r.x){ r=vec2f(dc,6.); }
+  let c=p-cup; let radius=.036+.05*c.y;
+  let shell=max(max(length(c.xz)-radius,abs(c.y)-.052)-.0025,min(radius-.003-length(c.xz),c.y+.043));
+  let ear=c-vec3f(-.031,0.,-.018);
+  let handle=length(vec2f((length(ear.xy/vec2f(.020,.030))-1.)*.019,ear.z))-.0042;
+  let dc=min(shell,handle); if(dc<r.x){ r=vec2f(dc,6.); }
   return r; }
 fn nPerson(p:vec3f)->vec3f{ let e=vec2f(.003,0.); return normalize(vec3f(sdPerson(p+e.xyy).x-sdPerson(p-e.xyy).x,sdPerson(p+e.yxy).x-sdPerson(p-e.yxy).x,sdPerson(p+e.yyx).x-sdPerson(p-e.yyx).x)); }
 fn box(ro:vec3f,rd:vec3f,lo:vec3f,hi:vec3f)->vec2f{ let a=(lo-ro)/rd; let b=(hi-ro)/rd; let mn=min(a,b); let mx=max(a,b); return vec2f(max(mn.x,max(mn.y,mn.z)),min(mx.x,min(mx.y,mx.z))); }

@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>河水不回答 · 全片</title>
+<style>
+@font-face{font-family:MVLyric;src:url("../../glyphs/lyric.woff2") format("woff2");font-display:swap}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:#000;color:#f3ecdc}
+body{font:16px/1.5 system-ui,sans-serif}
+#stage{isolation:isolate;position:absolute;inset:0;overflow:hidden}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none;background:#000;opacity:0}
+#captions{position:absolute;inset:0;margin:auto;width:min(100vw,177.78vh);height:min(56.25vw,100vh);pointer-events:none;container-type:size;font-family:MVLyric,"Kaiti SC",KaiTi,serif;text-align:center;text-shadow:0 0 .6em #000d,0 0 .15em #000}
+#lyrics,#note{position:absolute;left:0;right:0}#lyrics{bottom:15.5%;font-size:3.3cqh;letter-spacing:.14em}#note{bottom:11.2%;color:#d9cfba;font-size:1.9cqh;letter-spacing:.08em;opacity:.85}
+#controls{position:absolute;z-index:3;left:0;right:0;bottom:0;display:flex;align-items:center;gap:.8em;padding:1.5em max(1em,env(safe-area-inset-right)) max(.6em,env(safe-area-inset-bottom)) max(1em,env(safe-area-inset-left));background:linear-gradient(transparent,#000c);transition:opacity .3s}
+button{padding:.35em .6em;background:transparent;border:0;color:#f3ecdc;font:inherit;cursor:pointer}button:disabled{color:#b4ad9c;cursor:default}button:focus-visible,input:focus-visible{outline:2px solid #e9cf8e}
+#track{flex:1;min-width:3em;accent-color:#cba965}#clock{font-size:.8em;font-variant-numeric:tabular-nums}
+#cover{position:absolute;z-index:2;inset:0;display:grid;place-content:center;justify-items:center;gap:.55em;text-align:center;background:#0007}
+#cover[hidden]{display:none}#cover h1{margin:0;font:clamp(23px,5vw,44px)/1.5 MVLyric,serif;letter-spacing:.2em}
+#start{border:1px solid #d3c39a99;border-radius:3px;font-size:.94em}#status{position:absolute;z-index:3;top:1em;left:50%;transform:translateX(-50%);margin:0;color:#ede5d2;background:#191815d9;padding:.3em .85em;border-radius:3px;pointer-events:none;font-size:.85em}#status:empty{display:none}
+body.quiet{cursor:none}body.quiet #controls:not(:has(:focus-visible)){opacity:0;pointer-events:none}
+</style>
+<div id="stage"></div>
+<div id="captions"><div id="lyrics"></div><div id="note"></div></div>
+<div id="cover"><h1>河水不回答</h1><button id="start" disabled>播放全片</button></div>
+<p id="status" role="status">正在准备画面…</p>
+<nav id="controls" aria-label="播放控制"><button id="toggle" disabled>播放</button><input id="track" type="range" disabled min="0" max="263.63" step=".01" value="0" aria-label="歌曲进度"><output id="clock" for="track">0:00 / 4:24</output></nav>
+<script type="module" src="./player.js"></script>
+</html>

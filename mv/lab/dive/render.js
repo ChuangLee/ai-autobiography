@@ -78,24 +78,68 @@ const LINE=vec3f(.20,.085,.055);
 // 鲲 / 鹏 in mural manner, from the buffer of which part of the body covers each pixel: flat mineral colour, iron-red contour, scales and fin rays drawn as line
 fn body(uv:vec2f)->vec4f{
   let dm=vec2f(textureDimensions(gbuf)); let ip=vec2i(uv*dm); let g=textureLoad(gbuf,ip,0);
-  var edge=0.; for(var k=0;k<8;k++){ let o=vec2i(vec2f(cos(f32(k)*.7854),sin(f32(k)*.7854))*select(1.6,2.6,k%2==1)); let h=textureLoad(gbuf,clamp(ip+o,vec2i(0),vec2i(dm)-1),0);
-    edge=max(edge,max(abs(h.a-g.a),step(.5,abs(h.r-g.r))*min(h.a,g.a))); }
-  if(g.a<.5){ return vec4f(LINE,edge*.9); }
+  let coverage=step(.5,g.a);
+  let stride=max(1,i32(round(dm.x/1200.)));
+  let sides=array<vec2i,4>(vec2i(1,0),vec2i(-1,0),vec2i(0,1),vec2i(0,-1));
+  var edge=0.;
+  for(var k=0;k<4;k++){
+    let h=textureLoad(gbuf,clamp(ip+sides[k]*stride,vec2i(0),vec2i(dm)-1),0);
+    let rim=abs(step(.5,h.a)-coverage);
+    let join=.48*step(.5,abs(h.r-g.r))*step(.5,min(h.a,g.a));
+    edge=max(edge,max(rim,join));
+  }
+  if(coverage==0.){return vec4f(LINE,edge*.19);}
   let AZ=vec3f(.10,.27,.52); let AZ2=vec3f(.22,.42,.62); let MA=vec3f(.16,.47,.38); let CI=vec3f(.70,.19,.11); let OC=vec3f(.78,.56,.24); let WH=vec3f(.87,.83,.73); let GD=vec3f(.93,.72,.28);
   var c=AZ; var ln=0.; let part=g.r; let a=g.g; let b=g.b;
   if(part<.5){ let rows=44.; let i=floor(a*rows); let cx=b*20.+.5*(i%2.); let fx=fract(cx); let fy=fract(a*rows); let belly=cos(b*6.2832);
-    let h=hash21(vec2f(i,floor(cx))); c=mix(AZ,AZ2,step(.5,h)); c=mix(c,MA,step(.80,h)); c=mix(c,OC,step(.94,h)); c=mix(c,WH,smoothstep(-.35,-.75,belly));
-    if(a<.80){ ln=smoothstep(.16,.04,abs(fy-(.08+.85*(1.-4.*(fx-.5)*(fx-.5))))); c=mix(c,c*1.25+.05,smoothstep(.5,.0,fy)*.5); }
-    else { c=mix(AZ,WH,smoothstep(-.2,-.7,belly)); ln=smoothstep(.006,.002,abs(a-.805))+smoothstep(.02,.008,abs(belly+.38))*step(.93,a); } }
-  else if(part<3.5){ let n=select(28.,24.,part>2.5); let f=fract(a*n); let k=floor(a*n); c=mix(CI,OC,step(.5,fract(k*.5))); c=mix(c,MA,step(.66,fract(k*.3333))*step(1.5,part)); c=mix(c,WH,smoothstep(.55,.95,b)*.0+step(.9,b)*.6);
-    c=mix(c,GD,smoothstep(.80,.92,b)*step(2.5,part)); ln=smoothstep(.12,.03,min(f,1.-f)); }
+    let h=hash21(vec2f(i,floor(cx))); c=mix(AZ,AZ2,.26+.56*h); c=mix(c,MA,.29*smoothstep(.72,.95,h)); c=mix(c,OC,.22*smoothstep(.96,1.,h)); c=mix(c,WH,smoothstep(-.35,-.75,belly));
+    if(a<.80){ ln=.70*smoothstep(.11,.035,abs(fy-(.08+.85*(1.-4.*(fx-.5)*(fx-.5))))); c=mix(c,c*1.25+.05,smoothstep(.5,.0,fy)*.5); }
+    else {
+      let plate=.799+.028*cos(b*6.2832);
+      let jaw=.90+.036*cos(b*6.2832);
+      c=mix(AZ,WH,smoothstep(-.2,-.7,belly));
+      ln=.82*smoothstep(.008,.002,abs(a-plate))+.55*smoothstep(.009,.002,abs(a-jaw))*smoothstep(.35,-.12,belly);
+    }
+    c*=.79+.24*smoothstep(-.62,.83,belly);
+    // Scales resolve into a swept field of feather barbs along the bird's breast.
+    let m=u.misc.z;
+    let plume=fract(a*27.+.7*cos(b*6.2832)*sin(a*6.));
+    ln=mix(ln,.43*smoothstep(.13,.035,abs(plume-.5))*smoothstep(.02,.27,a)*smoothstep(.96,.63,a),m);
+    c=mix(c,mix(vec3f(.15,.30,.36),vec3f(.70,.64,.43),smoothstep(.67,-.87,belly))*(.90+.09*plume),m*.86);
+  }
+  else if(part<2.5){ let n=28.; let f=fract(a*n); let k=floor(a*n); c=mix(CI,OC,step(.5,fract(k*.5))); c=mix(c,MA,step(.66,fract(k*.3333))*step(1.5,part)); c=mix(c,WH,smoothstep(.55,.95,b)*.0+step(.9,b)*.6);
+    let flight=mix(AZ,MA,.22+.28*hash11(k+9.));
+    c=mix(c,mix(flight,OC,smoothstep(.80,.96,b)*.62),u.misc.z);
+    ln=smoothstep(.12,.03,min(f,1.-f))*(1.-.40*u.misc.z); }
+  else if(part<3.5){
+    // Each quill has a shaft, a lit vane, a cool vane and an ochre tip.
+    // The across coordinate was saved with the particle, so the lines bend with the wing.
+    let pen=floor(a);
+    let crossVane=fract(a)-.5;
+    let cover=smoothstep(.12,.46,b)*smoothstep(1.,.72,b);
+    let ground=mix(AZ*.68,MA*.88,.18+.38*hash11(pen*5.+1.));
+    c=mix(ground,ground*1.19+.044,smoothstep(-.14,.28,crossVane));
+    c=mix(c,mix(CI*.80,OC,.55),smoothstep(.55,.93,b)*(.47+.42*hash11(pen+3.)));
+    let vein=.5+.5*cos(40.*b+abs(crossVane)*9.);
+    c*=.94+.09*vein*cover;
+    ln=.63*smoothstep(.10,.025,abs(crossVane+.04))*smoothstep(.98,.76,b);
+    let highlight=smoothstep(.095,.023,abs(crossVane-.030))*cover;
+    c=mix(c,GD,highlight*.50);
+  }
   else if(part<4.5){ c=AZ; }
   else { c=mix(GD,OC,smoothstep(.3,.9,a)); ln=smoothstep(.10,.03,abs(fract(b+.5)-.5))*.0+smoothstep(.06,.02,abs(cos(b*6.2832)))*.8; }
   for(var k=0;k<2;k++){ var ey=u.eye0; if(k==1){ ey=u.eye1; } if(ey.w>.01){ let q=(uv-ey.xy)*vec2f(1.7778,1.)/ey.z; let al=length(q*vec2f(.72,1.15)); let d=length(q);
-      let w=smoothstep(1.,.94,al)*ey.w; c=mix(c,WH,w); c=mix(c,GD,w*smoothstep(.66,.62,d)); c=mix(c,vec3f(.04,.035,.04),w*smoothstep(.40,.36,d)); c=mix(c,WH,w*smoothstep(.10,.06,length(q-vec2f(-.14,-.16))));
-      ln=max(ln,ey.w*(smoothstep(.08,.02,abs(al-.97))+.8*smoothstep(.05,.01,abs(d-.64)))); } }
-  c*=.92+.16*vnoise(uv*vec2f(1.7778,1.)*60.);
-  c=mix(c,LINE,clamp(max(ln*.8,edge),0.,1.));
+      let w=smoothstep(1.,.90,al)*ey.w;
+      c=mix(c,mix(AZ*.72,OC*.83,.63+.23*q.y),w);
+      let rays=.5+.5*cos(atan2(q.y,q.x)*23.+1.7*d);
+      c=mix(c,mix(OC,GD,rays*.54),w*smoothstep(.68,.60,d));
+      c=mix(c,vec3f(.034,.049,.052),w*smoothstep(.45,.37,d)); c=mix(c,WH,w*smoothstep(.10,.06,length(q-vec2f(-.14,-.16))));
+      ln=max(ln,ey.w*(smoothstep(.07,.015,abs(al-.95))+.50*smoothstep(.04,.01,abs(d-.64)))); } }
+  // Green-grey washes recede on the far wing; nearer quills keep the deepest azurite.
+  let behind=clamp((g.a-u.misc.y)*.19,-1.,1.);
+  c=mix(c,vec3f(.53,.58,.53),smoothstep(-.10,.95,behind)*.38);
+  c*=.96+.08*vnoise(vec2f(a*.8,b*16.)+part*17.);
+  c=mix(c,LINE,clamp(max(ln*.8,edge*.72),0.,1.));
   return vec4f(c,1.);
 }
 fn above(uv:vec2f)->vec3f{
@@ -138,15 +182,15 @@ struct P { p:vec4f, v:vec4f, c:vec4f, g:vec4f }
 struct R { vp:mat4x4f, cam:vec4f, right:vec4f, up:vec4f, par:vec4f }
 @group(0)@binding(0) var<storage,read> ps:array<P>;
 @group(0)@binding(1) var<uniform> r:R;
-struct VO { @builtin(position) pos:vec4f, @location(0) e:vec2f, @location(1) g:vec3f }
+struct VO { @builtin(position) pos:vec4f, @location(0) e:vec2f, @location(1) g:vec3f, @location(2) depth:f32 }
 @vertex fn vs(@builtin(vertex_index) vi:u32, @builtin(instance_index) ii:u32)->VO{
   var o:VO; let P0=ps[ii]; var qa=array<vec2f,6>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(-1.,1.),vec2f(-1.,1.),vec2f(1.,-1.),vec2f(1.,1.)); let e=qa[vi];
   let wk=P0.g.w; let rad=r.par.x*smoothstep(.15,1.,wk)*select(select(1.,.75,P0.g.x>.5),.38,P0.g.x>3.5);
-  let pos=P0.p.xyz; o.pos=r.vp*vec4f(pos+(r.right.xyz*e.x+r.up.xyz*e.y)*rad,1.); o.e=e; o.g=P0.g.xyz;
+  let pos=P0.p.xyz; o.pos=r.vp*vec4f(pos+(r.right.xyz*e.x+r.up.xyz*e.y)*rad,1.); o.e=e; o.g=P0.g.xyz; o.depth=max(.51,o.pos.w);
   let wrong=select((pos.y>0.),(pos.y<0.),(r.cam.y>0.));
   if(wk<.16||wrong||P0.c.a<=0.){ o.pos=vec4f(2.,2.,2.,1.); }
   return o; }
-@fragment fn fs(i:VO)->@location(0) vec4f{ if(dot(i.e,i.e)>1.){ discard; } return vec4f(i.g,1.); }
+@fragment fn fs(i:VO)->@location(0) vec4f{ if(dot(i.e,i.e)>1.){ discard; } return vec4f(i.g,i.depth); }
 `;
 // ───────── the characters: flakes that turn with the flock and catch the light ─────────
 export const PART_DRAW = `
@@ -193,6 +237,46 @@ struct VO { @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) co
 // The glyphs are one elastic body. First a murmuration: a long cloud whose every point is displaced by slow waves (crowding that runs
 // its length, folds, a twist, a parting). Then the same glyphs take their places on 鲲, a fish too large for the frame (scaled flank,
 // eye, lunate tail, fins), and its fins lengthen into the wings of 鹏. Each glyph is sprung to its own point, so the whole lags and closes up.
+const ANATOMY = `
+fn hh(n:f32)->f32{ return fract(sin(n*12.9898)*43758.5453); }
+fn fishR(s:f32)->f32{ if(s<.60){ return mix(.11,.92,smoothstep(0.,.60,s)); } return .92*sqrt(max(1.-pow((s-.60)/.40,2.4),0.)); }
+fn birdR(s:f32)->f32{
+  let breast=(s-.50)/.225; let head=(s-.90)/.065;
+  return .65*exp(-breast*breast)+.19*smoothstep(.54,.72,s)*smoothstep(1.,.88,s)+.21*exp(-head*head);
+}
+fn RR(s:f32,m:f32)->f32{ return mix(fishR(s),birdR(s),m); }
+fn neck(s:f32)->f32{ return .62*smoothstep(.62,.93,s); }
+fn bone(f:f32)->vec2f{ if(f<.33){ return mix(vec2f(0.,0.),vec2f(.55,.40),f/.33); } if(f<.66){ return mix(vec2f(.55,.40),vec2f(1.20,.34),(f-.33)/.33); } return mix(vec2f(1.20,.34),vec2f(2.05,.06),(f-.66)/.34); }
+fn wingP(a:vec4f, b:vec4f, beat:f32, amp:f32)->vec3f{            // x: out along the span, y: toward the leading edge, z: lift
+  let s=a.x; var p=vec3f(0.);
+  if(s<.80){ let f=floor(a.y*24.)/23.; let an=mix(-1.50,-.16,pow(f,1.25)); let ln=mix(.67,1.26,sin(1.5708*min(f*1.15,1.)))*(.95+.05*hh(f*91.));
+    let tip=smoothstep(.62,1.,f); let uu=pow(a.z,.8)*(1.+.50*tip); let bp=bone(f); let d=vec2f(cos(an),sin(an)); let wd=(b.x-.5)*(.27-.11*tip)*pow(max(.0,sin(3.1416*a.z)),.7);
+    let q=bp+d*uu*ln+vec2f(-d.y,d.x)*wd;
+    let camber=.14*sin(3.1416*a.z)-.12*a.z*a.z;
+    p=vec3f(q.x,q.y,camber+.044*sin(f*3.1416)); }
+  else if(s<.95){ let bp=bone(a.y); p=vec3f(bp.x+(b.x-.5)*.06,bp.y-a.z*.34*(1.-.55*a.y),(b.y-.5)*.06); }
+  else { let bp=bone(a.y); p=vec3f(bp.x,bp.y+(b.x-.5)*.05,(b.y-.5)*.05); }
+  let lift=amp*sin(beat-.50*p.x)*(.2+.8*smoothstep(0.,2.,p.x))+.12*amp; return vec3f(p.x*cos(lift)+.10,p.y,p.z+p.x*sin(lift));
+}
+fn kun(a:vec4f, b:vec4f, c:vec4f, m:f32, t:f32, und:f32, beat:f32, bend:f32, amp:f32, at:ptr<function,vec3f>)->vec4f{
+  let L=mix(3.,2.3,m); let zr=mix(.62,.86,m); var p=vec3f(0.); var gold=0.; let s0=a.x; let sg=select(-1.,1.,c.x>.5);
+  // The same fin rays grow into the same primaries throughout the stroke.
+  let e0=.014; let e1=.415; let e2=.525; let e3=.566;
+  if(s0<e0){ let uu=a.y; let rad=.155*(1.-uu)*(.8+.2*b.x); let ph=a.z*6.2832; let bill=vec3f(.95*L+uu*.52,m*neck(.96)+.03-.25*uu*uu+rad*cos(ph),rad*sin(ph)*.8);
+    let snout=vec3f(L*(.86+.12*uu),rad*cos(ph)-.055,rad*sin(ph)*.75);
+    p=mix(snout,bill,m); gold=m; *at=vec3f(select(0.,5.,m>.40),mix(.96,uu,m),a.z); }
+  else if(s0<e1){ let q=wingP(vec4f(c.z,a.y,a.z,a.w),b,beat,amp); let ws=mix(.45,2.6,m); let sw=mix(1.05,0.,m); let cs=cos(sw); let sn=sin(sw); let sa=mix(.70,.56,m);
+    p=vec3f((sa*2.-1.)*L+(q.y*cs-q.x*sn)*ws,mix(-.30,.30,m)+q.z*ws-(1.-m)*.45*q.x*ws,sg*(zr*RR(sa,m)*.85+(q.x*cs+q.y*sn*.3)*ws)); gold=.25*step(.8,c.z); *at=vec3f(3.,floor(a.y*24.)+b.x*.99,a.z); }
+  else if(s0<e2){ var th=(a.y*2.-1.)*1.15; if(c.y<.6){ th=((floor(a.y*28.)+.5)/28.*2.-1.)*1.15; } let uu=pow(a.z,.6); let fishTail=mix(1.0,2.2,pow(abs(th)/1.15,1.3)); let birdTail=1.55-.30*abs(th); let Lr=mix(fishTail,birdTail,m); th*=1.-.43*m;
+    let v=uu*Lr*sin(th); let mr=m*1.5708; p=vec3f(-L+.15-uu*Lr*cos(th),v*cos(mr),v*sin(mr)+(b.x-.5)*.04); *at=vec3f(1.,a.y,uu); }
+  else if(s0<e3){ let s=.38+.34*a.y; let h=.8*pow(sin(3.1416*a.y),.7)*(1.-m); p=vec3f((s*2.-1.)*L-a.z*h*.55,RR(s,m)+a.z*h,(b.x-.5)*.05); *at=vec3f(2.,a.y,a.z); }
+  else { var s=a.y; let rows=44.; let i=floor(s*rows); let fc=fract(a.z*20.+.5*(i%2.));
+    if(c.y<.62&&s<.80){ s=(i+.08+.85*(1.-4.*(fc-.5)*(fc-.5)))/rows; }
+    let ph=a.z*6.2832; let r=RR(s,m)*(.985+.03*b.x); p=vec3f((s*2.-1.)*L,r*cos(ph)+m*neck(s),zr*r*sin(ph)); *at=vec3f(0.,s,a.z); }
+  let sN=clamp((p.x+L)/(2.*L),0.,1.); p.z+=und*(.03+.34*(1.-sN)*(1.-sN))*sin(2.0*p.x-t*2.3)+bend*.5*p.x*p.x;
+  return vec4f(p,gold);
+}
+`;
 export const PART_SIM = NOISE + PIG + `
 struct P { p:vec4f, v:vec4f, c:vec4f, g:vec4f }
 struct PU { dt:f32, t:f32, k:f32, alpha:f32, scale:f32, wave:f32, split:f32, fold:f32,
@@ -203,36 +287,7 @@ struct PU { dt:f32, t:f32, k:f32, alpha:f32, scale:f32, wave:f32, split:f32, fol
 @group(0)@binding(2) var samp:sampler;
 @group(0)@binding(3) var vel:texture_3d<f32>;
 @group(0)@binding(4) var dye:texture_3d<f32>;
-fn hh(n:f32)->f32{ return fract(sin(n*12.9898)*43758.5453); }
-fn fishR(s:f32)->f32{ if(s<.60){ return mix(.11,.92,smoothstep(0.,.60,s)); } return .92*sqrt(max(1.-pow((s-.60)/.40,2.4),0.)); }
-fn birdR(s:f32)->f32{ return max(.80*exp(-pow((s-.48)/.25,2.)),.25*smoothstep(.58,.72,s)*smoothstep(.99,.93,s))+.19*exp(-pow((s-.915)/.05,2.)); }
-fn RR(s:f32,m:f32)->f32{ return mix(fishR(s),birdR(s),m); }
-fn neck(s:f32)->f32{ return .62*smoothstep(.62,.93,s); }
-fn bone(f:f32)->vec2f{ if(f<.33){ return mix(vec2f(0.,0.),vec2f(.55,.40),f/.33); } if(f<.66){ return mix(vec2f(.55,.40),vec2f(1.20,.34),(f-.33)/.33); } return mix(vec2f(1.20,.34),vec2f(2.05,.06),(f-.66)/.34); }
-fn wingP(a:vec4f, b:vec4f, beat:f32, amp:f32)->vec3f{            // x: out along the span, y: toward the leading edge, z: lift
-  let s=a.x; var p=vec3f(0.);
-  if(s<.80){ let f=floor(a.y*24.)/23.; let an=mix(-1.50,-.16,pow(f,1.25)); let ln=mix(.62,1.30,sin(1.5708*min(f*1.15,1.)))*(.92+.08*hh(f*91.));
-    let tip=smoothstep(.62,1.,f); let uu=pow(a.z,.8)*(1.+.50*tip); let bp=bone(f); let d=vec2f(cos(an),sin(an)); let wd=(b.x-.5)*.085*(1.-.6*tip)*sin(3.1416*min(a.z*1.04,1.));
-    let q=bp+d*uu*ln+vec2f(-d.y,d.x)*wd; p=vec3f(q.x,q.y,.05*uu*uu); }
-  else if(s<.95){ let bp=bone(a.y); p=vec3f(bp.x+(b.x-.5)*.06,bp.y-a.z*.34*(1.-.55*a.y),(b.y-.5)*.06); }
-  else { let bp=bone(a.y); p=vec3f(bp.x,bp.y+(b.x-.5)*.05,(b.y-.5)*.05); }
-  let lift=amp*sin(beat-.50*p.x)*(.2+.8*smoothstep(0.,2.,p.x))+.12*amp; return vec3f(p.x*cos(lift)+.10,p.y,p.z+p.x*sin(lift));
-}
-fn kun(a:vec4f, b:vec4f, c:vec4f, m:f32, t:f32, und:f32, beat:f32, bend:f32, amp:f32, at:ptr<function,vec3f>)->vec4f{
-  let L=mix(3.,2.3,m); let zr=mix(.62,.86,m); var p=vec3f(0.); var gold=0.; let s0=a.x; let sg=select(-1.,1.,c.x>.5);
-  let wn=mix(.08,.46,m); let e0=.016*m; let e1=e0+wn; let e2=e1+.11; let e3=e2+.05*(1.-m);
-  if(s0<e0){ let uu=a.y; let rad=.135*(1.-uu)*(.8+.2*b.x); let ph=a.z*6.2832; p=vec3f((.975*2.-1.)*L+uu*.52,m*neck(.96)+.03-.34*uu*uu+rad*cos(ph),rad*sin(ph)*.8); gold=1.; *at=vec3f(5.,uu,a.z); }
-  else if(s0<e1){ let q=wingP(vec4f(c.z,a.y,a.z,a.w),b,beat,amp); let ws=mix(.45,2.6,m); let sw=mix(1.05,0.,m); let cs=cos(sw); let sn=sin(sw); let sa=mix(.70,.56,m);
-    p=vec3f((sa*2.-1.)*L+(q.y*cs-q.x*sn)*ws,mix(-.30,.30,m)+q.z*ws-(1.-m)*.45*q.x*ws,sg*(zr*RR(sa,m)*.85+(q.x*cs+q.y*sn*.3)*ws)); gold=.25*step(.8,c.z); *at=vec3f(3.,a.y,a.z); }
-  else if(s0<e2){ var th=(a.y*2.-1.)*1.15; if(c.y<.6){ th=((floor(a.y*28.)+.5)/28.*2.-1.)*1.15; } let uu=pow(a.z,.6); let Lr=mix(1.0,2.2,pow(abs(th)/1.15,1.3))*(1.+.5*m);
-    let v=uu*Lr*sin(th); let mr=m*1.5708; p=vec3f(-L+.15-uu*Lr*cos(th),v*cos(mr),v*sin(mr)+(b.x-.5)*.04); *at=vec3f(1.,a.y,uu); }
-  else if(s0<e3){ let s=.38+.34*a.y; let h=.8*pow(sin(3.1416*a.y),.7)*(1.-m); p=vec3f((s*2.-1.)*L-a.z*h*.55,RR(s,m)+a.z*h,(b.x-.5)*.05); *at=vec3f(2.,a.y,a.z); }
-  else { var s=a.y; let rows=44.; let i=floor(s*rows); let fc=fract(a.z*20.+.5*(i%2.));
-    if(c.y<.62&&s<.80){ s=(i+.08+.85*(1.-4.*(fc-.5)*(fc-.5)))/rows; }
-    let ph=a.z*6.2832; let r=RR(s,m)*(.985+.03*b.x); p=vec3f((s*2.-1.)*L,r*cos(ph)+m*neck(s),zr*r*sin(ph)); *at=vec3f(0.,s,a.z); }
-  let sN=clamp((p.x+L)/(2.*L),0.,1.); p.z+=und*(.03+.34*(1.-sN)*(1.-sN))*sin(2.0*p.x-t*2.3)+bend*.5*p.x*p.x;
-  return vec4f(p,gold);
-}
+` + ANATOMY + `
 @compute @workgroup_size(64) fn main(@builtin(global_invocation_id) id:vec3u){
   let i=id.x; if(i>=arrayLength(&ps)){ return; }
   var P0=ps[i]; let sd=P0.p.w; var p=P0.p.xyz; var v=P0.v.xyz; let dt=u.dt; let t=u.t;
@@ -268,3 +323,49 @@ fn kun(a:vec4f, b:vec4f, c:vec4f, m:f32, t:f32, und:f32, beat:f32, bend:f32, amp
   let shown=max(step(hh(sd+41.),u.kP.w*0.+u.camP.w),wk);                 // before it is 鲲 the shoal is loose: only some of the characters are out
   ps[i]=P(vec4f(p,sd),vec4f(v,0.),vec4f(cc,u.alpha*shown*(.6+.8*hh(sd+21.))),vec4f(at,wk*(1.-stray)));
 }`;
+
+// A feather is a connected sheet of barbs. Once the flock is dense enough to
+// form paint, fill between the same quills that the moving characters follow.
+export const SURFACE = ANATOMY + `
+struct M {
+  vp:mat4x4f, origin:vec4f, x:vec4f, y:vec4f, z:vec4f, pose:vec4f, view:vec4f
+}
+@group(0) @binding(0) var<uniform> u:M;
+struct V { @builtin(position) pos:vec4f, @location(0) material:vec3f,
+           @location(1) depth:f32, @location(2) height:f32 }
+@vertex fn vs(@builtin(vertex_index) vertex:u32, @builtin(instance_index) surfaceId:u32)->V {
+  let corners=array<vec2u,6>(vec2u(0,0),vec2u(1,0),vec2u(0,1),vec2u(0,1),vec2u(1,0),vec2u(1,1));
+  let cells=select(vec2u(60,32),vec2u(14,5),surfaceId>0u);
+  let cell=vertex/6u;
+  let uv=vec2f(vec2u(cell%cells.x,cell/cells.x)+corners[vertex%6u])/vec2f(cells);
+  var a=vec4f(.9,uv.x,uv.y,.0); var b=vec4f(.5);
+  var params=vec4f(.9,.95,.2,0.);
+  if(surfaceId>=1u && surfaceId<=96u){
+    let id=surfaceId-1u; let covert=id>=48u;
+    let f=(f32(id%24u)+.5)/24.;
+    a=vec4f(.19,f,uv.x*select(1.,.53,covert),0.); b.x=uv.y;
+    params.x=select(.10,.90,(id/24u)%2u==1u);
+  }else if(surfaceId==97u){
+    a=vec4f(.46,uv.y,uv.x,0.); // tail fin rotating into the fan of tail feathers
+  }else if(surfaceId==98u){
+    a=vec4f(.008,uv.x,uv.y,0.);
+  }else if(surfaceId==99u){
+    a=vec4f(.54,uv.y,uv.x,0.); // dorsal fin folding along the back
+  }
+  var mat=vec3f(0.);
+  var p=kun(a,b,params,u.origin.w,u.x.w,u.pose.x,u.pose.y,u.pose.z,u.pose.w,&mat).xyz;
+  if(surfaceId>=49u && surfaceId<=96u){
+    p.y+=.037*u.origin.w*sin(3.1416*uv.x);
+    p.x+=.23*u.origin.w*uv.x;
+    mat.y=floor(mat.y)+.01+.98*uv.y;
+  }
+  let world=u.origin.xyz+(u.x.xyz*p.x+u.y.xyz*p.y+u.z.xyz*p.z)*u.y.w;
+  var o:V; o.pos=u.vp*vec4f(world,1.);
+  o.material=mat; o.depth=max(.51,o.pos.w); o.height=world.y;
+  return o;
+}
+@fragment fn fs(i:V)->@location(0) vec4f{
+  if(i.height*u.view.x<0.){discard;}
+  return vec4f(i.material,i.depth);
+}
+`;

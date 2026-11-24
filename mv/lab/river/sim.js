@@ -6,50 +6,6 @@ fn ih(x:u32)->u32{ let v=x*747796405u+2891336453u; let w=((v>>((v>>28u)+4u))^v)*
 fn rf(x:u32)->f32{ return f32(ih(x)&0xffffffu)/16777216.; }
 fn tribOf(i:u32)->u32{ let m=(i*37u)%100u; if(m<13u){return 0u;} if(m<26u){return 1u;} if(m<56u){return 2u;} if(m<84u){return 3u;} return 4u; }
 `;
-export const BUST = `
-fn sdEll(p:vec3f, r:vec3f)->f32{ let k0=length(p/r); let k1=length(p/(r*r)); return k0*(k0-1.)/max(k1,1e-5); }
-fn sdCap(p:vec3f,a:vec3f,b:vec3f,r:f32)->f32{ let pa=p-a; let ba=b-a; let h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.); return length(pa-ba*h)-r; }
-fn smin(a:f32,b:f32,k:f32)->f32{ let h=max(k-abs(a-b),0.)/k; return min(a,b)-h*h*k*.25; }
-// A colossal bust: about one head = 1.1 units; y up, facing -z, standing in the water at y = 0. Symmetric in x.
-fn torsoSd(q:vec3f)->f32{
-  var d=sdEll(q-vec3f(0.,.70,.02), vec3f(.70,.52,.36));                              // ribcage
-  d=smin(d, sdEll(q-vec3f(.29,.80,-.20), vec3f(.30,.21,.15)), .10);                  // pectoral
-  d=smin(d, sdEll(q-vec3f(0.,.02,.04), vec3f(.53,.72,.30)), .28);                    // waist
-  d=smin(d, sdEll(q-vec3f(0.,-.62,.05), vec3f(.60,.62,.34)), .30);                   // hips, going down into the sea
-  d=smin(d, sdEll(q-vec3f(0.,.18,-.20), vec3f(.26,.42,.10)), .16);                   // the plane of the abdomen
-  d=smin(d, sdEll(q-vec3f(.84,.90,.05), vec3f(.26,.30,.25)), .26);                   // the shoulder, rounded into the chest: no arms
-  d=smin(d, sdCap(q, vec3f(.10,1.13,-.20), vec3f(.76,1.13,-.08), .042), .07);        // clavicle
-  d=smin(d, sdCap(q, vec3f(0.,1.50,.13), vec3f(.66,1.13,.09), .115), .16);           // trapezius
-  d=smin(d, sdCap(q, vec3f(0.,1.10,.09), vec3f(0.,1.80,.03), .185), .14);            // neck
-  d=smin(d, sdCap(q, vec3f(.06,1.20,-.13), vec3f(.20,1.72,.06), .05), .06);          // sternomastoid
-  return d; }
-fn headSd(q:vec3f)->f32{
-  var h=sdEll(q-vec3f(0.,2.24,.05), vec3f(.395,.45,.49));                            // cranium
-  h=smin(h, sdEll(q-vec3f(0.,1.99,-.09), vec3f(.315,.40,.36)), .14);                 // face
-  h=smin(h, sdEll(q-vec3f(0.,1.70,-.37), vec3f(.115,.10,.10)), .10);                 // chin
-  h=max(h, -(length(q-vec3f(0.,1.765,-.50))-.035));                                  // the hollow under the lower lip
-  h=smin(h, sdCap(q, vec3f(.25,1.90,.02), vec3f(.06,1.70,-.28), .065), .10);         // jaw line
-  h=smin(h, length(q-vec3f(.215,2.04,-.27))-.105, .14);                              // cheekbone
-  h=smin(h, sdCap(q, vec3f(.03,2.245,-.425), vec3f(.26,2.228,-.35), .060), .06);     // brow ridge, over the orbit
-  h=smin(h, sdCap(q, vec3f(.06,2.165,-.455), vec3f(.245,2.160,-.405), .020), .03);   // the upper lid has thickness
-  h=smin(h, sdCap(q, vec3f(0.,2.21,-.455), vec3f(0.,2.10,-.50), .050), .05);         // nasal bridge
-  h=-smin(-h, length(q-vec3f(.155,2.135,-.545))-.105, .08);                          // eye socket, shallow
-  h=smin(h, sdEll(q-vec3f(.155,2.126,-.375), vec3f(.098,.058,.072)), .03);           // the closed lid, full
-  h=max(h, -sdCap(q, vec3f(.07,2.108,-.452), vec3f(.235,2.112,-.418), .007));          // the line where the lids meet
-  h=smin(h, sdCap(q, vec3f(0.,2.19,-.455), vec3f(0.,1.99,-.565), .046), .06);        // nose
-  h=smin(h, length(q-vec3f(0.,1.975,-.575))-.058, .04);
-  h=smin(h, sdEll(q-vec3f(.066,1.958,-.505), vec3f(.046,.038,.05)), .03);            // alar wings
-  h=max(h, -sdCap(q, vec3f(0.,1.935,-.56), vec3f(0.,1.885,-.545), .012));           // philtrum
-  h=smin(h, sdCap(q, vec3f(.11,1.95,-.44), vec3f(.15,1.80,-.40), .03), .08);         // the fold from nose to mouth
-  h=smin(h, sdEll(q-vec3f(0.,1.862,-.475), vec3f(.115,.032,.05)), .03);              // lips
-  h=smin(h, sdEll(q-vec3f(0.,1.808,-.462), vec3f(.098,.036,.05)), .03);
-  h=max(h, -sdCap(q, vec3f(0.,1.840,-.53), vec3f(.105,1.830,-.47), .010));
-  h=smin(h, sdEll(q-vec3f(.415,2.11,.06), vec3f(.035,.11,.07)), .03);                // ear
-  return h; }
-fn headQ(q:vec3f)->vec3f{ let a=.19; let v=q-vec3f(0.,1.72,.02); return vec3f(v.x, v.y*cos(a)-v.z*sin(a), v.y*sin(a)+v.z*cos(a))+vec3f(0.,1.72,.02); }
-fn bust(p:vec3f)->f32{ var q=p; q.y-=.85; q.x=abs(q.x); if(q.y<1.2){ return torsoSd(q); } if(q.y>2.12){ return headSd(headQ(q)); } return smin(torsoSd(q),headSd(headQ(q)),.10); }
-fn bustN(p:vec3f)->vec3f{ let e=vec2f(.012,-.012); return normalize(e.xyy*bust(p+e.xyy)+e.yyx*bust(p+e.yyx)+e.yxy*bust(p+e.yxy)+e.xxx*bust(p+e.xxx)); }
-`;
 const FH = `struct FU{ dt:f32, cs:f32, decay:f32, wall:f32, gx:f32, gz:f32, q:f32, wmax:f32 }
 @group(0)@binding(0) var<uniform> F:FU;
 fn inb(c:vec2i)->vec2i{ return clamp(c,vec2i(0),vec2i(i32(F.gx)-1,i32(F.gz)-1)); }
@@ -69,10 +25,14 @@ fn skin(q:vec3f, n:vec3f, t:f32, dens:f32, sc:f32, seed:f32)->f32{ let w=n*n;
 fn statueLit(q:vec3f, n:vec3f)->f32{ let ao=clamp(.5+bust(q+n*.05)*10.,0.,1.)*clamp(.55+bust(q+n*.16)*2.8,0.,1.);
   var sh=1.; var tt=.03; for(var i=0;i<12;i++){ let d=bust(q+SKEY*tt); sh=min(sh,clamp(9.*d/tt,0.,1.)); tt+=clamp(d,.02,.14); if(sh<.02){ break; } }
   return (max(dot(n,SKEY),0.)*sh*(.35+.65*ao)+.13*ao*max(dot(n,normalize(vec3f(.2,-.6,-.75))),0.)+.05*ao); }
-fn statueCol(q:vec3f, n:vec3f, rd:vec3f, t:f32)->vec3f{ let lit=statueLit(q,n); let dens=mix(.07,.92,smoothstep(.04,.62,lit)); let ndv=max(dot(n,-rd),0.);
-  let m=skin(q,n,t,dens*.8,11.,1.)*(.14+2.6*lit*lit+.7*lit)+skin(q,n,t*1.4,dens*.9,21.,40.)*(.10+2.0*lit*lit+.5*lit)+skin(q,n,t*1.9,dens*.8,39.,80.)*(.05+1.2*lit*lit+.3*lit);
-  let inner=.010+.11*lit+.10*lit*lit;                                                     // light under the characters: a body of light, not a shell
-  return vec3f(1.,.68,.26)*(inner+m+.12*pow(1.-ndv,4.)*(.3+lit))+vec3f(1.,.82,.5)*.03*lit*lit; }
+fn statueCol(q:vec3f, n:vec3f, rd:vec3f, t:f32)->vec3f{ let lit=.12*max(dot(n,-rd),0.)+.87*statueLit(q,n); let dens=mix(.07,.92,smoothstep(.04,.62,lit)); let ndv=max(dot(n,-rd),0.);
+  // Under the larger, slow-moving characters the cheek still turns through a half tone.
+  let script=skin(q,n,t,dens*.85,10.,1.)+.32*skin(q,n,t*.85,dens*.65,22.,40.);
+  let grazing=pow(1.-ndv,3.);
+  let highlight=pow(max(dot(n,normalize(SKEY-rd)),0.),24.);
+  let flesh=mix(vec3f(.044,.036,.031),vec3f(.82,.66,.42),lit);
+  let under=flesh*(.42+.35*lit)+vec3f(.90,.79,.57)*(.13*highlight+.05*grazing);
+  return eyeColor(q,under+vec3f(.024,.023,.027)*(1.-lit)+vec3f(1.,.84,.59)*script*(.065+.7*lit)); }
 `;
 export const FLUID = {
   init: FH + `@group(0)@binding(1) var psi0:texture_2d<f32>; @group(0)@binding(2) var pa:texture_storage_2d<r32float,write>; @group(0)@binding(3) var pb:texture_storage_2d<r32float,write>;
@@ -109,10 +69,23 @@ fn sdAt(xz:vec2f)->f32{ return (textureSampleLevel(fieldT,samp,fuv(xz),0.).b-.5)
 fn flow3(p:vec3f,t:f32)->vec3f{ let a=p*.085+vec3f(0.,-t*.11,0.); let b=p.zxy*.19+vec3f(t*.07,1.7,-t*.05);
   return vec3f(sin(a.z)+cos(a.y), sin(a.x)+cos(a.z), sin(a.y)+cos(a.x))+.5*vec3f(sin(b.z)+cos(b.y), sin(b.x)+cos(b.z), sin(b.y)+cos(b.x)); }
 fn headSpawn(i:u32)->Pt{ var p:Pt; let h=G.heads[tribOf(i)]; p.pos=vec3f(h.x+(rnd(i,1u)-.5)*h.z*1.1, 0., h.y+(rnd(i,2u)-.5)*4.); p.age=0.; p.vel=vec3f(0.); p.kind=0.; p.ex=vec4f(0.,1.,0.,0.); return p; }
+@group(0) @binding(6) var figureVolume:texture_3d<f32>;
+fn volumeSample(p:vec3f)->vec4f{
+  let uv=clamp((p-volumeLo)/volumeExtent,vec3f(0.),vec3f(1.));
+  let v=textureSampleLevel(figureVolume,samp,uv,0.);
+  let outside=p-(volumeLo+uv*volumeExtent);
+  let d=length(outside);
+  let n=normalize(v.xyz+vec3f(1e-6,0.,0.));
+  if(d>1e-4){
+    let projected=n*v.w+outside;
+    return vec4f(normalize(projected+vec3f(1e-6,0.,0.)),length(projected));
+  }
+  return vec4f(n,v.w);
+}
 fn figSpawn(i:u32)->Pt{ var p:Pt; let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y); let r=rnd(i,3u); let a=rnd(i,4u)*6.2832; p.age=0.; p.vel=vec3f(0.); p.kind=1.; p.ex=vec4f(0.,.6,0.,0.);
   if(r<.20){                                                      // condenses on the body, anywhere below the rising front
     var q=vec3f((rnd(i,5u)*2.-1.)*1.3, rnd(i,11u)*max(G.m3.w/S,.06), mix(-.66,.30,rnd(i,12u)));
-    if(rnd(i,13u)<.08 && G.m3.w>S*2.5){ q=vec3f((rnd(i,5u)*2.-1.)*.5, mix(2.4,min(G.m3.w/S,3.6),rnd(i,11u)), mix(-.62,.2,rnd(i,12u))); } for(var k=0;k<5;k++){ q-=bustN(q)*bust(q); }
+    if(rnd(i,13u)<.08 && G.m3.w>S*2.5){ q=vec3f((rnd(i,5u)*2.-1.)*.5, mix(2.4,min(G.m3.w/S,3.6),rnd(i,11u)), mix(-.62,.2,rnd(i,12u))); } for(var k=0;k<5;k++){ let sample=volumeSample(q); q-=sample.xyz*sample.w; }
     q.y=max(q.y,.01); p.pos=C+q*S; p.ex.w=1.; return p; }
   if(r<.36){ let k=.90+.16*rnd(i,5u); p.pos=C+vec3f(cos(a)*.60*k,0.,sin(a)*.36*k)*S; }      // climbs out at the waterline
   else { let j=floor(rnd(i,6u)*30.); let an=3.1416+(j-14.5)*.105+(rf(u32(j)*13u+5u)-.5)*.2; let R=S*(.85+2.6*rf(u32(j)*31u+7u)); let sheet=step(.6,rf(u32(j)*5u+3u)); let g=vec2f((rnd(i,7u)+rnd(i,8u)-1.)*mix(1.6,9.,sheet), (rnd(i,9u)+rnd(i,10u)-1.)*1.6);
@@ -136,7 +109,7 @@ fn figSpawn(i:u32)->Pt{ var p:Pt; let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y)
     if(s>=.999||xz.y>248.||abs(xz.x)>31.5){ if(t>G.m3.y && rnd(i,20u)<.8){ p=figSpawn(i); } else { p=headSpawn(i); } }
     P[i]=p; return; }
   // the figure: out of the still surface, upward
-  let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y); let q=(p.pos-C)/S; let d=bust(q)*S; let n=bustN(q); let U=G.m3.x*(.75+.5*hi)*mix(1.,.42,p.ex.w);
+  let S=G.fig.z; let C=vec3f(G.fig.x,0.,G.fig.y); let q=(p.pos-C)/S; let sample=volumeSample(q); let d=sample.w*S; let n=sample.xyz; let U=G.m3.x*(.75+.5*hi)*mix(1.,.42,p.ex.w);
   let near=1.-smoothstep(.8,7.,abs(d));
   var vt=vec3f(0.,U,0.)+flow3(p.pos,t)*mix(1.6,3.2,near);
   let tn=vt-n*dot(vt,n); vt=mix(vt, tn*(1.+.35*near), near*.93);

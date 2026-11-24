@@ -1,3 +1,20 @@
+export const VISITOR_MODEL = `
+fn visitorDistance(pos:vec3f)->f32{
+  var q=pos;
+  // The nearer hand opens towards the questioner; only the arm follows this bend.
+  let arm=smoothstep(.62,.90,q.x)*(1.-smoothstep(1.10,1.76,q.y));
+  q.z+=.48*arm;
+  q.x-=.11*arm;
+  let bound=length((q-vec3f(0.,.08,0.))*vec3f(1.,.29,1.))-1.26;
+  if(bound>.05){return bound*.252;}
+  var d=bust(q)*.252;
+  let leg=vec3f(abs(q.x)*.252,q.y*.252+.78,q.z*.252);
+  d=min(d,figureCap(leg,vec3f(.072,.79,.02),vec3f(.095,.45,.006),mix(.055,.083,smoothstep(.44,.74,leg.y))));
+  d=min(d,figureCap(leg,vec3f(.095,.45,.006),vec3f(.10,.082,.028),.033+.023*exp(-pow(abs(leg.y-.32)/.11,2.))));
+  d=min(d,figureEll(leg-vec3f(.10,.055,-.026),vec3f(.051,.044,.104)));
+  return d;
+}
+`;
 // One room behind one window, as a signed distance field: walls with the window cut out, desk, screen, lamp, shelf, a person.
 // Room space: x across the bay, y above the floor, z inward from the façade (the glass is at z = -0.06). It is the world shifted by r.org,
 // so a ray leaving through the window goes on into the city (cityColor), and the glass reflects the room.
@@ -17,7 +34,9 @@ const SX=.42; const LAMP=vec3f(-.98,1.2,2.62);
 
 fn person(p0:vec3f)->f32{ let sc=r.a.z; var q=(p0-vec3f(r.c.x,0.,r.c.y))/sc; var d:f32; let k=.045;
   if(r.a.x<.5){ q.z-=r.c.z*max(q.y-.6,0.);                     // seated, facing the screen (+z)
-    d=length(q-vec3f(0.,1.235,.03))-.105;
+    d=figureEll(q-vec3f(0.,1.237,.026),vec3f(.092,.127,.102));
+    d=smin(d,figureEll(q-vec3f(0.,1.192,.079),vec3f(.071,.073,.058)),.021);
+    d=smin(d,sdCap(q,vec3f(0.,1.251,.117),vec3f(0.,1.221,.150),.016),.014);
     d=smin(d,sdCap(q,vec3f(0.,1.0,0.),vec3f(0.,1.12,.015),.046),.03);
     d=smin(d,sdCap(q*vec3f(1.,1.,1.3),vec3f(0.,.6,0.),vec3f(0.,.98,0.),.165),k);
     d=smin(d,sdCap(q,vec3f(-.17,1.0,0.),vec3f(.17,1.0,0.),.075),k);
@@ -25,7 +44,9 @@ fn person(p0:vec3f)->f32{ let sc=r.a.z; var q=(p0-vec3f(r.c.x,0.,r.c.y))/sc; var
     d=smin(d,sdCap(qa,vec3f(.215,.98,0.),vec3f(.25,.74,.2),.05),k); d=smin(d,sdCap(qa,vec3f(.25,.74,.2),vec3f(.13,.8,.6),.04),.03);
     d=smin(d,sdCap(qa,vec3f(.1,.5,0.),vec3f(.1,.5,.42),.078),k); d=smin(d,sdCap(qa,vec3f(.1,.5,.42),vec3f(.1,.06,.46),.055),.03); }
   else { q.z=-q.z;                                             // standing at the window, looking out: weight on one leg, a hand on the sill, the other arm folded
-    d=length(q-vec3f(-.012,1.585,.03))-.1;
+    d=figureEll(q-vec3f(-.012,1.595,.018),vec3f(.089,.129,.099));
+    d=smin(d,figureEll(q-vec3f(-.012,1.543,.063),vec3f(.068,.059,.064)),.023);
+    d=smin(d,sdCap(q,vec3f(-.012,1.603,.109),vec3f(-.012,1.578,.142),.016),.012);
     d=smin(d,sdCap(q,vec3f(0.,1.42,0.),vec3f(-.008,1.5,.012),.043),.03);
     d=smin(d,sdCap(q*vec3f(1.,1.,1.35),vec3f(0.,1.2,0.),vec3f(0.,1.36,0.),.145),k);
     d=smin(d,sdCap(q,vec3f(-.165,1.405,0.),vec3f(.165,1.39,0.),.062),k);
@@ -40,14 +61,29 @@ fn person(p0:vec3f)->f32{ let sc=r.a.z; var q=(p0-vec3f(r.c.x,0.,r.c.y))/sc; var
   else if(r.a.y>.5){ d=smin(d,sdCap(q,vec3f(0.,hy+.01,-.045),vec3f(0.,hy-.3,-.09),.095),.04); }                           // long hair
   return d*sc; }
 
-fn map(p0:vec3f)->vec2f{ var p=p0; p.x*=r.flip;
+// Return the colossal figure's coordinates at human scale, looking towards the seated writer.
+fn figureSpace(p:vec3f)->vec3f {
+  let x=(p.x-r.fig.x)*r.flip;
+  let z=p.z-r.fig.z;
+  return vec3f(x*r.e.y-z*r.e.z,p.y-.78,-(x*r.e.z+z*r.e.y))/.252;
+}
+fn visitor(p:vec3f)->f32 {
+  var q=figureSpace(p);
+  return visitorDistance(q)+(1.-select(r.figAmt,1.,r.a.x>.5))*.118;
+}
+fn roomDistance(p0:vec3f, withVisitor:bool)->vec2f{ var p=p0; p.x*=r.flip;
   let bi=sdBox(p-vec3f(0.,1.65,2.1),vec3f(1.52,1.61,2.1));
   var d=max(-bi,-(p.z+.22)); d=max(d,-sdBox(p-vec3f(0.,1.76,-.1),vec3f(1.02,.88,.3))); var m=1.;
   var e=min(sdBox(p-vec3f(0.,1.76,-.07),vec3f(.02,.88,.028)), max(sdBox(p-vec3f(0.,1.76,-.07),vec3f(1.04,.9,.03)),-sdBox(p-vec3f(0.,1.76,-.07),vec3f(.98,.84,.1))));
   e=min(e,sdBox(p-vec3f(0.,.86,-.2),vec3f(1.12,.03,.1))); if(e<d){ d=e; m=2.; }
   if(r.a.x<.5){
     e=sdBox(p-vec3f(.17,.725,2.62),vec3f(1.25,.035,.42)); e=min(e,sdBox(vec3f(abs(p.x-.17),p.y,p.z)-vec3f(1.18,.35,2.62),vec3f(.03,.35,.38))); if(e<d){ d=e; m=3.; }
-    e=sdBox(p-vec3f(SX,1.3,2.9),vec3f(.74,.4,.014)); e=min(e,sdCap(p,vec3f(SX,.76,2.93),vec3f(SX,.95,2.93),.028)); if(e<d){ d=e; m=4.; }
+    let monitor=p-vec3f(SX,1.3,2.9);
+    e=sdBox(monitor,vec3f(.745,.409,.016))-.008;
+    e=min(e,sdBox(p-vec3f(SX,.777,2.87),vec3f(.145,.011,.088))-.004); e=min(e,sdCap(p,vec3f(SX,.76,2.93),vec3f(SX,.95,2.93),.028)); if(e<d){ d=e; m=4.; }
+    let keyboard=p-vec3f(.01,.774,2.37);
+    e=sdBox(keyboard,vec3f(.293,.009,.092))-.006;
+    if(e<d){d=e;m=12.;}
     e=sdBox(p-vec3f(r.c.x,.44,r.c.y-.02),vec3f(.23,.03,.23))-.01; e=min(e,sdBox(p-vec3f(r.c.x,.74,r.c.y-.26),vec3f(.2,.3,.022))-.012); e=min(e,sdCap(p,vec3f(r.c.x,.42,r.c.y),vec3f(r.c.x,.04,r.c.y),.03)); if(e<d){ d=e; m=8.; } }
   if(r.b.y>-.5){ e=length(p-LAMP)-.1; e=min(e,sdCap(p,LAMP-vec3f(0.,.1,0.),vec3f(LAMP.x,.77,LAMP.z),.012)); if(e<d){ d=e; m=5.; } }
   if(r.a.x<.5){ e=sdBox(p-vec3f(-.92,2.12,4.13),vec3f(.56,.6,.08)); if(e<d){ d=e; m=6.; } }
@@ -56,19 +92,35 @@ fn map(p0:vec3f)->vec2f{ var p=p0; p.x*=r.flip;
     e=sdBox(p-vec3f(-.93,.27,2.75),vec3f(.56,.2,1.3))-.03; if(e<d){ d=e; m=9.; }
     e=min(sdBox(p-vec3f(0.,2.31,-.035),vec3f(1.0,.33,.006)),sdBox(p-vec3f(0.,1.975,-.035),vec3f(1.0,.014,.012))); if(e<d){ d=e; m=10.; } }
   e=person(p); if(e<d){ d=e; m=7.; }
+  if(withVisitor && (r.figAmt>.04 || r.a.x>.5)){
+    let gold=visitor(p0);
+    if(gold<d){d=gold; m=11.;}
+  }
   return vec2f(d,m); }
-fn nrm(p:vec3f)->vec3f{ var n=vec3f(0.); for(var i=0;i<4;i++){ let e=.5773*(2.*vec3f(f32(((i+3)>>1)&1),f32((i>>1)&1),f32(i&1))-1.); n+=e*map(p+e*.0015).x; } return normalize(n); }
+fn nrm(p:vec3f, visitorVisible:bool)->vec3f{ var n=vec3f(0.); for(var i=0;i<4;i++){ let e=.5773*(2.*vec3f(f32(((i+3)>>1)&1),f32((i>>1)&1),f32(i&1))-1.); n+=e*roomDistance(p+e*.0015,visitorVisible).x; } return normalize(n); }
 fn shadow(p:vec3f, l:vec3f)->f32{ let dv=l-p; let dl=length(dv); let rd=dv/dl; var t=.03; var s=1.;
-  for(var i=0;i<22;i++){ let h=map(p+rd*t).x; s=min(s,9.*h/t); t+=clamp(h,.02,.25); if(h<.002 || t>dl-.12){ break; } } return clamp(s,0.,1.); }
+  for(var i=0;i<22;i++){ let h=roomDistance(p+rd*t,false).x; s=min(s,9.*h/t); t+=clamp(h,.02,.25); if(h<.002 || t>dl-.12){ break; } } return clamp(s,0.,1.); }
 
 fn shadowP(p:vec3f, l:vec3f)->f32{ let dv=l-p; let dl=length(dv); let rd=dv/dl; var t=.06; var s=1.;      // the person's shadow only: a clean hard shape
   for(var i=0;i<26;i++){ let h=person(p+rd*t); if(h<.003){ return 0.; } s=min(s,22.*h/t); t+=clamp(h,.02,.3); if(t>dl-.1){ break; } } return smoothstep(.15,.5,s); }
 fn shade(p:vec3f, n:vec3f, m:f32, rd:vec3f, full:bool)->vec3f{ var q=p; q.x*=r.flip; var nn=n; nn.x*=r.flip;
+  if(m==11.){
+    let model=figureSpace(p);
+    let key=normalize(vec3f(-.65*r.flip,.56,-.54));
+    let lit=smoothstep(-.38,.94,dot(n,key));
+    let rim=pow(1.-abs(dot(n,rd)),3.);
+    let base=mix(vec3f(.014,.012,.010),vec3f(.53,.39,.21),lit*lit);
+    let highlight=pow(max(dot(n,normalize(key-rd)),0.),22.);
+    if(r.a.x>.5){
+      return mix(vec3f(.15,.12,.07),vec3f(.52,.39,.19),smoothstep(.20,.36,lit));
+    }
+    return eyeColor(model,base+vec3f(.92,.81,.60)*(.18*highlight+.08*rim))*r.figAmt;
+  }
   var alb=.5; var em=vec3f(0.);
   let wash=.75+.5*fbm(q.xy*1.7+q.z*1.3+r.c.w*9.);
   if(m<1.5){ alb=.42*wash; if(nn.y>.7){ alb=.2+.1*step(.5,fract(q.x*2.3+.2*vnoise(q.xz*3.)))+.05*vnoise(q.xz*vec2f(30.,2.)); }
     if(q.z<-.18 || (q.z<.02 && nn.z<-.5)){ alb=.11*wash; } }
-  else if(m<2.5){ alb=.1; } else if(m<3.5){ alb=.16+.05*vnoise(q.xz*vec2f(40.,3.)); }
+  else if(m<2.5){ alb=.12+.11*pow(1.-abs(dot(n,rd)),3.); } else if(m<3.5){ alb=.16+.05*vnoise(q.xz*vec2f(40.,3.)); }
   else if(m<4.5){ alb=.04;
     if(nn.z<-.5 && abs(q.x-SX)<.74 && abs(q.y-1.3)<.4){ let c=(q.xy-vec2f(SX,1.3))/vec2f(.74,.4); let uvs=vec2f(c.x*r.flip*.5+.5,.5-c.y*.5);
       let tile=r.a.w; let tuv=(vec2f(tile%2.,floor(tile/2.))+uvs)/vec2f(2.,5.); var a=textureSampleLevel(txt,smp,tuv,0.).a; let line=step(.5,uvs.y);
@@ -78,7 +130,22 @@ fn shade(p:vec3f, n:vec3f, m:f32, rd:vec3f, full:bool)->vec3f{ var q=p; q.x*=r.f
       em=PAPER*.62*(1.-.22*dot(c,c))*(1.-.95*a)*r.b.x; alb=.02; } }
   else if(m<5.5){ alb=.3; if(length(q-LAMP)<.12){ em=PAPER*.8*max(r.b.y,0.); } }
   else if(m<6.5){ let row=fract((q.y-1.52)/.4); let bk=hash11(floor(q.x*27.)+floor((q.y-1.52)/.4)*31.+r.c.w*91.); alb=mix(.07,.5,bk)*step(.16,row)+.05*step(row,.16); if(nn.z>-.5){ alb=.08; } }
-  else if(m<7.5){ alb=.075; if(q.y>select(1.13,1.49,r.a.x>.5)*r.a.z){ alb=select(.17,.05,r.a.y>.5); } }
+  else if(m<7.5){
+    let local=(q-vec3f(r.c.x,0.,r.c.y))/r.a.z;
+    let headY=select(1.235,1.595,r.a.x>.5);
+    let front=local.z*select(1.,-1.,r.a.x>.5);
+    let hairline=headY+.050+.36*min(front,.10);
+    let hair=max(smoothstep(hairline-.01,hairline+.01,local.y),
+                 smoothstep(.005,-.07,front)*smoothstep(headY-.08,headY-.02,local.y));
+    alb=.064+.028*vnoise(vec2f(local.y*15.+local.x*4.,local.x*7.));
+    if(local.y>headY-.115){alb=mix(.34,.047,hair);}
+  }
+  else if(m==12.){
+    let local=(q.xz-vec2f(.01,2.37))/vec2f(.036,.035);
+    let keycap=abs(fract(local+.5)-.5);
+    let relief=1.-smoothstep(.35,.47,max(keycap.x,keycap.y));
+    alb=.065+.1*relief+.05*relief*smoothstep(-.25,.4,fract(local.y+.5)-.5);
+  }
   else { alb=.05; }
   var col=vec3f(0.);
   // the screen lights what is in front of it; the lamp; the figure; a little night through the window
@@ -126,10 +193,10 @@ struct RO{ @location(0) c:vec4f, @builtin(frag_depth) z:f32 }
   if(!out){
   // bounce 0: the view. bounce 1 (only for rays that left through the glass): the room mirrored in the window
   for(var bounce=0;bounce<2;bounce++){ var t=0.; var m=0.; let ins=inside && bounce==0;
-    for(var i=0;i<90;i++){ let p=ro+rd*t; if(ins && p.z<-.34){ m=-1.; break; } let h=map(p); if(h.x<.0012+.0012*t){ m=h.y; break; } t+=h.x; if(t>16.){ break; } }
+    for(var i=0;i<90;i++){ let p=ro+rd*t; if(ins && p.z<-.34){ m=-1.; break; } let h=roomDistance(p,r.a.x<.5 || bounce==1); if(h.x<.0012+.0012*t){ m=h.y; break; } t+=h.x; if(t>16.){ break; } }
     if(m>0.){ let p=ro+rd*t;
       if(bounce==0 && !inside && m<1.5 && p.z<-.19){ out=true; let zw=t*dot(rd,u.fw); depth=r.d.y*(zw-r.d.x)/((r.d.y-r.d.x)*zw); break; }          // the outside wall belongs to the façade (but still hides what is behind it)
-      let n=nrm(p); var c=shade(p,n,m,rd,bounce==0);
+      let n=nrm(p,r.a.x<.5 || bounce==1); var c=shade(p,n,m,rd,bounce==0);
       if(bounce==0){ if(!inside && inHole && t>tg){ c=c*.94+SILVER*(.004*(1.+2.*pow(1.-abs(rd.z),3.))+1.5*moonFace((vec2f(pg.x*r.flip,pg.y)-PANE)/.2)*u.misc3.z*(1.-.86*r.b.x)); }
         let zv=t*dot(rd,u.fw); let nf=r.d.xy; depth=nf.y*(zv-nf.x)/((nf.y-nf.x)*zv); }
       col+=c*wgt; break; }
@@ -178,7 +245,7 @@ fn cr(a:vec3f,b:vec3f,c:vec3f,d:vec3f,f:f32)->vec3f{ let f2=f*f; let f3=f2*f; re
     let outw=normalize(tl-vec3f(0.,1.05,0.)+vec3f(r3-.5,r4-.5,r6-.5)*.8); let ow=vec3f(outw.x*cy+outw.z*sy,outw.y,-outw.x*sy+outw.z*cy);
     pos+=ow*(.11*b+.02*b*b)+vec3f(sin(seed*13.+b*1.3)*.07*b,.09*b+.015*b*b,cos(seed*29.+b*1.1)*.07*b-.05*b);
     ang=(r6-.5)*3.2*b; grow=1.+.25*smoothstep(0.,2.,b);
-    col=vec3f(1.,.72,.3)*(.55+.9*r2);
+    col=vec3f(1.,.84,.58)*(.45+.8*r2);
     if(r3<P_.snk.w){ let b2=max(b-.35,0.); let w2=smoothstep(0.,1.5,b2); pos=mix(pos,P_.snk.xyz+vec3f((r4-.5)*.9,(r6-.5)*.7,0.),w2*w2*(3.-2.*w2)); fade=1.-smoothstep(1.35,1.6,b2); col=mix(col,vec3f(1.,.5,.16)*(.5+1.1*r2),w2); }
     else { fade=exp(-b*.85)*(1.-smoothstep(2.4,3.6,b)); col=mix(col,vec3f(.5,.5,.52)*.12,smoothstep(0.,1.6,b)); } }
   pos.x*=P_.org.w; if(P_.m.w>.5){ pos.z=-.12-pos.z; }

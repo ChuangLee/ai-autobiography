@@ -8,6 +8,11 @@ fn manCol(m:vec2f,d:vec4f,front:f32,far:f32,e:f32,sizePx:f32)->vec4f{
   let seam=ln(m.x,.0022,e)*step(m.y,.76)*step(.27,m.y)*(1.-front); coat=mix(coat,hx(0x0b0c0fu),seam*.7);
   coat=mix(coat,mix(hx(0x1b1c20u),hx(0x34373eu),lit),step(m.y,.255));                                   // trousers
   coat=mix(coat,hx(0xcaa286u)*mix(.75,1.05,lit),fill(length(vec2f(abs(m.x)-.158,m.y-.335))-.024,e));   // hands
+  // Wool bunches above the elbow, while the long back panels hang straight.
+  let sleeve=abs(m.x)-(.125+.018*smoothstep(.39,.68,m.y));
+  let fold=(.47+.53*sin(30.*m.y+18.*sleeve))*exp(-abs(sleeve)*72.)*smoothstep(.35,.46,m.y)*(1.-smoothstep(.65,.72,m.y));
+  let kick=ln(abs(m.x)-(.008+.17*(.44-m.y)),.0024,e)*smoothstep(.258,.29,m.y)*(1.-smoothstep(.36,.47,m.y));
+  coat*=1.-.22*fold-.22*kick*(1.-front);
   var col=coat; var a=fill(d.x,e);
   // front: collar, tie, lapels
   if(front>.5){ let v=abs(m.x)-(m.y-.60)*.42; let shirt=step(v,0.)*step(.60,m.y)*step(m.y,.80); col=mix(col,hx(0xe9e6dfu)*mix(.8,1.,lit),shirt);
@@ -20,6 +25,10 @@ fn manCol(m:vec2f,d:vec4f,front:f32,far:f32,e:f32,sizePx:f32)->vec4f{
   col=mix(col,hx(0xd8d4ccu),step(.765,m.y)*step(m.y,.782)*step(abs(m.x),.034)*(1.-front));              // a line of white collar above the coat
   // hat
   let hl=sat(.5-m.x*4.5); var hat=mix(hx(0x0d0e11u),hx(0x33363du),hl*hl); hat=mix(hat,hx(0x050506u),step(m.y,.936)*step(.918,m.y));
+  let brim=ln(m.y-.919+.13*m.x,.002,e)*exp(-abs(m.x+.04)*14.);
+  hat+=vec3f(.11,.10,.09)*brim;
+  hc*=1.-.32*smoothstep(.883,.916,m.y);
+  col=mix(col,hc,fill(hd,e)*smoothstep(.878,.916,m.y));
   col=mix(col,hat,fill(d.z,e)); a=max(a,fill(d.z,e));
   return vec4f(col,a); }
 fn cloud(p:vec2f)->vec2f{ // (density, height inside the cloud)

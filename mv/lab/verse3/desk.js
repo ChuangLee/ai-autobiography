@@ -1,5 +1,5 @@
 // Shot 2: human heartache. One lamp, one night, a desk; the manuscripts land one on another and are written, recited, typed.
-// Planar things (desk, sheets) are intersected analytically; the oil lamp, the brush and (for its shadow) the writing hand are signed distance fields.
+// Planar things (desk, sheets) are intersected analytically; the oil lamp, the brush and the writing hand are signed distance fields.
 // Thin-lens depth of field by a few stochastic samples per pixel; the flame is an analytic emitter blurred by its circle of confusion.
 // slots: p[0..6] sheet (x, z, angle, y; y>50 = not here)  p[7..13] (written at ws, ws, characters/s, lift start)  p[14] flame (xyz, power)
 // p[15] brush tip (xyz, on)  p[16] brush axis  p[17] forearm direction  p[18] (moon, blind, screen glow, caret on)  p[19] (caret u, v, blind phase, -)
@@ -37,20 +37,88 @@ fn sdLamp(p0:vec3f)->vec2f{ let p=p0-lampBase(); if(length(p.xz)>.09||p.y>LH+.03
   var m=1.; let oil=max(length(p.xz)-.056,abs(p.y-(LH-.007))-.001); if(oil<d){ d=oil; m=2.; }
   let wd=vec3f(u.p[22].z,0.,u.p[22].w); let wk=capsule(p,wd*.045+vec3f(0.,LH-.007,0.),wd*.053+vec3f(0.,LH+.003,0.),.0016); if(wk<d){ d=wk; m=3.; }
   return vec2f(d,m); }
+fn bristleRadius(h:f32)->f32{
+  let pressure=u.p[16].w;
+  let belly=sat((h+.0007*pressure)/.03);
+  return (.0052+.0013*pressure)*sqrt(belly)*(1.-.22*belly*belly*belly*belly);
+}
 fn sdBrush(p:vec3f)->vec2f{ if(u.p[15].w<.5){ return vec2f(1.,0.); } let T=u.p[15].xyz; let A=u.p[16].xyz; let v=p-T; let h=dot(v,A); let r=length(v-A*h);
   if(r>.03||h<-.01||h>.26){ return vec2f(max(r-.02,max(-h,h-.25)),0.); }
-  let f=sat(h/.03); let R=.0056*pow(f,.5)*(1.-.22*f*f*f*f); var d=max(r-R,max(-h,h-.03))*.7; var m=4.;
+  let R=bristleRadius(h); var d=max(r-R,max(-h,h-.03))*.7; var m=4.;
   let fe=max(r-.0062,abs(h-.0335)-.0035); if(fe<d){ d=fe; m=5.; }
   let sh=max(r-(.0046+.0005*exp(-pow((h-.11)/.004,2.))+.0005*exp(-pow((h-.2)/.004,2.))),abs(h-.141)-.104); if(sh<d){ d=sh; m=6.; }
   return vec2f(d,m); }
-fn sdHand(p:vec3f)->f32{ if(u.p[15].w<.5){ return 1.; } let T=u.p[15].xyz; let A=u.p[16].xyz; let D=u.p[17].xyz; let S=normalize(cross(A,D)); let G=T+A*.145;
-  if(length(p-G)>.42){ return length(p-G)-.4; }
-  var d=length((p-(G+D*.035+A*.012))/vec3f(.05,.05,.05))-.75; d=d*.05;
-  d=smin(d,capsule(p,G+D*.03+S*.025,G-D*.012+S*.008+A*.004,.0095),.01);                                 // thumb
-  for(var k=0;k<4;k++){ let fk=f32(k); let o=G+A*(.012-fk*.016); d=smin(d,capsule(p,o+D*.035-S*.02,o-D*.012-S*.012,.009-fk*.0008),.006); } // fingers round the shaft
-  let W=G+D*.085-A*.005; d=smin(d,capsule(p,W,W+D*.28+vec3f(0.,-.09,0.),.032),.03);                       // forearm, down to an elbow on the desk
-  return d; }
-fn sdObj(p:vec3f)->vec2f{ var r=sdLamp(p); let b=sdBrush(p); if(b.x<r.x){ r=b; } return r; }
+fn sdHand(p:vec3f)->f32{ if(u.p[15].w<.5){ return 1.; } let T=u.p[15].xyz; let A=u.p[16].xyz; let D=u.p[17].xyz; let S=normalize(cross(A,D)); let G=T+A*.075;
+  let local=p-G;
+  let bound=length(local-D*.105)-.175;
+  if(bound>.008){return bound;}
+  // Palm, knuckles and two bent phalanges per finger, measured from the grip.
+  let palm=local-D*.043-A*.003;
+  let axes=vec3f(dot(palm,D)/.044,dot(palm,S)/.026,dot(palm,A)/.036);
+  var d=(length(axes)-1.)*.025;
+  let thumbRoot=G+D*.052+S*.016-A*.010;
+  let thumbJoint=G+D*.018+S*.028+A*.004;
+  d=smin(d,capsule(p,thumbRoot,thumbJoint,.011),.008);
+  d=smin(d,capsule(p,thumbJoint,G+S*.010+A*.011,.008),.006);
+  for(var k=0;k<4;k++){
+    let f=f32(k);
+    let knuckle=G+D*(.044+.002*f)-S*.012+A*(.026-.013*f);
+    let joint=knuckle-D*(.032-.003*f)-S*.012;
+    let tip=joint-D*.009+S*(.021-.002*f)-A*.006;
+    let rad=.0082-.00065*f;
+    d=smin(d,capsule(p,knuckle,joint,rad),.005);
+    d=smin(d,capsule(p,joint,tip,rad*.82),.004);
+  }
+  let wrist=G+D*.083-A*.007;
+  d=smin(d,capsule(p,G+D*.064,wrist,.022),.01);
+  return smin(d,capsule(p,wrist,wrist+D*.155-A*.016,.025),.014);
+}
+// The free hand keeps the corner of the letter flat. Origin is the pad of the
+// index finger; rest of the hand lies outside the written columns.
+fn letterHand(p:vec3f)->vec2f {
+  let origin=u.p[31].xyz;
+  let towardWrist=vec3f(-.57,0.,.8216);
+  let across=vec3f(.8216,0.,.57);
+  let v=p-origin;
+  let q=vec3f(dot(v,across),v.y,dot(v,towardWrist));
+  let bound=length(max(abs(q-vec3f(-.012,.028,.15))-vec3f(.075,.059,.23),vec3f(0.)));
+  if(bound>.022){return vec2f(bound,7.);}
+  var skin=(length((q-vec3f(-.017,.028,.11))/vec3f(.043,.023,.048))-1.)*.023;
+  for(var k=0;k<4;k++){
+    let f=f32(k);
+    let x=.010-.017*f;
+    let nail=vec3f(x,.006,.006*abs(f-1.)+.003*f*f);
+    let middle=vec3f(x+.002,.013+.001*f,.046+.003*f);
+    let knuckle=vec3f(x,.027,.087);
+    let radius=.0086-.00065*f;
+    skin=smin(skin,capsule(q,nail,middle,radius*.84),.004);
+    skin=smin(skin,capsule(q,middle,knuckle,radius),.005);
+  }
+  skin=smin(skin,capsule(q,vec3f(.016,.016,.122),vec3f(.051,.012,.069),.010),.008);
+  skin=smin(skin,capsule(q,vec3f(-.016,.030,.13),vec3f(-.022,.033,.185),.022),.01);
+  let arm=q-vec3f(-.022,.03,.17);
+  let cuff=max(length(arm.xy)-.035-.008*smoothstep(.0,.16,arm.z)-.0016*cos(arm.z*125.),max(-arm.z,arm.z-.21));
+  return select(vec2f(skin,7.),vec2f(cuff,8.),cuff<skin);
+}
+fn sdObj(p:vec3f)->vec2f{
+  var hit=sdLamp(p); let brush=sdBrush(p);
+  if(brush.x<hit.x){hit=brush;}
+  if(u.p[15].w>.5){
+    let hand=sdHand(p);
+    if(hand<hit.x){hit=vec2f(hand,7.);}
+    let cuff=u.p[15].xyz+u.p[16].xyz*.066+u.p[17].xyz*.115;
+    let v=p-cuff; let axis=u.p[17].xyz; let along=dot(v,axis);
+    let fold=.002*cos(along*128.+dot(v,u.p[16].xyz)*40.)*exp(-abs(along)*14.);
+    let radius=.034+.014*smoothstep(.01,.15,along);
+    let sleeve=max(length(v-along*axis)-radius-fold,max(-along,along-.66));
+    if(sleeve<hit.x){hit=vec2f(sleeve,8.);}
+  }
+  if(u.p[31].w>.5){
+    let rest=letterHand(p);
+    if(rest.x<hit.x){hit=rest;}
+  }
+  return hit;
+}
 fn nObj(p:vec3f)->vec3f{ let e=vec2f(.0004,0.); return normalize(vec3f(sdObj(p+e.xyy).x-sdObj(p-e.xyy).x,sdObj(p+e.yxy).x-sdObj(p-e.yxy).x,sdObj(p+e.yyx).x-sdObj(p-e.yyx).x)); }
 // ── light
 fn flamePos()->vec3f{ return u.p[14].xyz; }
@@ -70,7 +138,7 @@ fn sheetShadow(p:vec3f,own:i32)->f32{ let F=flamePos(); var s=1.;
 fn blindAt(p:vec3f)->f32{ let b=u.p[18].y; let ph=u.p[19].z; let x=dot(p.xz,vec2f(.28,.96))*52.+ph; let s=smoothstep(.2,.42,abs(fract(x)-.5)*2.);
   let cord=1.-.7*smoothstep(.004,.0,abs(fract(dot(p.xz,vec2f(.96,-.28))*3.2+.3)-.5)-.0)*.0; return mix(1.,mix(.12,1.,s)*cord,b); }
 fn lightAt(p:vec3f,n:vec3f,own:i32,obj:bool)->vec3f{ let F=flamePos(); let L=F-p; let d2=max(dot(L,L),.0004); let ld=L*inverseSqrt(d2);
-  var sh=dishShadow(p); if(sh>.01){ sh*=handShadow(p); } if(!obj){ sh*=sheetShadow(p,own); }
+  var sh=dishShadow(p); if(sh>.01){ sh*=handShadow(p+n*.00065); } if(!obj){ sh*=sheetShadow(p,own); }
   var e=FLAME*u.p[14].w*max(dot(n,ld),0.)/d2*sh;
   let M=normalize(vec3f(.55,.78,-.3)); let pq=rot(.35)*(p.xz-u.p[30].xy)/u.p[30].z; let pmask=smoothstep(1.,.55,max(abs(pq.x)*.8,abs(pq.y)));     // moonlight through a window, a blind across it
   e+=vec3f(.42,.55,.85)*u.p[18].x*max(dot(n,M),0.)*pmask*blindAt(p);
@@ -100,8 +168,11 @@ fn shadeSheet(i:i32,l:vec2f,p:vec3f,rd:vec3f,dist:f32,pix:f32)->vec3f{ let t=u.r
   var bleed=.1; if(i==4){ bleed=.28; } if(i==6){ bleed=.03; }
   alb*=1.-bleed*ib*vis*(1.-k);
   alb=mix(alb,inkCol,sat(k*dens));
-  var col=alb*lightAt(pp,n,i,false);
-  col+=lightAt(pp,n,i,false)*alb*.35*sat(1.-k);                                                                       // light through the paper
+  var col=alb*lightAt(pp,n,i,false)*(1.+.35*sat(1.-k));
+  if(i==2 && u.p[31].w>.5){
+    let contact=letterHand(pp).x;
+    col*=mix(.51,1.,smoothstep(.0,.010,contact));
+  }                                                                       // light through the paper
   col+=specAt(pp,n,-rd,.42)*(.02+.05*k)+specAt(pp,n,-rd,.18)*wet*k*.05;                                                   // the sheen of paper; fresh ink glistens
   let ed=min(hs.x-abs(l.x),hs.y-abs(l.y)); col*=mix(.55,1.,smoothstep(.0,.0025+pix*dist,ed)); col+=lightAt(pp,vec3f(0.,1.,0.),i,false)*alb*.25*smoothstep(.0015+pix*dist,.0,ed);
   return col; }
@@ -115,6 +186,20 @@ fn shadeDesk(p:vec3f,rd:vec3f,dist:f32,pix:f32)->vec3f{ let q=p.xz;
 fn shadeObj(p:vec3f,rd:vec3f,m:f32)->vec3f{ let n=nObj(p); var alb=vec3f(.1,.07,.04); var r=.22; var sp=1.; var e=vec3f(0.);
   if(m==2.){ alb=vec3f(.03,.02,.008); r=.05; } if(m==3.){ alb=vec3f(.02); let F=flamePos(); e=FLAME*3.*exp(-length(p-F)*300.); }
   if(m==4.){ alb=vec3f(.012,.011,.012); r=.15; sp=1.5; } if(m==5.){ alb=vec3f(.03,.012,.01); r=.25; } if(m==6.){ alb=vec3f(.42,.28,.12)*(.8+.2*vnoise(vec2f(dot(p,vec3f(1.,0.,1.))*2000.,p.y*30.))); r=.35; }
+  if(m==7.){
+    let warm=smoothstep(-.15,.68,dot(n,normalize(flamePos()-p)));
+    alb=mix(vec3f(.40,.17,.106),vec3f(.59,.32,.22),warm);
+    // Light returning off warm paper fills the undersides of the joints.
+    e+=vec3f(.035,.014,.006)*(.4+.6*max(0.,-n.y));
+    r=.58; sp=.36;
+  }
+  if(m==8.){
+    let cuff=u.p[15].xyz+u.p[16].xyz*.066+u.p[17].xyz*.115;
+    let along=dot(p-cuff,u.p[17].xyz);
+    let hem=1.-smoothstep(.001,.0026,abs(along-.006));
+    alb=mix(vec3f(.063,.072,.074),vec3f(.13,.14,.13),hem);
+    r=.82; sp=.18;
+  }
   if(m==1.){ let lb=lampBase(); alb=mix(vec3f(.12,.075,.035),vec3f(.06,.05,.03),smoothstep(.0,.2,p.y-lb.y)*.0+.5*vnoise(p.xz*300.+p.y*80.)); r=.18; }
   let fr=.04+.96*pow(1.-max(dot(-rd,n),0.),5.); let F=flamePos(); let lf=normalize(F-p); let back=sat(dot(lf,rd)*1.2); let rim=pow(1.-abs(dot(n,rd)),3.)*back*u.p[14].w/max(dot(F-p,F-p),.01)*.25;
   return alb*lightAt(p,n,-1,true)+specAt(p,n,-rd,r)*fr*sp*2.+e+FLAME*rim*(alb*4.+.04); }
