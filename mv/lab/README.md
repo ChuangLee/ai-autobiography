@@ -79,6 +79,7 @@ node shot.mjs <场景文件夹> 30,41.5,48.7 --res 0.4 --out <输出目录> [--q
 - 已知怪癖：在 `loadAtlas` 之后调用 `textTexture`，无头 Chrome 里可能卡住，所以先做文字纹理，再加载字形图集。
 - 每场的质量参数写在该场 `index.html` 开头的注释里。例如 `river` 的 `n`（粒子数）、`grid`；`dive` 的 `grid`、`n`、`steps`；`windows` 的 `steps`、`n`。`verse3` 用的字体是项目字体的子集，放在 `verse3/fonts/`，改了画面里的文字要重跑 `python3 fonts/make.py`。
 - `shot.mjs` 被杀掉或超时（`--limit` 分钟，默认 40）时会连带关掉它开的 Chrome。
+- 等静帧跑完时不要写 `until ! pgrep -f "shot.mjs ..."`：`pgrep -f` 会匹配到这条等待命令自己，永远等不完。直接在前台跑，或者等它的输出文件。
 
 ## 上线
 
