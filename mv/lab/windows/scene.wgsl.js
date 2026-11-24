@@ -81,7 +81,7 @@ fn interior(o2:vec2f, dl:vec3f, h:vec3f, st:f32, hero:f32)->vec3f{
   let ts=2.9/d.z; if(ts<tr){ let p=o.xy+d.xy*ts; let c=(p-vec2f(sx,1.3))/vec2f(.74,.4);
     if(abs(c.x)<1. && abs(c.y)<1.){ let uvs=vec2f(c.x*.5+.5,.5-c.y*.5);
       let tile=select(floor(h.y*9.99),0.,hero>.5); let tuv=(vec2f(tile%2.,floor(tile/2.))+uvs)/vec2f(2.,5.);
-      var a=textureSampleLevel(txt,smp,tuv,0.).a;
+      var a=textureSampleLevel(txt,smp,tuv,0.).r;
       if(hero>.5){ let line=step(.5,uvs.y); let cp=(uvs.x*1024.-64.)/128.; let n=select(min(u.typed,6.),max(u.typed-6.,0.),line>.5); a*=step(cp,n);
         let cx=64.+128.*select(u.typed,u.typed-6.,u.typed>6.); let cl=select(0.,1.,u.typed>6.); let cy=uvs.y*512.-(150.+cl*190.);
         a=max(a,u.misc2.y*step(abs(uvs.x*1024.-cx-10.),5.)*step(abs(cy),62.)); }

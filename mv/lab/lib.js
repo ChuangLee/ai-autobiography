@@ -132,6 +132,32 @@ export class Post {
 }
 
 // ───────── textures ─────────
+const mipPasses = new WeakMap();
+const mipCode = FS_VS + `@group(0)@binding(0) var s:sampler; @group(0)@binding(1) var t:texture_2d<f32>;
+  override scale:f32=.5;
+  @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
+    return textureSampleLevel(t,s,fc.xy/(vec2f(textureDimensions(t))*scale),0.); }`;
+
+// Material maps, text and glyphs have different textures but use the same
+// fullscreen blit. Pipeline objects and bind group layouts belong to one device.
+function mipPass(device, format) {
+  let passes = mipPasses.get(device);
+  if (!passes) {
+    passes = { module: shader(device, mipCode, "mip"),
+      sampler: device.createSampler({ minFilter: "linear", magFilter: "linear" }), formats: new Map() };
+    mipPasses.set(device, passes);
+  }
+  let pass = passes.formats.get(format);
+  if (!pass) {
+    const pipeline = scale => device.createRenderPipeline({ layout: "auto",
+      vertex: { module: passes.module, entryPoint: "vs" },
+      fragment: { module: passes.module, entryPoint: "fs", constants: { scale }, targets: [{ format }] } });
+    pass = { down: pipeline(.5), convert: format === "r8unorm" ? pipeline(1) : null, sampler: passes.sampler };
+    passes.formats.set(format, pass);
+  }
+  return pass;
+}
+
 export function mipTexture(device, bitmap, format = "rgba8unorm") {
   const w = bitmap.width, h = bitmap.height, n = Math.floor(Math.log2(Math.max(w, h))) + 1;
   const usage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
@@ -139,25 +165,24 @@ export function mipTexture(device, bitmap, format = "rgba8unorm") {
   // External images upload to RGBA. The glyph atlas keeps just its ink coverage after upload.
   const upload = format === "r8unorm" ? device.createTexture({ size: [w, h], format: "rgba8unorm", usage }) : tex;
   device.queue.copyExternalImageToTexture({ source: bitmap, flipY: false }, { texture: upload }, [w, h]);
-  const code = FS_VS + `@group(0)@binding(0) var s:sampler; @group(0)@binding(1) var t:texture_2d<f32>;
-    override scale:f32=.5;
-    @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
-      return textureSampleLevel(t,s,fc.xy/(vec2f(textureDimensions(t))*scale),0.); }`;
-  const module = shader(device, code, "mip"), enc = device.createCommandEncoder();
-  const pipe = scale => device.createRenderPipeline({ layout: "auto", vertex: { module, entryPoint: "vs" },
-    fragment: { module, entryPoint: "fs", constants: { scale }, targets: [{ format }] } });
-  const samp = device.createSampler({ minFilter: "linear", magFilter: "linear" });
-  const view = i => tex.createView({ baseMipLevel: i, mipLevelCount: 1 });
+  if (n === 1 && upload === tex) return tex;
+  const { down, convert, sampler } = mipPass(device, format);
+  const enc = device.createCommandEncoder();
   const blit = (pipeline, source, target) => {
     const pass = enc.beginRenderPass({ colorAttachments: [{ view: target, loadOp: "clear", storeOp: "store" }] });
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, device.createBindGroup({ layout: pipeline.getBindGroupLayout(0),
-      entries: [{ binding: 0, resource: samp }, { binding: 1, resource: source }] }));
+      entries: [{ binding: 0, resource: sampler }, { binding: 1, resource: source }] }));
     pass.draw(3); pass.end();
   };
-  if (upload !== tex) blit(pipe(1), upload.createView(), view(0));
-  const down = pipe(.5);
-  for (let i = 1; i < n; i++) blit(down, view(i - 1), view(i));
+  const view = i => tex.createView({ baseMipLevel: i, mipLevelCount: 1 });
+  let source = view(0);
+  if (convert) blit(convert, upload.createView(), source);
+  for (let i = 1; i < n; i++) {
+    const target = view(i);
+    blit(down, source, target);
+    source = target;
+  }
   device.queue.submit([enc.finish()]);
   if (upload !== tex) upload.destroy();
   return tex;

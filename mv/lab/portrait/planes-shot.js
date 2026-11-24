@@ -157,7 +157,7 @@ function portalUniform(cam,t,W,H,glyphIndex){
 export function createPlanesShot(g,atlas){
   return createPortraitShot(g,atlas,{
     camera, makeMesh:makePlanesMesh, paint:planesPaint, night:FS_VS+NOISE+COMMON+BUST+GAZE+STATUE+BG_FS,
-    water:WATER_VEIL, bank:FS_VS+COMMON+OVER_FS, flow:FLOW, portal:PORTAL, portalUniform, portalSize:48,
+    water:WATER_VEIL, bank:FS_VS+COMMON+OVER_FS, flow:FLOW, portal:PORTAL, portalUniform, portalStart:52.50,portalSize:48,
     flowCount:1680, finish:{bloom:.25,threshold:.86,knee:.4,tonemap:.87,exposure:1,grain:.019,vignette:.30}
   });
 }

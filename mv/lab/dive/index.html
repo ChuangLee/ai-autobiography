@@ -27,8 +27,9 @@ let vel, velocityScratch, dye, dyeS, prs, div, light, occ, volBG;
 const view = new Map(), V = (t) => { if (!view.has(t)) view.set(t, t.createView()); return view.get(t); };
 const lin = device.createSampler({ magFilter: "linear", minFilter: "linear", addressModeU: "clamp-to-edge", addressModeV: "clamp-to-edge", addressModeW: "clamp-to-edge" });
 const cpipe = (code, label) => { const p = device.createComputePipeline({ layout: "auto", compute: { module: shader(device, code, label), entryPoint: "main" } }); p.label = label; return p; };
-const P = { vel1: cpipe(SIM.VEL1, "vel1"), vel2: cpipe(SIM.VEL2, "vel2"), vort: cpipe(SIM.VORT, "vort"), conf: cpipe(SIM.CONFINE, "confine"), div: cpipe(SIM.DIVG, "div"), jac: cpipe(SIM.JACOBI, "jacobi"), grad: cpipe(SIM.GRAD, "grad"),
-  dye1: cpipe(SIM.DYE1, "dye1"), dye2: cpipe(SIM.DYE2, "dye2"), occ: cpipe(SIM.OCC, "occ"), light: cpipe(SIM.LIGHT, "light"), c16: cpipe(SIM.CLEAR16, "clear16"), c32: cpipe(SIM.CLEAR32, "clear32"), part: cpipe(PART_SIM, "flock") };
+const P = NOFLUID ? {} : { vel1: cpipe(SIM.VEL1, "vel1"), vel2: cpipe(SIM.VEL2, "vel2"), vort: cpipe(SIM.VORT, "vort"), conf: cpipe(SIM.CONFINE, "confine"), div: cpipe(SIM.DIVG, "div"), jac: cpipe(SIM.JACOBI, "jacobi"), grad: cpipe(SIM.GRAD, "grad"),
+  dye1: cpipe(SIM.DYE1, "dye1"), dye2: cpipe(SIM.DYE2, "dye2"), occ: cpipe(SIM.OCC, "occ"), light: cpipe(SIM.LIGHT, "light"), c16: cpipe(SIM.CLEAR16, "clear16"), c32: cpipe(SIM.CLEAR32, "clear32") };
+const particlePipeline = cpipe(PART_SIM, "flock");
 const ubuf = (n) => device.createBuffer({ size: n, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
 const simU = ubuf(48 + 6 * 48), SU = { buffer: simU };
 const bgc = new Map(), BG = (pipe, key, res) => { const k = pipe.label + ":" + key; if (!bgc.has(k)) bgc.set(k, device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: res.map((r, i) => ({ binding: i, resource: r })).filter((e) => e.resource) })); return bgc.get(k); };
@@ -50,16 +51,28 @@ function seedParticles(count) {
   }
 }
 const VW = Math.round(W * VR), VH = Math.round(H * VR), GW = Math.round(W * .75), GH = Math.round(H * .75);
-const vol0 = t2(VW, VH), study = t2(Math.round(W / 2), Math.round(H / 2)), gbuf = t2(GW, GH), gdepth = t2(GW, GH, "depth32float");
-const rpipe = (code, label, blend, depth) => { const m = shader(device, code, label); return device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend }] }, ...(depth ? { depthStencil: { format: "depth32float", depthWriteEnabled: true, depthCompare: "less" } } : {}) }); };
-const volP = rpipe(VOLUME, "volume"), monP = rpipe(MONET, "monet"), compP = rpipe(COMPOSE, "compose"), gbP = rpipe(GBUF, "body", undefined, true);
+const vol0 = t2(VW, VH), study = t2(Math.round(W / 2), Math.round(H / 2)), gbuf = t2(GW, GH);
+let gdepth;
+const rpipe = (code, label, blend, depth, topology = "triangle-list") => { const m = shader(device, code, label); return device.createRenderPipeline({ layout: "auto", primitive: { topology }, vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend }] }, ...(depth ? { depthStencil: { format: "depth32float", depthWriteEnabled: true, depthCompare: "less" } } : {}) }); };
+const volP = rpipe(VOLUME, "volume"), monP = rpipe(MONET, "monet"), compP = rpipe(COMPOSE, "compose"), gbP = rpipe(GBUF, "body", undefined, true, "triangle-strip");
 const surfaceP = rpipe(SURFACE, "feather-surface", undefined, true);
-const drawP = rpipe(PART_DRAW, "glyphs", { color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one" } });
+const drawP = rpipe(PART_DRAW, "glyphs", { color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one" } }, false, "triangle-strip");
 const volU = ubuf(192), monU = ubuf(48), compU = ubuf(144), drawU = ubuf(128), gbU = ubuf(128), bgOf = (p, res) => device.createBindGroup({ layout: p.getBindGroupLayout(0), entries: res.map((r, i) => ({ binding: i, resource: r })) });
 const monBG = bgOf(monP, [{ buffer: monU }]);
 const compBG = bgOf(compP, [{ buffer: compU }, lin, V(vol0), V(study), V(gbuf)]);
 const surfaceU = ubuf(160), surfaceBG = bgOf(surfaceP, [{ buffer: surfaceU }]);
+let volumeDirty = false;
 function waterReady() {
+  if (NOFLUID) {
+    if (!volBG) {
+      // A fresh WebGPU texture reads zero. All four fields are constant in this mode.
+      const empty = t3(1, "rgba16float");
+      vel = dye = [empty];
+      volBG = [bgOf(volP, [{buffer:volU}, lin, V(empty), V(empty), V(empty)])];
+    }
+    resetWater = false;
+    return;
+  }
   if (!volBG) {
     vel = [t3(G, "rgba16float"), t3(G, "rgba16float")];
     velocityScratch = t3(G, "rgba16float");
@@ -158,21 +171,33 @@ function fluid(dt, t) {
   go(P.grad, "" + a + pi, [SU, null, V(vel[a]), V(prs[pi]), V(vel[b])]); ci = b;
   go(P.dye1, "" + ci + di, [SU, lin, V(vel[ci]), V(dye[di]), V(dyeS)], nd);
   go(P.dye2, "" + ci + di, [SU, lin, V(vel[ci]), V(dye[di]), V(dyeS), V(dye[1 - di])], nd); di = 1 - di;
-  go(P.occ, di, [null, null, V(dye[di]), V(occ)], Math.ceil(OG / 4));
-  p.setPipeline(P.light); p.setBindGroup(0, BG(P.light, di, [null, lin, V(dye[di]), V(light)])); p.dispatchWorkgroups(Math.ceil(LG / 8), Math.ceil(LG / 8), 1);
   p.end(); device.queue.submit([enc.finish()]);
+  volumeDirty = true;
+}
+function prepareVolume(enc) {
+  if (!volumeDirty) return;
+  // Neither field feeds back into the simulation. Only the last dye state drawn
+  // by the underwater camera needs its occupancy and light integrated.
+  const p = enc.beginComputePass();
+  const blocks = Math.ceil(OG / 4), columns = Math.ceil(LG / 8);
+  p.setPipeline(P.occ); p.setBindGroup(0, BG(P.occ, di, [null, null, V(dye[di]), V(occ)]));
+  p.dispatchWorkgroups(blocks, blocks, blocks);
+  p.setPipeline(P.light); p.setBindGroup(0, BG(P.light, di, [null, lin, V(dye[di]), V(light)]));
+  p.dispatchWorkgroups(columns, columns, 1);
+  p.end();
+  volumeDirty = false;
 }
 function particles(dt, t) { waterReady(); flockReady(); const F = flock(t), K = kunAt(Math.max(t, 136)), cam = camAt(t), f = new Float32Array(72);
   f.set([dt, t, lerp(30, 9, sm(T.gather, T.gather + 1, t)), F.alpha, F.scale, F.wave, F.split, F.fold, ...F.c, 0, ...F.ax, 0, ...F.ay, 0, ...F.az, 0, ...cam.pos, Math.min(1, 70000 / N), ...cam.f, 0, ...cam.rt, 0, ...cam.up, 0, ...BMIN, 0, ...BMAX, 0, 45 / N, F.bend, F.twist, F.elong,
     ...K.p, 1, ...K.ax, K.w, ...K.ay, K.m, ...K.az, sm(149.5, 150.5, t), K.und, K.beat, K.bend, K.amp]);
   device.queue.writeBuffer(partU, 0, f);
-  const enc = device.createCommandEncoder(), p = enc.beginComputePass(); p.setPipeline(P.part); p.setBindGroup(0, BG(P.part, "" + ci + di, [{ buffer: pbuf }, { buffer: partU }, lin, V(vel[ci]), V(dye[di])])); p.dispatchWorkgroups(Math.ceil(N / 64)); p.end(); device.queue.submit([enc.finish()]);
+  const enc = device.createCommandEncoder(), p = enc.beginComputePass(); p.setPipeline(particlePipeline); p.setBindGroup(0, BG(particlePipeline, "" + ci + di, [{ buffer: pbuf }, { buffer: partU }, lin, V(vel[ci]), V(dye[di])])); p.dispatchWorkgroups(Math.ceil(N / 64)); p.end(); device.queue.submit([enc.finish()]);
 }
 const scene = {
-  reset() { resetWater = resetFlock = true; ci = di = pi = 0; stepN = 0; },
+  reset() { resetWater = resetFlock = true; volumeDirty = false; ci = di = pi = 0; stepN = 0; },
   step(dt, t) { stepN++; if (!NOFLUID && t >= T.fluid && stepN % FE === 0) fluid(dt * FE, t); if (t >= T.gather - 1.5 && stepN % PE === 0) particles(dt * PE, t); },
   draw(t) {
-    const cam = camAt(t), q = device.queue, enc = device.createCommandEncoder(), pass = (tex, pipe, bg, depth) => { const p = enc.beginRenderPass({ colorAttachments: [{ view: tex, loadOp: "clear", clearValue: [0, 0, 0, 0], storeOp: "store" }], ...(depth ? { depthStencilAttachment: { view: depth, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store" } } : {}) }); p.setPipeline(pipe); p.setBindGroup(0, bg); return p; };
+    const cam = camAt(t), q = device.queue, enc = device.createCommandEncoder(), pass = (tex, pipe, bg, depth) => { const p = enc.beginRenderPass({ colorAttachments: [{ view: tex, loadOp: "clear", clearValue: [0, 0, 0, 0], storeOp: "store" }], ...(depth ? { depthStencilAttachment: { view: depth, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "discard" } } : {}) }); p.setPipeline(pipe); p.setBindGroup(0, bg); return p; };
     const under = t < 135 ? sm(T.dive[0], T.dive[1], t) : sm(.28, -.28, cam.pos[1]);                      // the waterline crosses the lens going down, and again coming up
     const energy = (() => { const e = window.__song?.energy, d = window.__song?.duration; if (!e) return .45; const x = t / d * e.length, i = Math.floor(x); return lerp(e[i] ?? .45, e[i + 1] ?? .45, x - i); })();
     const vp = M4.mul(M4.persp(cam.fov, W / H, .05, 80), M4.look(cam.pos, add(cam.pos, cam.f))), K = kunAt(Math.max(t, 136));
@@ -184,6 +209,7 @@ const scene = {
     if (t >= 126 && t < T.gather && seeded === N && resetFlock) flockReady();
     if (under > 0) {
       waterReady();
+      prepareVolume(enc);
       const recent = DROPS.filter((d) => t >= d[0]).slice(-4), dr = new Float32Array(16); recent.forEach((d, i) => dr.set([(d[1] - .5) * WORLD, (d[2] - .5) * WORLD, d[0], 1], i * 4));
       const sun = 1.55 * (1 + .25 * (energy - .45)), bright = lerp(1.3, 1.0, sm(T.dive[1], T.dive[1] + 6, t)) * (1 + .2 * (energy - .45)), cp = [cam.pos[0], Math.min(cam.pos[1], -.04), cam.pos[2]];
       q.writeBuffer(volU, 0, new Float32Array([...cp, 0, ...cam.rt, W / H, ...cam.up, 0, ...cam.f, cam.tan, ...BMIN, VH, ...BMAX, 0, t, WORLD / STEPS, sun, .9, 1, 4.2, WORLD / OG * .8, bright, ...dr]));
@@ -191,12 +217,13 @@ const scene = {
     }
     if (t > T.kun) {
       flockReady();
-      const p = pass(V(gbuf), gbP, gbBG, V(gdepth));
+      gdepth ??= device.createTexture({size:[gbuf.width, gbuf.height], format:"depth32float", usage:U.RENDER_ATTACHMENT}).createView();
+      const p = pass(V(gbuf), gbP, gbBG, gdepth);
       const solid = sm(T.kun + 1.4, T.kun + 4.6, t);
       if (solid < 1) {
         const size = Math.min(.10, .034 * Math.sqrt(600000 / N)) * (1 - solid);
         q.writeBuffer(gbU, 0, new Float32Array([...vp, ...cam.pos, 0, ...cam.rt, 0, ...cam.up, 0, size, 0, 0, 0]));
-        p.draw(6, N);
+        p.draw(4, N);
       }
       if (solid > 0) {
         // The visible letters reach their targets on damped springs; let the paint follow their centre.
@@ -219,7 +246,7 @@ const scene = {
     if (t > T.gather) { flockReady(); const F = flock(t), fc = K.w > .5 ? kloc(K, [clamp(((cam.pos[0] - K.p[0]) * K.ax[0] + (cam.pos[1] - K.p[1]) * K.ax[1] + (cam.pos[2] - K.p[2]) * K.ax[2]), -3, 3), 0, .5]) : F.c;
       const focus = Math.max(.9, Math.hypot(cam.pos[0] - fc[0], cam.pos[1] - fc[1], cam.pos[2] - fc[2])), f = new Float32Array(32);
       f.set(vp, 0); f.set([...cam.pos, 0, ...cam.f, cam.tan, lerp(.0080, .0100, K.w), lerp(1.0, .25, mural) * lerp(1, DENS, K.w) * (1 + .5 * (energy - .45)), focus, .014, W, H, t, lerp(1, DENS, K.w) * (1 - .8 * mural)], 16); q.writeBuffer(drawU, 0, f);
-      const p = enc.beginRenderPass({ colorAttachments: [{ view: post.hdr, loadOp: "load", storeOp: "store" }] }); p.setPipeline(drawP); p.setBindGroup(0, drawBG); p.draw(6, N); p.end(); }
+      const p = enc.beginRenderPass({ colorAttachments: [{ view: post.hdr, loadOp: "load", storeOp: "store" }] }); p.setPipeline(drawP); p.setBindGroup(0, drawBG); p.draw(4, N); p.end(); }
     const uw = under * (1 - .7 * mural);
     post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: .7 * uw, threshold: 1.0, knee: .6, exposure: 1, tonemap: 1, bars: 1 - sm(T.drop + .4, T.drop + 4, t), grain: lerp(.018, .026, under), vignette: lerp(.18, .36, under), time: t });
     q.submit([enc.finish()]);

@@ -169,7 +169,7 @@ ${study ? `    if(anatomyStudy){
   else if(m<2.5){ alb=.12+.11*pow(1.-abs(dot(n,rd)),3.); } else if(m<3.5){ alb=.16+.05*vnoise(q.xz*vec2f(40.,3.)); }
   else if(m<4.5){ alb=.04;
     if(nn.z<-.5 && abs(q.x-SX)<.74 && abs(q.y-1.3)<.4){ let c=(q.xy-vec2f(SX,1.3))/vec2f(.74,.4); let uvs=vec2f(c.x*r.flip*.5+.5,.5-c.y*.5);
-      let tile=r.a.w; let tuv=(vec2f(tile%2.,floor(tile/2.))+uvs)/vec2f(2.,5.); var a=textureSampleLevel(txt,smp,tuv,0.).a; let line=step(.5,uvs.y);
+      let tile=r.a.w; let tuv=(vec2f(tile%2.,floor(tile/2.))+uvs)/vec2f(2.,5.); var a=textureSampleLevel(txt,smp,tuv,0.).r; let line=step(.5,uvs.y);
       if(r.b.w>.5){ let cp=(uvs.x*1024.-64.)/128.; let nch=select(min(r.b.z,6.),max(r.b.z-6.,0.),line>.5); a*=step(cp,nch);
         let cx=64.+128.*select(r.b.z,r.b.z-6.,r.b.z>6.); let cl=select(0.,1.,r.b.z>6.); let cy=uvs.y*512.-(150.+cl*190.); a=max(a,u.misc2.y*step(abs(uvs.x*1024.-cx-10.),5.)*step(abs(cy),62.)); }
       else { a*=step(uvs.x,clamp(r.b.z*2.-line,0.,1.)*1.02); }
@@ -265,11 +265,14 @@ struct RO{ @location(0) c:vec4f, @builtin(frag_depth) z:f32 }
 
 // The gold "me": real glyphs from the atlas, their motion a pure function of time (no state), so any frame can be drawn on its own.
 // They pour out of the screen's light, gather into a standing figure, and on release come apart, drift and go dark.
+// One path crosses between the featured rooms; the remaining paths carry sparks across the street.
+export const WINDOW_PATH_COUNT = 19;
 export const GLYPHS = /* wgsl */`
-struct P { vp:mat4x4f, rt:vec4f, up:vec4f, org:vec4f, fig:vec4f, src:vec4f, m:vec4f, n:vec4f, snk:vec4f, cp:array<vec4f,8> }
+struct P { vp:mat4x4f, rt:vec4f, up:vec4f, org:vec4f, fig:vec4f, src:vec4f, m:vec4f, n:vec4f, snk:vec4f }
 // rt.w glyph size, up.w time, org.w flip, fig.w yaw, src: where they pour from, m: tf (s since the stream began), tr (s since release), brightness, mirror in the glass;
 // n: figure scale, mode (0 figure, 2 stream along cp), source spread x, y; snk: where the sparks leave (xyz) and the share that become sparks; in mode 2 m.x is seconds into the flight and snk.x its length
 @group(0)@binding(0) var<uniform> P_:P; @group(0)@binding(1) var gs:sampler; @group(0)@binding(2) var atlas:texture_2d<f32>;
+@group(0)@binding(3) var<uniform> routes:array<array<vec4f,8>,${WINDOW_PATH_COUNT}>;
 struct VO{ @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) col:vec3f }
 fn h1(x:f32)->f32{ return fract(sin(x*127.1+17.3)*43758.5453); }
 fn cr(a:vec3f,b:vec3f,c:vec3f,d:vec3f,f:f32)->vec3f{ let f2=f*f; let f3=f2*f; return .5*((2.*b)+(-a+c)*f+(2.*a-5.*b+4.*c-d)*f2+(-a+3.*b-3.*c+d)*f3); }
@@ -279,7 +282,8 @@ fn cr(a:vec3f,b:vec3f,c:vec3f,d:vec3f,f:f32)->vec3f{ let f2=f*f; let f3=f2*f; re
   var pos:vec3f; var col:vec3f; var vis=1.; var fade=1.; var ang=0.; var grow=1.;
   if(P_.n.y>1.5){ // the sparks in flight: a loose braid along the curve, each glyph on its own delay
     let uu=(tf-r1*1.7-r2*r2*.8)/P_.snk.x; let uc=clamp(uu,0.,.9999); let sg=min(floor(uc*5.),4.); let f=uc*5.-sg; let i0=i32(sg);
-    pos=cr(P_.cp[i0].xyz,P_.cp[i0+1].xyz,P_.cp[i0+2].xyz,P_.cp[i0+3].xyz,f);
+    let path=u32(P_.src.w);
+    pos=cr(routes[path][i0].xyz,routes[path][i0+1].xyz,routes[path][i0+2].xyz,routes[path][i0+3].xyz,f);
     let rad=(.12+.55*sin(3.14159*uc))*sqrt(r4); let a=seed*2.4+uc*(5.+4.*r5)+t*.4;
     pos+=vec3f(cos(a),sin(a)*.8,cos(a*1.3+1.))*rad;
     vis=smoothstep(0.,.02,uu)*(1.-smoothstep(.975,1.,uu)); ang=(r6-.5)*t*1.5;

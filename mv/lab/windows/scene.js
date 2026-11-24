@@ -1,7 +1,7 @@
 import { shader, FS_VS, NOISE, mipTexture, clamp, sm, lerp, qn, hash, norm, cross, sub, dot } from "../lib.js";
 import { WGSL } from "./scene.wgsl.js";
 import { BUST, GAZE } from "../river/figure.js";
-import { ROOM, GLYPHS, VISITOR_MODEL } from "./room.wgsl.js";
+import { ROOM, GLYPHS, VISITOR_MODEL, WINDOW_PATH_COUNT } from "./room.wgsl.js";
 import { PAINT } from "./paint.wgsl.js";
 
 export function makeWindowText(device) {
@@ -10,32 +10,65 @@ export function makeWindowText(device) {
   const cv = new OffscreenCanvas(2048, 2560), x = cv.getContext("2d", { willReadFrequently: true }); x.fillStyle = "#fff"; x.textBaseline = "middle";
     ASKS.forEach((a, i) => { const ox = (i % 2) * 1024, oy = Math.floor(i / 2) * 512; a.forEach((ln, k) => { const y = oy + 150 + k * 190;
       if (i === 0) { x.font = `500 116px ${SERIF}`; x.textAlign = "center"; [...ln].forEach((ch, j) => x.fillText(ch, ox + 64 + 128 * j + 64, y)); }
-      else { x.font = `500 ${/[぀-鿿가-힯]/.test(ln) ? 116 : 104}px ${SERIF}`; x.textAlign = "left"; x.fillText(ln, ox + 64, y, 900); } }); });  return mipTexture(device, cv.transferToImageBitmap());
+      else { x.font = `500 ${/[぀-鿿가-힯]/.test(ln) ? 116 : 104}px ${SERIF}`; x.textAlign = "left"; x.fillText(ln, ox + 64, y, 900); } }); });
+  // White ink on transparent pixels is premultiplied coverage. Black behind
+  // it leaves that coverage in red, ready for a single-channel mip chain.
+  x.globalCompositeOperation = "destination-over"; x.fillStyle = "#000"; x.fillRect(0,0,cv.width,cv.height);
+  const bitmap=cv.transferToImageBitmap();
+  const texture=mipTexture(device,bitmap,"r8unorm");
+  bitmap.close();
+  return texture;
 }
 
 export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
   const { device } = g;
   const over = { color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } }, add = { color: { srcFactor: "one", dstFactor: "one" }, alpha: { srcFactor: "zero", dstFactor: "one" } };
-  const cityMod = shader(device, FS_VS + NOISE + WGSL, "city"), glyMod = shader(device, GLYPHS, "glyphs");
+  const cityMod = shader(device, FS_VS + NOISE + WGSL, "city");
   const cityPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: cityMod, entryPoint: "vs" }, fragment: { module: cityMod, entryPoint: "fs", targets: [{ format: "rgba16float", blend: over }] } });
-  const glyPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: glyMod, entryPoint: "vs", buffers: [{ arrayStride: 32, stepMode: "instance", attributes: [{ shaderLocation: 0, offset: 0, format: "float32x4" }, { shaderLocation: 1, offset: 16, format: "float32x4" }] }] },
-    fragment: { module: glyMod, entryPoint: "fs", targets: [{ format: "rgba16float", blend: add }] }, depthStencil: { format: "depth32float", depthWriteEnabled: false, depthCompare: "less-equal" } });
-  const ubuf = (n) => device.createBuffer({ size: n, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
-  const ub = [ubuf(160), ubuf(160)], rb = [ubuf(112), ubuf(112)], qb = ubuf(64), pb = Array.from({ length: 24 }, () => ubuf(320)), lin = device.createSampler({ minFilter: "linear", magFilter: "linear", mipmapFilter: "linear" });
-  const cityBG = ub.map((b) => device.createBindGroup({ layout: cityPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: b } }, { binding: 1, resource: lin }, { binding: 2, resource: text.createView() }] }));
-  const glyBG = pb.map((b) => device.createBindGroup({ layout: glyPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: b } }, { binding: 1, resource: atlas.sampler }, { binding: 2, resource: atlas.tex.createView() }] }));
+  const ubuf = n => device.createBuffer({ size: n, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const ub = [ubuf(160), ubuf(160)], rb = [ubuf(112), ubuf(112)], qb = ubuf(64);
+  const lin = device.createSampler({minFilter:"linear",magFilter:"linear",mipmapFilter:"linear"}), textView=text.createView();
+  const cityBG = ub.map(b => device.createBindGroup({layout:cityPipe.getBindGroupLayout(0),entries:[
+    {binding:0,resource:{buffer:b}},{binding:1,resource:lin},{binding:2,resource:textView}]}));
   const paintMod = shader(device, FS_VS + NOISE + PAINT, "paint");
   const paintPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: paintMod, entryPoint: "vs" }, fragment: { module: paintMod, entryPoint: "fs", targets: [{ format: "rgba16float", blend: over }] } });
   const paintBG = device.createBindGroup({ layout: paintPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: qb } }] });
   let roomPipe, roomBG;
   function needRoom() { if (roomPipe) return; const roomMod = shader(device, FS_VS + NOISE + WGSL + BUST + GAZE + VISITOR_MODEL + ROOM, "room");
     roomPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: roomMod, entryPoint: "vs" }, fragment: { module: roomMod, entryPoint: "fs_room", targets: [{ format: "rgba16float", blend: over }] }, depthStencil: { format: "depth32float", depthWriteEnabled: true, depthCompare: "always" } });
-    roomBG = ub.map((b, i) => device.createBindGroup({ layout: roomPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: b } }, { binding: 1, resource: lin }, { binding: 2, resource: text.createView() }, { binding: 3, resource: { buffer: rb[i] } }] })); }
+    roomBG = ub.map((b, i) => device.createBindGroup({ layout: roomPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: b } }, { binding: 1, resource: lin }, { binding: 2, resource: textView }, { binding: 3, resource: { buffer: rb[i] } }] })); }
   // Seed the surface by height, then project once on the GPU onto the same posed
   // body that is ray marched in the room. Both households use this one buffer.
   const NG = qn("windowN", qn("join", 0) ? 46000 : qn("n", 46000));
-  let glyBuf;
+  let glyBuf, glyPipe, glyphUniforms, glyphData, glyphGroup, pathBuffer, glyphStride;
+  const glyphRecords=[];
+  const glyphBytes=192, glyphSlots=24, glyphOffsets=new Uint32Array(includeGlyphs ? glyphSlots : 0);
   if (includeGlyphs) {
+    const module=shader(device,GLYPHS,"glyphs");
+    const layout=device.createBindGroupLayout({entries:[
+      {binding:0,visibility:GPUShaderStage.VERTEX,buffer:{type:"uniform",hasDynamicOffset:true,minBindingSize:glyphBytes}},
+      {binding:1,visibility:GPUShaderStage.FRAGMENT,sampler:{type:"filtering"}},
+      {binding:2,visibility:GPUShaderStage.FRAGMENT,texture:{sampleType:"float"}},
+      {binding:3,visibility:GPUShaderStage.VERTEX,buffer:{type:"uniform"}}]});
+    const pipelineLayout=device.createPipelineLayout({bindGroupLayouts:[layout]});
+    glyPipe=device.createRenderPipeline({layout:pipelineLayout,vertex:{module,entryPoint:"vs",buffers:[
+      {arrayStride:32,stepMode:"instance",attributes:[{shaderLocation:0,offset:0,format:"float32x4"},{shaderLocation:1,offset:16,format:"float32x4"}]}]},
+      fragment:{module,entryPoint:"fs",targets:[{format:"rgba16float",blend:add}]},
+      depthStencil:{format:"depth32float",depthWriteEnabled:false,depthCompare:"less-equal"}});
+    // Each recorded draw must see its own uniforms when the whole frame is submitted.
+    // A single upload fills the used prefix, including on slow frames and seeks.
+    const align=device.limits.minUniformBufferOffsetAlignment;
+    glyphStride=Math.ceil(glyphBytes/align)*align;
+    glyphData=new Float32Array(glyphSlots*glyphStride/4);
+    glyphUniforms=ubuf(glyphData.byteLength);
+    pathBuffer=ubuf(WINDOW_PATH_COUNT*8*16);
+    glyphGroup=device.createBindGroup({layout,entries:[
+      {binding:0,resource:{buffer:glyphUniforms,size:glyphBytes}},{binding:1,resource:atlas.sampler},
+      {binding:2,resource:atlas.tex.createView()},{binding:3,resource:{buffer:pathBuffer}}]});
+    for(let i=0;i<glyphSlots;i++){
+      glyphOffsets[i]=i*glyphStride;
+      glyphRecords.push(new Float32Array(glyphData.buffer,glyphOffsets[i],glyphBytes/4));
+    }
     const R = atlas.info.groupRanges, pools = [["cn-kai", 4], ["cn-poem", 4], ["cn-xing", 2], ["cn-song", 2], ["cn-clerical", 1], ["cn-seal", 1], ["cn-oracle", 1], ["world-modern", 5], ["world-ancient", 1.5], ["word", 2]], tot = pools.reduce((s, x) => s + x[1], 0);
     const data = new Float32Array(NG * 8); let rs = 12345; const rnd = () => (rs = (Math.imul(rs, 1664525) + 1013904223) >>> 0) / 4294967296;
     for (let i = 0; i < NG; i++) {
@@ -49,8 +82,10 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
       let k = rnd()*tot, gi = 0;
       while (k > pools[gi][1]) { k -= pools[gi][1]; gi++; }
       const [lo, hi] = R[pools[gi][0]];
-      data.set([x, y, z, i*.37+rnd()*9, lo+Math.floor(rnd()*(hi-lo+1)),
-        clamp(1-y/1.7+(rnd()-.5)*.15), 0, 0], i*8);
+      const offset=i*8;
+      data[offset]=x; data[offset+1]=y; data[offset+2]=z; data[offset+3]=i*.37+rnd()*9;
+      data[offset+4]=lo+Math.floor(rnd()*(hi-lo+1));
+      data[offset+5]=clamp(1-y/1.7+(rnd()-.5)*.15);
     }
     glyBuf = device.createBuffer({size:data.byteLength, usage:GPUBufferUsage.VERTEX | GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST});
     device.queue.writeBuffer(glyBuf,0,data);
@@ -106,8 +141,13 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
   const road = (pts) => [mix3(pts[0], pts[1], -1), ...pts, mix3(pts[5], pts[4], -1)];
   const CPS = road([inRoom(HERO, PANEOUT), [0, 44.6, -22.5], [-3.5, 49.5, -34], [-8.2, 55.5, -35], [-9, 59.4, -26.5], inRoom(RB, PANEOUT)]);
   // other fires being handed on across the estate, seen as the camera pulls away: from a window on one side of the avenue, over it, to a window on the other. [start, seconds, road]
-  const FIRES = Array.from({ length: 18 }, (_, i) => { const h = (k) => hash(i * 7.31, k), side = i % 2 ? 1 : -1, z0 = -24 - 22 * i - 30 * h(1), z1 = z0 - 20 - 60 * h(2), y0 = 22 + 60 * h(3), y1 = 22 + 60 * h(4), top = Math.max(y0, y1) + 8 + 14 * h(5);
+  const FIRES = Array.from({ length: WINDOW_PATH_COUNT-1 }, (_, i) => { const h = (k) => hash(i * 7.31, k), side = i % 2 ? 1 : -1, z0 = -24 - 22 * i - 30 * h(1), z1 = z0 - 20 - 60 * h(2), y0 = 22 + 60 * h(3), y1 = 22 + 60 * h(4), top = Math.max(y0, y1) + 8 + 14 * h(5);
     return [72.1 + 1.3 * h(6), 1.7 + .8 * h(7), road([[-25 * side, y0, z0], [-15 * side, lerp(y0, top, .7), lerp(z0, z1, .2)], [-4 * side, top, lerp(z0, z1, .42)], [6 * side, top - 2, lerp(z0, z1, .62)], [17 * side, lerp(y1, top, .6), lerp(z0, z1, .82)], [25 * side, y1, z1]])]; });
+  if(includeGlyphs){
+    const paths=[CPS,...FIRES.map(fire=>fire[2])], packed=new Float32Array(paths.length*8*4);
+    paths.forEach((points,i)=>points.forEach((p,j)=>packed.set(p,(i*8+j)*4)));
+    device.queue.writeBuffer(pathBuffer,0,packed);
+  }
   // move A: [t, position, look-at, fov]
   const KA = [[55.92, [.30, 42.55, -19.2], [.12, 42.3, -14.4], 34], [57.5, [.22, 42.6, -19.0], [.12, 42.3, -14.4], 34], [58.6, [5.8, 44.6, -22.5], [4.6, 44.1, -16], 38], [59.6, [1.6, 43.6, -24], [.5, 42.8, -16], 42],
     [60.4, [-.2, 42.6, -17.9], [.5, 42.0, -14.3], 50], [61.0, [-.62, 42.32, -15.6], [.62, 41.98, -14.25], 56], [61.9, [-.8, 42.3, -15.46], [.62, 41.98, -14.25], 56],
@@ -125,16 +165,20 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
     [78.8, [.72, 1.48, 1.7], [.3, 1.42, -.5], 44], [79.6, [GLASSX + .04, 1.46, .32], [GLASSX, 1.38, -3], 42]].map((k) => [k[0], inRoom(RS, k[1]), inRoom(RS, k[2]), k[3]]);
   const bPos = curveN(KB, (k) => k[1]), bTa = curveN(KB, (k) => k[2]), bFov = curveN(KB, (k) => k[3]);
   const cityDef = { s: 0, hs: 1, heroOn: 1, ring: 1, path: 0, fig: 1, wave: 1, moonPane: 0, emb: [99, 99, 0] };
-  const figDraw = (R, fg, extra) => ({ org: org(R), flip: R.flip, fig: [fg.x, 0, fg.z], yaw: fg.yaw, src: SCREEN, spread: [1.3, .68], snk: PANEOUT, sparks: .55, tf: 10, tr: 0, k: .052, mirror: 0, mode: 0, size: .007, cps: CPS, ...extra });
+  const figDraw = (R, fg, extra) => ({ org: org(R), flip: R.flip, fig: [fg.x, 0, fg.z], yaw: fg.yaw, src: SCREEN, spread: [1.3, .68], snk: PANEOUT, sparks: .55, tf: 10, tr: 0, k: .052, mirror: 0, mode: 0, size: .007, path: 0, ...extra });
   function layerA(t) { const C = camA(t), heroOn = 1 - sm(T.dark, T.dark + .45, t), ask = sm(T.ask, T.ask + .4, t), R = t < T.swap ? HERO : RB, glyphs = [];
     const city = { ...cityDef, heroOn, fig: sm(T.kindle, T.kindle + 1.1, t), emb: [R.bi, R.fi, R === HERO ? heroOn : ask] };
     if (t >= T.cityOnly) return { ...C, city, post: { bloom: 1, tonemap: 1 } };
     const tfH = t - T.form, trH = t - T.release, tf2 = t - T.form2;
     if (tfH > 0 && trH < 4.2) glyphs.push(figDraw(HERO, FIG, { tf: tfH, tr: Math.max(trH, 0) }));
     const spark = { org: [0, 0, 0], flip: 1, fig: [0, 0, 0], yaw: 0, src: [0, 0, 0], spread: [0, 0], sparks: 0, tr: 0, mirror: 0, mode: 2 };
-    if (t > T.fly && t < T.fly + T.flight + 2.7) glyphs.push({ ...spark, snk: [T.flight, 0, 0], tf: t - T.fly, k: .5, size: .012, cps: CPS, n: Math.floor(NG * .6) });
+    if (t > T.fly && t < T.fly + T.flight + 2.7) glyphs.push({ ...spark, snk: [T.flight, 0, 0], tf: t - T.fly, k: .5, size: .012, path: 0, n: Math.floor(NG * .6) });
     if (tf2 > 0) glyphs.push(figDraw(RB, FIG, { tf: tf2, src: PANEOUT, spread: [.9, .7] }));
-    for (const [t0, len, cps] of FIRES) if (t > t0 && t < t0 + len + 2.7 && glyphs.length < 22) glyphs.push({ ...spark, snk: [len, 0, 0], tf: t - t0, k: .2, size: .03 + .00045 * Math.max(0, -WZ - C.ro[2]), cps, n: Math.floor(NG * .08) });
+    for(let i=0;i<FIRES.length;i++){
+      const [t0,len]=FIRES[i];
+      if(t>t0 && t<t0+len+2.7 && glyphs.length<22)
+        glyphs.push({...spark,snk:[len,0,0],tf:t-t0,k:.2,size:.03+.00045*Math.max(0,-WZ-C.ro[2]),path:i+1,n:Math.floor(NG*.08)});
+    }
     const room = R === HERO ? { R, screen: heroOn, lampK: 1 - .88 * sm(T.dark, T.dark + .6, t), typed: Math.floor(clamp((t - 56.05) / 1.45) * 13 + 1e-3), light: [FIG.x, FIG.z, figAmt(tfH, trH)] }
       : { R, screen: ask, lampK: 1, typed: clamp((t - T.ask - .3) / 1.2), light: [FIG.x, FIG.z, figAmt(tf2, 0)] };
     return { ...C, city, room, glyphs, post: { bloom: 1, tonemap: 1 } }; }
@@ -165,10 +209,19 @@ export function createWindowScene(g, post, text, atlas, includeGlyphs = true) {
         rm.screen, R.lamp < 0 ? -1 : R.lamp * rm.lampK, rm.typed, R.hero, R.px, R.pz, R.lean, R.seed, C.n, C.f, rm.refl || 0, 1, rm.hop || 0, Math.cos(R === RS ? Math.PI : FIG.yaw), Math.sin(R === RS ? Math.PI : FIG.yaw), 0]));
       const p = enc.beginRenderPass({ colorAttachments: color, depthStencilAttachment: { view: post.depth, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store" } });
       p.setPipeline(roomPipe); p.setBindGroup(0, roomBG[i]); p.draw(3);
-      if (L.glyphs.length) { p.setPipeline(glyPipe); p.setVertexBuffer(0, glyBuf);
-        for (const G of L.glyphs) { device.queue.writeBuffer(pb[gi], 0, new Float32Array([...C.vp, ...C.rt, G.size, ...C.up, t, ...G.org, G.flip, ...G.fig, G.yaw, ...G.src, 0, G.tf, G.tr, G.k * w, G.mirror, 1, G.mode, ...G.spread, ...G.snk, G.sparks, ...G.cps.flatMap((q) => [...q, 0])]));
-          p.setBindGroup(0, glyBG[gi]); p.draw(6, G.n || NG); gi++; } }
+      if (includeGlyphs && L.glyphs.length) {
+        p.setPipeline(glyPipe); p.setVertexBuffer(0,glyBuf);
+        for(const G of L.glyphs){
+          const u=glyphRecords[gi];
+          u.set(C.vp,0); u.set(C.rt,16); u[19]=G.size; u.set(C.up,20); u[23]=t;
+          u.set(G.org,24); u[27]=G.flip; u.set(G.fig,28); u[31]=G.yaw;
+          u.set(G.src,32); u[35]=G.path; u[36]=G.tf; u[37]=G.tr; u[38]=G.k*w; u[39]=G.mirror;
+          u[40]=1; u[41]=G.mode; u.set(G.spread,42); u.set(G.snk,44); u[47]=G.sparks;
+          p.setBindGroup(0,glyphGroup,glyphOffsets,gi,1); p.draw(6,G.n || NG); gi++;
+        }
+      }
       p.end(); });
+    if(gi)device.queue.writeBuffer(glyphUniforms,0,glyphData,0,((gi-1)*glyphStride+glyphBytes)/4);
     post.run(enc, output, { bloom, threshold: .8, knee: .6, exposure: lerp(1, 1.25, tone), tonemap: tone, bars: 0, grain: .035, vignette: lerp(.2, .5, tone), time: t });
     device.queue.submit([enc.finish()]);
   }

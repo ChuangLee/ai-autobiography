@@ -184,7 +184,7 @@ struct R { vp:mat4x4f, cam:vec4f, right:vec4f, up:vec4f, par:vec4f }
 @group(0)@binding(1) var<uniform> r:R;
 struct VO { @builtin(position) pos:vec4f, @location(0) e:vec2f, @location(1) g:vec3f, @location(2) depth:f32 }
 @vertex fn vs(@builtin(vertex_index) vi:u32, @builtin(instance_index) ii:u32)->VO{
-  var o:VO; let P0=ps[ii]; var qa=array<vec2f,6>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(-1.,1.),vec2f(-1.,1.),vec2f(1.,-1.),vec2f(1.,1.)); let e=qa[vi];
+  var o:VO; let P0=ps[ii]; let qa=array<vec2f,4>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(-1.,1.),vec2f(1.,1.)); let e=qa[vi];
   let wk=P0.g.w; let rad=r.par.x*smoothstep(.15,1.,wk)*select(select(1.,.75,P0.g.x>.5),.38,P0.g.x>3.5);
   let pos=P0.p.xyz; o.pos=r.vp*vec4f(pos+(r.right.xyz*e.x+r.up.xyz*e.y)*rad,1.); o.e=e; o.g=P0.g.xyz; o.depth=max(.51,o.pos.w);
   let wrong=select((pos.y>0.),(pos.y<0.),(r.cam.y>0.));
@@ -206,13 +206,14 @@ fn h1(n:f32)->f32{ return fract(sin(n*12.9898)*43758.5453); }
 struct VO { @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) col:vec3f, @location(2) cell:vec2f, @location(3) lod:f32, @location(4) occ:f32 }
 @vertex fn vs(@builtin(vertex_index) vi:u32, @builtin(instance_index) ii:u32)->VO{
   var o:VO; let P0=ps[ii]; let sd=P0.p.w;
-  var qa=array<vec2f,6>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(-1.,1.),vec2f(-1.,1.),vec2f(1.,-1.),vec2f(1.,1.)); let q=qa[vi];
-  let pos=P0.p.xyz; let toC=r.cam.xyz-pos; let dist=length(toC); let V=toC/dist;
+  let qa=array<vec2f,4>(vec2f(-1.,-1.),vec2f(1.,-1.),vec2f(-1.,1.),vec2f(1.,1.)); let q=qa[vi];
+  let pos=P0.p.xyz; let depth=dot(pos-r.cam.xyz,r.fwd.xyz);
+  if(depth<.08||P0.c.a<=0.){ o.pos=vec4f(2.,2.,2.,1.);return o; }
+  let toC=r.cam.xyz-pos; let dist=length(toC); let V=toC/dist;
   let sp=length(P0.v.xyz); var vd=normalize(vec3f(h1(sd+1.)-.5,h1(sd+2.)-.5,h1(sd+3.)-.5)); if(sp>.02){ vd=normalize(mix(vd,P0.v.xyz/sp,smoothstep(.02,.15,sp))); }
   let upi=normalize(vec3f(h1(sd+4.)-.5,1.2,h1(sd+5.)-.5)*vec3f(.9,1.,.9)+vec3f(sin(r.par2.z*.4+sd*40.),0.,cos(r.par2.z*.37+sd*31.))*.35);
   var Nf=cross(vd,upi); Nf=Nf/(length(Nf)+1e-5); let fc=dot(Nf,V); if(fc<0.){ Nf=-Nf; }
   let Nn=normalize(Nf+.5*V); let X=normalize(cross(upi,Nn)); let Y=cross(Nn,X);
-  let depth=dot(pos-r.cam.xyz,r.fwd.xyz);
   let base=r.par.x*(.5+1.1*h1(sd+6.)*h1(sd+7.));
   let coc=r.par.w*abs(1./r.par.z-1./max(depth,.05))*max(depth,.05);
   let pix=2.*r.fwd.w*max(depth,.05)/r.par2.y;
@@ -228,7 +229,6 @@ struct VO { @builtin(position) pos:vec4f, @location(0) uv:vec2f, @location(1) co
   o.col=P0.c.rgb*P0.c.a*r.par.y*mix(area,sqrt(area),.35)*occ*flash*fog*side; o.occ=.85*r.par2.w*min(P0.c.a,1.)*side*area*smoothstep(.10,.30,depth);
   let id=floor(h1(sd+8.)*961.99); o.cell=vec2f(id%32.,floor(id/32.)); o.uv=q*.5+.5;
   o.lod=clamp(log2(128.*pix/(size*2.))+log2(size/base)*.75,0.,5.);
-  if(depth<.08||P0.c.a<=0.){ o.pos=vec4f(2.,2.,2.,1.); }
   return o; }
 @fragment fn fs(i:VO)->@location(0) vec4f{ let uv=(i.cell+.03+.94*vec2f(i.uv.x,1.-i.uv.y))/32.;
   let a=textureSampleLevel(atlas,asamp,uv,i.lod).r; let e=i.uv*2.-1.; let soft=smoothstep(1.,.75,max(abs(e.x),abs(e.y)));
