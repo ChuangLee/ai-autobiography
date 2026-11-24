@@ -21,6 +21,10 @@ install -d /var/www/zichengjing/mv/glyphs /var/www/zichengjing/mv/v2-color && in
 # MV full cut: the song data (mv/song.py) and the earlier two-verse cut kept at mv/v3-two-verses for comparison
 install -m 644 ../mv/song.json /var/www/zichengjing/mv/ && install -d /var/www/zichengjing/mv/v3-two-verses && install -m 644 ../mv/v3-two-verses/index.html /var/www/zichengjing/mv/v3-two-verses/
 install -d /var/www/zichengjing/mv/shots && install -m 644 ../mv/shots.html /var/www/zichengjing/mv/shots/index.html
+# MV redesign (code-first): mv/重构设计.md rendered by mv/design.py, served at mv/design/
+python3 ../mv/design.py && install -d /var/www/zichengjing/mv/design && install -m 644 ../mv/design.html /var/www/zichengjing/mv/design/index.html
+# Code-only sample scenes (WebGPU): mv/lab/<scene>/ with the shared mv/lab/lib.js, served at mv/lab/ (see mv/lab/README.md)
+bash ../mv/lab/deploy.sh
 python3 build_heshui.py
 install -d /var/www/zichengjing/heshui && install -m 644 web/heshui/index.html web/heshui/content.json /var/www/zichengjing/heshui/
 install -d /opt/zichengjing-review

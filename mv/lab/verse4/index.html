@@ -1,0 +1,101 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第四段 · 每句一个画种　样片</title><canvas id="c"></canvas>
+<script type="module">
+// 第四段（154.6–192.7）：天工开物木刻 → 达芬奇手稿 → 马格利特 → 朱罗青铜 → 西斯廷湿壁画 → 抽象数学（真字作质点）→ 沃霍尔丝网与朱印 → 宋人山水 → 未来主义的残影。全程不硬切。
+// 参数：?t=秒 静帧　?res=0.5 分辨率倍数　?n=200000 数学一场的字数　?steps=90 青铜光线步进步数　?refl=1 青铜水池倒影（0 关）　?from=秒 起播位置　?only=层名 只画某一层（调试）
+import { fail, initGPU, Post, run, shader, FS_VS, NOISE, mipTexture, loadAtlas, clamp, sm, lerp, qn, Q } from "../lib.js";
+import { HEAD, curveN } from "./common.js";
+import { DRAFT } from "./draft.js";
+const MODS = { draft: DRAFT };
+for (const [k, f, x] of [["sky", "./sky.js", "SKY"], ["bronze", "./bronze.js", "BRONZE"], ["fresco", "./fresco.js", "FRESCO"], ["ground", "./forms.js", "GROUND"], ["print", "./print.js", "PRINT"], ["scroll", "./scroll.js", "SCROLL"]]) { try { MODS[k] = (await import(f))[x]; } catch (e) { console.log("missing " + f + " " + e.message); } }
+let FORMS = null, lorenzOrbit = null; try { ({ FORMS, lorenzOrbit } = await import("./forms.js")); } catch (e) {}
+try {
+const g = await initGPU(document.getElementById("c")), { device } = g, post = new Post(g);
+// ───────── words set in type (made before the atlas loads) ─────────
+const SERIF = '"V4Serif","Noto Serif CJK SC","Source Han Serif SC","Songti SC","SimSun",serif';
+try { const ff = new FontFace("V4Serif", 'local("Noto Serif CJK SC Bold"), local("Noto Serif CJK SC"), local("Source Han Serif SC"), local("Songti SC"), url("../../glyphs/src/fonts/NotoSerifSC[wght].ttf")', { weight: "200 900" }); document.fonts.add(ff);
+  await Promise.race([ff.load(), new Promise((r) => setTimeout(r, 6000))]); } catch (e) { console.log("font: " + e.message); }
+// Leonardo's own sentences (from the notebooks), written right to left in mirror hand
+const NOTES = [["La meccanica è il paradiso", "delle scienze matematiche,", "perché con quella si viene", "al frutto matematico."], ["L'acqua è il vetturale", "della natura. Il moto è", "causa d'ogni vita."]];
+const sheet = (() => { const cv = new OffscreenCanvas(2048, 1024), x = cv.getContext("2d"); x.fillStyle = "#fff"; x.textAlign = "center"; x.textBaseline = "middle";
+  x.font = `900 208px ${SERIF}`; [..."人神鬼器"].forEach((ch, i) => x.fillText(ch, 128 + 256 * i, 132));
+  x.font = `700 104px ${SERIF}`; ["筒車", "翻車"].forEach((s, i) => [...s].forEach((ch, k) => x.fillText(ch, 1088 + 128 * i, 110 + 180 * k)));
+  NOTES.forEach((ls, i) => { x.save(); x.translate(768 * i + 768, 512); x.scale(-1, 1); x.transform(1, 0, -.28, 1, 0, 0); x.textAlign = "left"; x.font = `300 50px "Noto Serif",Georgia,"Times New Roman",serif`; ls.forEach((s, k) => x.fillText(s, 70, 60 + 84 * k, 640)); x.restore(); });
+  return mipTexture(device, cv.transferToImageBitmap()); })();
+let atlas; for (let i = 0; i < 5 && !atlas; i++) { try { atlas = await loadAtlas(device); } catch (e) { if (i === 4) throw e; await new Promise((r) => setTimeout(r, 300)); } }
+const N = Math.round(qn("n", 200000)), STEPS = qn("steps", 90), REFL = qn("refl", 1), ONLY = Q.get("only");
+// ───────── pipelines: every full-screen style shares one layout ─────────
+const over = { color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } }, add = { color: { srcFactor: "one", dstFactor: "one" }, alpha: { srcFactor: "zero", dstFactor: "one" } };
+const lin = device.createSampler({ minFilter: "linear", magFilter: "linear", mipmapFilter: "linear", lodMaxClamp: 5 });
+const FW = Math.max(2, g.W >> 1), FH = Math.max(2, g.H >> 1), formTex = device.createTexture({ size: [FW, FH], format: "rgba16float", usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.TEXTURE_BINDING }), formView = formTex.createView();
+const tex = () => ({ texture: { sampleType: "float" } }), bgl = device.createBindGroupLayout({ entries: [{ binding: 0, visibility: 3, buffer: {} }, { binding: 1, visibility: 2, sampler: {} }, { binding: 2, visibility: 3, ...tex() }, { binding: 3, visibility: 2, ...tex() }, { binding: 4, visibility: 2, ...tex() }] });
+const layout = device.createPipelineLayout({ bindGroupLayouts: [bgl] }), styles = {};
+function style(name) { if (styles[name]) return styles[name]; const m = shader(device, FS_VS + NOISE + HEAD + MODS[name], name), ub = device.createBuffer({ size: 112, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  return styles[name] = { ub, pipe: device.createRenderPipeline({ layout, vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend: over }] } }),
+    bg: device.createBindGroup({ layout: bgl, entries: [{ binding: 0, resource: { buffer: ub } }, { binding: 1, resource: lin }, { binding: 2, resource: atlas.tex.createView() }, { binding: 3, resource: sheet.createView() }, { binding: 4, resource: formView }] }) }; }
+// the gold form: glyph quads placed by the vertex shader (the only buffer is the Lorenz orbit); drawn to the screen, and frozen into formTex for the silkscreen
+let formPipe, formUB = [], formBG = [];
+const ORBIT_M = 65536;
+if (FORMS) { const m = shader(device, NOISE + FORMS, "forms"); formPipe = device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend: add }] }, primitive: { topology: "triangle-list" } });
+  const ob = device.createBuffer({ size: ORBIT_M * 16, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST }); device.queue.writeBuffer(ob, 0, lorenzOrbit(ORBIT_M));
+  for (let i = 0; i < 2; i++) { const b = device.createBuffer({ size: 128, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }); formUB.push(b);
+    formBG.push(device.createBindGroup({ layout: formPipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: b } }, { binding: 1, resource: atlas.sampler }, { binding: 2, resource: atlas.tex.createView() }, { binding: 3, resource: { buffer: ob } }] })); } }
+// ───────── timeline ─────────
+const T = { leo: [156.2, 157.3], stand: [157.3, 157.9], hat: [157.8, 158.35], coat: [158.1, 158.6], sky: [158.25, 159.0] };
+const MAN = [.70, -.03, .22];
+const key = (keys) => { const c = curveN(keys); return (t) => c(t); };
+// the sheet's camera: [t, x, y, zoom]
+const camDraft = curveN([[154.6, 0, 0, 1.02], [156.2, .0, .0, 1.1], [157.4, .1, .01, 1.16], [158.0, .5, .05, 2.2], [158.7, MAN[0], MAN[1] + .42 * MAN[2] / .8, .8 / MAN[2]], [159.2, MAN[0], MAN[1] + .42 * MAN[2] / .8, .8 / MAN[2]]]);
+const camSky = curveN([[158.2, 1, 0], [159.1, 1, 0], [159.9, .6, .1], [160.5, .62, .1], [161.5, 1.5, .27], [161.8, 1.5, .27], [162.7, .72, -.045]]);
+// the bronze: [t, eye xyz, target xyz, fov°]. It ends close on the hand that reaches out.
+const camBronze = curveN([[162.0, -.35, .42, 7.3, 0, .93, 0, 27], [163.4, .4, .55, 5.7, 0, .98, 0, 27], [164.4, .62, 1.0, 3.0, .05, 1.15, .15, 26], [165.1, .3, 1.13, 1.62, .03, 1.13, .42, 25], [165.7, .12, 1.15, 1.27, .04, 1.12, .48, 24]]);
+// the fresco: [t, x, y, zoom]. Close on the gold hand, back to both hands and the painted frame, in to the gap.
+const camFresco = curveN([[165.1, .194, -.047, 2.11, .104], [165.9, .185, -.03, 2.0, .085], [168.2, -.04, .03, 1.32, 0], [168.8, -.03, .035, 1.3, 0], [169.9, .02, .055, 1.7, 0], [170.6, .025, .055, 2.0, 0]]);
+// the forms: a camera that circles slowly; the burst starts where the fresco's fingertip was on screen
+const camForms = (t) => { const a = .35 + .32 * (t - 170), r = lerp(3.5, 3.1, sm(170, 174.8, t)), y = .35 + .2 * Math.sin((t - 170) * .6); return [Math.sin(a) * r, y, Math.cos(a) * r, 0, -.02, 0, Math.tan(16 * Math.PI / 180)]; };
+const STAGE = curveN([[170.6, 0], [171.05, 0], [171.55, 1], [171.7, 1], [172.15, 2], [172.3, 2], [172.75, 3], [172.95, 3], [173.45, 4], [173.7, 4], [174.15, 5]]);
+const FREEZE = 174.75; let formFrozen = false;      // the frozen form is drawn into formTex once, the first time the print needs it
+function formsU(t0, res) { const t = Math.min(t0, FREEZE), c = camForms(t), c0 = camForms(169.85), S = Math.sqrt(200000 / N);
+  // the fresco fingertip on screen at the moment of the burst → a point in the forms' space, 2.9 in front of the camera
+  const cf = camFresco(169.85), tip = [(.033 - cf[0]) * cf[2], (.054 - cf[1]) * cf[2]], fw = norm3([c0[3] - c0[0], c0[4] - c0[1], c0[5] - c0[2]]), rt = norm3(cross3(fw, [0, 1, 0])), up = cross3(rt, fw), D = 2.9;
+  const dir = [0, 1, 2].map((k) => fw[k] + rt[k] * tip[0] * 2 * c0[6] + up[k] * tip[1] * 2 * c0[6]), src = [0, 1, 2].map((k) => c0[k] + dir[k] * D);
+  const grow = 10.5 * sm(173.75, 174.75, t) ** .75;
+  return new Float32Array([res[0], res[1], t, N, c[0], c[1], c[2], c[6], c[3], c[4], c[5], .0085 * S, STAGE(t)[0], sm(170.0, 170.75, t), 1.15 * sm(169.75, 170.05, t), t - 170, src[0], src[1], src[2], grow, sm(169.8, 170.4, t), 0, ORBIT_M, 0, 0, 0, 0, 0, 0, 0, 0, 0]); }
+const norm3 = (a) => { const l = Math.hypot(...a) || 1; return a.map((x) => x / l); }, cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const drawForms = (pass, i, t, res) => { device.queue.writeBuffer(formUB[i], 0, formsU(t, res)); pass.setPipeline(formPipe); pass.setBindGroup(0, formBG[i]); pass.draw(6, N); };
+// the print: [t, …] split (the frozen form divides into four), ink (the colours are pulled across), seal (comes down), wash (the paste runs, the names go with the water)
+const PR = { split: [174.6, 175.35], ink: [175.0, 175.9], seal: [176.55, 177.05], run: [177.05, 178.4], wash: [177.3, 179.2] };
+// the scroll: [t, x, zoom] in scroll units; a handscroll is read from right to left, so the camera moves left
+const camScroll = curveN([[177.4, .72, .04, .98], [178.8, .70, .05, 1.02], [180.6, .55, .045, 2.0], [181.6, .54, .04, 2.2], [183.0, .40, -.08, 1.95], [185.2, .20, -.15, 1.8], [188.0, -.08, -.22, 1.65], [190.5, -.22, -.2, 1.45], [192.7, -.32, -.18, 1.3]]);
+// the people's own clock: almost still while the river answers, then racing
+const clockAt = (t) => { let c = 0; const n = 240, a = 177.4, h = (t - a) / n; for (let i = 0; i < n; i++) { const s = a + (i + .5) * h; c += (.05 + 1.2 * sm(181.5, 183.4, s)) * h; } return Math.max(0, c); };
+const L = {
+  draft: (t) => ({ post: { bloom: 0, tonemap: 0, vignette: .22, grain: .03 }, p: [...camDraft(t), sm(...T.leo, t), 1 - sm(154.6, 155.9, t), sm(...T.stand, t), sm(...T.hat, t), sm(...T.coat, t), (t - 154.6) * .9, ...MAN] }),
+  sky: (t) => ({ w: sm(158.25, 159.0, t), post: { bloom: .12, tonemap: 0, vignette: .12, grain: .018 }, p: [camSky(t)[0], sm(160.4, 161.3, t), sm(161.7, 162.6, t), sm(161.9, 162.7, t), camSky(t)[1], sm(162.0, 162.7, t), sm(158.7, 159.5, t), 0] }),
+  bronze: (t) => { const c = camBronze(t); return { w: sm(162.1, 162.9, t), post: { bloom: .22, tonemap: 1, vignette: .45, grain: .03, exposure: 1.0 }, p: [c[0], c[1], c[2], Math.tan(c[6] * Math.PI / 360), c[3], c[4], c[5], STEPS, sm(164.3, 165.3, t), t - 162, REFL, 0] }; },
+  ground: (t) => ({ post: { bloom: .55, tonemap: 1, vignette: .3, grain: .02, exposure: 1 }, p: [sm(169.6, 170.4, t) * (1 - .6 * sm(171, 173, t)), 0, 0, 0] }),
+  fresco: (t) => { const c = camFresco(t), open = sm(169.55, 170.75, t); return { w: 1, pw: sm(165.1, 165.9, t) * (1 - open), post: { bloom: .14, tonemap: .2, vignette: .3, grain: .025, exposure: 1 },
+    p: [c[0], c[1], c[2], sm(165.15, 166.3, t), sm(165.9, 168.3, t), sm(168.5, 169.5, t), open, sm(168.9, 169.5, t) * (1 + 1.5 * sm(169.5, 170.1, t)) * (1 - sm(170.1, 170.5, t)), 1 - sm(165.6, 166.8, t), c[3], 0, 0] }; },
+  forms: (t) => ({ kind: "forms", w: 1, pw: sm(169.7, 170.3, t), post: { bloom: .55, tonemap: 1, vignette: .3, grain: .02, exposure: 1 } }),
+  print: (t) => ({ w: 1, pw: sm(174.6, 175.2, t), post: { bloom: .05, tonemap: 0, vignette: .1, grain: .022 }, pre: (enc) => { if (formFrozen) return; formFrozen = true; const p = enc.beginRenderPass({ colorAttachments: [{ view: formView, clearValue: [0, 0, 0, 1], loadOp: "clear", storeOp: "store" }] }); drawForms(p, 1, FREEZE, [FW, FH]); p.end(); },
+    p: [sm(...PR.split, t), sm(...PR.ink, t), sm(...PR.seal, t), sm(...PR.run, t), sm(...PR.wash, t), t - 174.6, sm(174.45, 174.75, t), 0] }),
+  scroll: (t) => { const c = camScroll(t); return { w: 1, pw: sm(177.6, 178.6, t), post: { bloom: 0, tonemap: 0, vignette: .25, grain: .025 },
+    p: [c[0], c[1], c[2], sm(177.4, 178.9, t), sm(178.6, 180.6, t), sm(181.3, 182.8, t), sm(182.0, 183.8, t), clockAt(t), sm(...PR.run, t), 0, 0, 0] }; },
+};
+// drawing order; [layer, from, to]. A layer lies over those before it with its own alpha (the shaders shape it: light coming up, cracks opening, water washing).
+const SHOTS = [["draft", 154.6, 159.0], ["sky", 158.25, 162.9], ["bronze", 162.1, 166.4], ["ground", 169.3, 175.6], ["fresco", 165.1, 170.9], ["forms", 169.7, 175.6], ["print", 174.45, 179.6], ["scroll", 177.4, 192.7]];
+function layers(t) { const out = []; for (const [name, a, b] of SHOTS) { if (ONLY ? name !== ONLY : (t < a || t > b)) continue; if (!L[name] || (name === "forms" ? !FORMS : !MODS[name])) continue; const Lr = { name, w: 1, ...L[name](t) }; out.push(Lr); }
+  if (out.length) { out[0].w = 1; out[0].pw = 1; } return out; }
+function draw(t) { const enc = device.createCommandEncoder(), Ls = layers(t), P = { bloom: 0, tonemap: 0, vignette: 0, grain: 0, exposure: 1 }; let first = true;
+  for (const Lr of Ls) { if (Lr.pre) Lr.pre(enc);
+    const ps = enc.beginRenderPass({ colorAttachments: [{ view: post.hdr, clearValue: [0, 0, 0, 1], loadOp: first ? "clear" : "load", storeOp: "store" }] });
+    if (Lr.kind === "forms") drawForms(ps, 0, t, [g.W, g.H]);
+    else { const s = style(Lr.style || Lr.name), p = new Float32Array(28); p.set([g.W, g.H, t, Lr.w]); p.set(Lr.p, 4); device.queue.writeBuffer(s.ub, 0, p); ps.setPipeline(s.pipe); ps.setBindGroup(0, s.bg); ps.draw(3); }
+    ps.end(); first = false;
+    const k = Lr.pw ?? Lr.w, po = { exposure: 1, ...Lr.post }; for (const key in P) P[key] = lerp(P[key], po[key], k); }
+  post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: P.bloom, threshold: .9, knee: .5, exposure: P.exposure, tonemap: P.tonemap, bars: 0, grain: P.grain, vignette: P.vignette, time: t });
+  device.queue.submit([enc.finish()]); }
+for (let i = 0; i < 3; i++) { try { await fetch("../../song.json", { cache: "no-store" }); break; } catch (e) { await new Promise((r) => setTimeout(r, 300)); } }
+run({ g, seg: [154.6, 192.7], title: "样片　第四段 · 每句一个画种", scene: { draw }, captions: [[154.6, 157.2, "本视频全部由 Claude 用代码生成"]], notes: { 29: "现在的 AI 可以通过图灵测试" } });
+} catch (e) { fail(e.stack || String(e)); }
+</script></html>

@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><title>test</title><canvas id="c"></canvas>
+<script type="module">
+import { initGPU, Post, run, shader, FS_VS, NOISE, loadAtlas } from "../lib.js";
+const g = await initGPU(document.getElementById("c")), { device } = g, post = new Post(g), atlas = await loadAtlas(device);
+const code = FS_VS + NOISE + `struct U{ t:f32, w:f32, h:f32, p:f32 } @group(0)@binding(0) var<uniform> u:U; @group(0)@binding(1) var s:sampler; @group(0)@binding(2) var at:texture_2d<f32>;
+@fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{ let uv=fc.xy/vec2f(u.w,u.h); var c=vec3f(.02,.02,.03)+.1*fbm(uv*6.+u.t*.1);
+  let cell=floor(uv*vec2f(16.,9.)); let id=floor(hash21(cell)*960.); let f=fract(uv*vec2f(16.,9.)); let a=textureSampleLevel(at,s,(vec2f(id%32.,floor(id/32.))+f)/32.,0.).r; c+=a*vec3f(1.,.8,.4)*(.3+6.*step(.93,hash21(cell+3.)));
+  return vec4f(c,1.); }`, m = shader(device, code, "test");
+const pipe = device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float" }] } });
+const ub = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST }), bg = device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ub } }, { binding: 1, resource: atlas.sampler }, { binding: 2, resource: atlas.tex.createView() }] });
+run({ g, seg: [41.5, 56], title: "test", notes: { 9: "测试注释" }, scene: { draw(t) { device.queue.writeBuffer(ub, 0, new Float32Array([t, g.W, g.H, 0])); const enc = device.createCommandEncoder(), p = enc.beginRenderPass(post.pass([0, 0, 0, 1], false)); p.setPipeline(pipe); p.setBindGroup(0, bg); p.draw(3); p.end();
+  post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: .8, bars: 1, time: t }); device.queue.submit([enc.finish()]); } } });
+</script>

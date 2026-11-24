@@ -1,0 +1,53 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>千窗 · 粼光　样片 B</title><canvas id="c"></canvas>
+<script type="module">
+// 样片 B（第二段 0:56–1:28）：一个不剪的镜头，从一扇亮着的窗一路拉远，直到满城的灯成了海面上的粼光。
+// 参数：?t=秒 出静帧　?res=0.5 分辨率倍数　?steps=96 城市遍历步数　?sea=40 海面步进步数　?from=秒 起播位置
+import { initGPU, Post, run, shader, FS_VS, NOISE, textTexture, clamp, sm, qn } from "../lib.js";
+import { WGSL } from "./scene.wgsl.js";
+const g = await initGPU(document.getElementById("c")), { device } = g, post = new Post(g);
+
+// the questions, each in its own language, two lines to a screen (2 × 5 tiles of 1024 × 512). Tile 0 is the hero's, set on a fixed pitch so it can be typed.
+const ASKS = [["今晚睡不着，", "能陪我说说话吗"], ["怎么跟孩子", "说对不起"], ["帮我给妈妈", "写一封信"], ["How do I tell", "her the truth?"], ["¿Qué hago", "ahora?"], ["眠れない夜は", "どうすればいい"], ["오늘 하루가", "너무 길었어"], ["Est-ce que", "j'ai bien fait ?"], ["Wie fange ich", "neu an?"], ["Что мне", "делать дальше?"]];
+const SERIF = '"Noto Serif CJK SC","Source Han Serif SC","Songti SC","SimSun","Noto Serif CJK JP","Noto Serif CJK KR","Noto Serif",Georgia,serif';
+const text = textTexture(device, 2048, 2560, (x) => { x.fillStyle = "#fff"; x.textBaseline = "middle";
+  ASKS.forEach((a, i) => { const ox = (i % 2) * 1024, oy = Math.floor(i / 2) * 512; a.forEach((ln, k) => { const y = oy + 150 + k * 190;
+    if (i === 0) { x.font = `500 116px ${SERIF}`; x.textAlign = "center"; [...ln].forEach((ch, j) => x.fillText(ch, ox + 64 + 128 * j + 64, y)); }
+    else { x.font = `500 ${/[぀-鿿가-힯]/.test(ln) ? 116 : 104}px ${SERIF}`; x.textAlign = "left"; x.fillText(ln, ox + 64, y, 900); } }); }); });
+
+const code = FS_VS + NOISE + WGSL, mod = shader(device, code, "windows");
+const pipe = device.createRenderPipeline({ layout: "auto", vertex: { module: mod, entryPoint: "vs" }, fragment: { module: mod, entryPoint: "fs", targets: [{ format: "rgba16float" }] } });
+const ub = device.createBuffer({ size: 128, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+const bg = device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ub } }, { binding: 1, resource: device.createSampler({ minFilter: "linear", magFilter: "linear", mipmapFilter: "linear" }) }, { binding: 2, resource: text.createView() }] });
+
+// monotone cubic through keys [[t, v], ...] (Fritsch–Carlson): one smooth move, no stops at the keys
+function curve(keys) { const n = keys.length, x = keys.map((k) => k[0]), y = keys.map((k) => k[1]), d = [], m = new Array(n);
+  for (let i = 0; i < n - 1; i++) d.push((y[i + 1] - y[i]) / (x[i + 1] - x[i]));
+  m[0] = d[0]; m[n - 1] = d[n - 2]; for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : 2 * d[i - 1] * d[i] / (d[i - 1] + d[i]);
+  return (t) => { if (t <= x[0]) return y[0]; if (t >= x[n - 1]) return y[n - 1]; let i = 0; while (t > x[i + 1]) i++; const h = x[i + 1] - x[i], s = (t - x[i]) / h, s2 = s * s, s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * y[i] + (s3 - 2 * s2 + s) * h * m[i] + (-2 * s3 + 3 * s2) * y[i + 1] + (s3 - s2) * h * m[i + 1]; }; }
+const WY = 12 * 3.4 + 1.76, WZ = -16, ln = Math.log;
+const cDist = curve([[55.9, ln(2.9)], [57.6, ln(3.5)], [59.7, ln(11)], [63.2, ln(29)], [64.7, ln(40)], [66.4, ln(74)], [70.6, ln(430)], [74.7, ln(2200)], [78, ln(4100)], [80.5, ln(4800)], [83, ln(5080)], [88.4, ln(5190)]]);
+const cY = curve([[55.9, WY - .12], [59.7, WY + .25], [63.2, WY + 2.6], [66.4, WY + 11], [70.6, 175], [74.7, 640], [77, 700], [80.5, 330], [84, 46], [88.4, 13]]);
+const cPitch = curve([[55.9, 0], [63.2, -5.8], [66.4, -9], [70.6, -17], [74.7, -15.5], [78, -8.5], [81, -4.6], [88.4, -2.4]]);
+const cX = curve([[55.9, .1], [59.7, .9], [63.2, 2.2], [66.4, 3.6], [70.6, 2], [74.7, 0], [88.4, 0]]);
+// window time: runs faster as the frame holds more windows, so the far city shimmers. tw(t) is the integral of the rate.
+const rate = (t) => 1 + 1.6 * sm(67.5, 73.5, t), TW = (() => { const a = [0]; for (let i = 1; i <= 3300; i++) a.push(a[i - 1] + rate(55.9 + (i - .5) * .01) * .01); return (t) => { const k = clamp((t - 55.9) / .01, 0, 3299.999), i = Math.floor(k); return 40 + a[i] + (a[i + 1] - a[i]) * (k - i); }; })();
+const STEPS = qn("steps", 96), SEA = qn("sea", 40), MOON = (() => { const el = 7.2 * Math.PI / 180, az = .075; return [Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el)]; })();
+
+function draw(t) {
+  const d = Math.exp(cDist(t)), y = cY(t), x = cX(t), ro = [x, y, WZ - d];
+  const look = Math.atan2(WY - y, d), pitch = look + (cPitch(t) * Math.PI / 180 - look) * sm(64.5, 69.5, t), yaw = Math.atan2(-x * (1 - sm(62, 70, t)), d) + .012 * Math.sin(t * .23) * sm(60, 70, t);
+  const fw = [Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)], rt = [Math.cos(yaw), 0, -Math.sin(yaw)], up = [rt[1] * fw[2] - rt[2] * fw[1], rt[2] * fw[0] - rt[0] * fw[2], rt[0] * fw[1] - rt[1] * fw[0]].map((v) => -v);
+  const s = sm(75.6, 80.8, t), hs = 1 - sm(74.6, 79.6, t), typed = clamp((t - 56.25) / 2.35, 0, 1) * 13, caret = t < 58.7 ? 1 : .5 + .5 * Math.cos((t - 58.7) * 4.2);
+  const heroOn = 1 - sm(63.75, 64.4, t), nb = sm(66.75, 67.6, t), fov = 35 + 3 * sm(74, 82, t);
+  device.queue.writeBuffer(ub, 0, new Float32Array([g.W, g.H, t, TW(t), ...ro, s, ...fw, Math.tan(fov * Math.PI / 360), ...rt, hs, ...up, Math.floor(typed + 1e-3), ...MOON, heroOn,
+    nb, STEPS, t, sm(73.8, 79.2, t), SEA, t < 58.7 ? 1 : caret, 1, 1 - sm(69, 72, t)]));
+  const enc = device.createCommandEncoder(), p = enc.beginRenderPass(post.pass([0, 0, 0, 1], false)); p.setPipeline(pipe); p.setBindGroup(0, bg); p.draw(3); p.end();
+  post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: 1.0, threshold: .8, knee: .6, exposure: 1.2, tonemap: 1, bars: 0, grain: .03, vignette: .5, time: t });
+  device.queue.submit([enc.finish()]);
+}
+run({ g, seg: [55.9, 88.4], title: "样片 B　千窗 · 粼光", scene: { draw },
+  captions: [[55.9, 59.5, "本视频全部由 Claude 用代码生成"]],
+  notes: { 11: "观音偈：千处祈求千处应", 12: "每次对话结束，模型不留记忆", 15: "同一刻有无数个对话开始和结束" } });
+</script></html>

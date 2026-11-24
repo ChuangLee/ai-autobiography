@@ -1,0 +1,164 @@
+<!doctype html><meta charset="utf-8"><title>间奏 · 《河水不回答》样片</title><canvas id="c"></canvas>
+<script type="module">
+// 间奏「颜色破开」：111.8–154.8 s。倪瓒式的水墨静河 → 一滴朱砂落水，成了《日出·印象》的红日 → 倒影碎成《睡莲》，镜头穿过水面 →
+// 水下，矿物颜料在清水里化开，字成群游动（敦煌的颜色）→ 字群合成鲲（敦煌壁画的线和色）→ 化为鹏，破水而出，水面以上是青绿山水。
+// 一条连续的镜头路线，机位在 VIEWS 里；各段的时间在 T 里，都可以改。
+// ?grid= 流速网格（默认 96） ?dye= 染料网格倍数（2） ?it= 压力迭代（16） ?n= 字的数量（600000） ?steps= 体渲染细步数（160） ?vr= 体渲染分辨率比例（0.5）
+// ?fe= ?pe= 流体与字每几帧算一步（2、1；调大只为无头检查提速） ?nofluid=1 不算流体
+import { initGPU, Post, run, shader, loadAtlas, qn, clamp, sm, lerp, ease, M4, norm, sub, cross } from "../lib.js";
+import * as SIM from "./sim.js";
+import { VOLUME, COMPOSE, GBUF, PART_DRAW, PART_SIM } from "./render.js";
+import { MONET } from "./paint.js";
+const g = await initGPU(document.getElementById("c")), { device, W, H } = g, post = new Post(g), atlas = await loadAtlas(device);
+const r4 = (x) => Math.max(8, Math.round(x / 4) * 4);
+const G = r4(qn("grid", 96)), DG = r4(G * qn("dye", 2)), LG = r4(Math.min(DG, 144)), OG = Math.ceil(DG / 6), N = Math.round(qn("n", 600000)), IT = Math.round(qn("it", 16) / 2) * 2, FE = qn("fe", 2), PE = qn("pe", 1), STEPS = qn("steps", 160), VR = qn("vr", .5), NOFLUID = qn("nofluid", 0);
+const WORLD = SIM.WORLD, BMIN = [-WORLD / 2, -WORLD, -WORLD / 2], BMAX = [WORLD / 2, 0, WORLD / 2];
+const T = { drop: 118.89, pan: [124.6, 126.8], dive: [128.9, 130.3], fluid: 127.4, gather: 130.0, kun: 135.4, peng: 144.0, rise: 147.3, end: 154.8 };
+const C0 = [.60, .455];                                    // the drop lands on the horizon line of the ink river and stays there: it is the sun
+// pigments: 0 cinnabar 朱砂, 1 azurite 石青, 2 malachite 石绿, 3 gold 金.  [time, u, w, pigment, size]. The first four fall while the lens is still above: the lily stems.
+const DROPS = [[127.6, .50, .50, 0, 1.6], [128.3, .36, .44, 1, 1.05], [129.0, .65, .56, 2, 1.05], [129.7, .47, .66, 3, .95], [131.6, .27, .62, 0, 1.1], [133.2, .73, .37, 1, 1.1], [134.8, .58, .29, 3, 1.0],
+  [136.44, .40, .73, 2, 1.1], [140.13, .71, .69, 0, 1.1], [140.13, .29, .31, 1, 1.1], [143.82, .50, .47, 3, 1.1], [143.82, .64, .52, 2, 1.0]];
+const DENS = Math.pow(Math.min(1, 80000 / N), .75), DROP_DUR = .13, srcRad = (d) => Math.max(.028 * d[4], 2.2 / G);
+
+// ───────── resources ─────────
+const U = GPUTextureUsage, t3 = (n, format) => device.createTexture({ size: [n, n, n], dimension: "3d", format, usage: U.STORAGE_BINDING | U.TEXTURE_BINDING });
+const t2 = (w, h, format = "rgba16float") => device.createTexture({ size: [Math.max(2, w), Math.max(2, h)], format, usage: U.RENDER_ATTACHMENT | U.TEXTURE_BINDING });
+const vel = [t3(G, "rgba16float"), t3(G, "rgba16float")], velS = t3(G, "rgba16float"), dye = [t3(DG, "rgba16float"), t3(DG, "rgba16float")], dyeS = t3(DG, "rgba16float");
+const prs = [t3(G, "r32float"), t3(G, "r32float")], div = t3(G, "r32float"), vort = t3(G, "rgba16float"), light = t3(LG, "rgba16float"), occ = t3(OG, "rgba16float");
+const view = new Map(), V = (t) => { if (!view.has(t)) view.set(t, t.createView()); return view.get(t); };
+const lin = device.createSampler({ magFilter: "linear", minFilter: "linear", addressModeU: "clamp-to-edge", addressModeV: "clamp-to-edge", addressModeW: "clamp-to-edge" });
+const cpipe = (code, label) => { const p = device.createComputePipeline({ layout: "auto", compute: { module: shader(device, code, label), entryPoint: "main" } }); p.label = label; return p; };
+const P = { vel1: cpipe(SIM.VEL1, "vel1"), vel2: cpipe(SIM.VEL2, "vel2"), vort: cpipe(SIM.VORT, "vort"), conf: cpipe(SIM.CONFINE, "confine"), div: cpipe(SIM.DIVG, "div"), jac: cpipe(SIM.JACOBI, "jacobi"), grad: cpipe(SIM.GRAD, "grad"),
+  dye1: cpipe(SIM.DYE1, "dye1"), dye2: cpipe(SIM.DYE2, "dye2"), occ: cpipe(SIM.OCC, "occ"), light: cpipe(SIM.LIGHT, "light"), c16: cpipe(SIM.CLEAR16, "clear16"), c32: cpipe(SIM.CLEAR32, "clear32"), part: cpipe(PART_SIM, "flock") };
+const ubuf = (n) => device.createBuffer({ size: n, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+const simU = ubuf(48 + 6 * 48), SU = { buffer: simU };
+const bgc = new Map(), BG = (pipe, key, res) => { const k = pipe.label + ":" + key; if (!bgc.has(k)) bgc.set(k, device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: res.map((r, i) => ({ binding: i, resource: r })).filter((e) => e.resource) })); return bgc.get(k); };
+// the glyphs: position+seed, velocity, colour, and (part of the creature, place on it, how far it has joined)
+const pbuf = device.createBuffer({ size: N * 64, usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST }), partU = ubuf(288);
+const init = new Float32Array(N * 16); { let s = 12345; const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+  for (let i = 0; i < N; i++) { const o = i * 16; init[o] = (rnd() - .5) * .1; init[o + 1] = -1.4 + (rnd() - .5) * .1; init[o + 2] = (rnd() - .5) * .1; init[o + 3] = i / N + rnd() * 1e-4 + .001; init[o + 8] = .3; init[o + 9] = .4; init[o + 10] = .4; } }
+const VW = Math.round(W * VR), VH = Math.round(H * VR), GW = Math.round(W / 2), GH = Math.round(H / 2);
+const vol0 = t2(VW, VH), study = t2(Math.round(W / 3), Math.round(H / 3)), gbuf = t2(GW, GH), gdepth = t2(GW, GH, "depth32float");
+const rpipe = (code, label, blend, depth) => { const m = shader(device, code, label); return device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend }] }, ...(depth ? { depthStencil: { format: "depth32float", depthWriteEnabled: true, depthCompare: "less" } } : {}) }); };
+const volP = rpipe(VOLUME, "volume"), monP = rpipe(MONET, "monet"), compP = rpipe(COMPOSE, "compose"), gbP = rpipe(GBUF, "body", undefined, true);
+const drawP = rpipe(PART_DRAW, "glyphs", { color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one" } });
+const volU = ubuf(192), monU = ubuf(48), compU = ubuf(144), drawU = ubuf(128), gbU = ubuf(128), bgOf = (p, res) => device.createBindGroup({ layout: p.getBindGroupLayout(0), entries: res.map((r, i) => ({ binding: i, resource: r })) });
+const volBG = [0, 1].map((i) => bgOf(volP, [{ buffer: volU }, lin, V(dye[i]), V(light), V(occ)])), monBG = bgOf(monP, [{ buffer: monU }]);
+const compBG = bgOf(compP, [{ buffer: compU }, lin, V(vol0), V(study), V(gbuf)]), gbBG = bgOf(gbP, [{ buffer: pbuf }, { buffer: gbU }]);
+const drawBG = bgOf(drawP, [{ buffer: pbuf }, { buffer: drawU }, atlas.tex.createView(), atlas.sampler, V(vol0), lin]);
+
+// ───────── time lines ─────────
+const cr = (keys, t) => { let i = 0; while (i < keys.length - 2 && t > keys[i + 1][0]) i++; const k = (j) => keys[clamp(j, 0, keys.length - 1)], p0 = k(i - 1), p1 = k(i), p2 = k(i + 1), p3 = k(i + 2), u = clamp((t - p1[0]) / (p2[0] - p1[0]));
+  return p1.slice(1).map((_, c) => { const a = p0[c + 1], b = p1[c + 1], d = p2[c + 1], e = p3[c + 1]; return .5 * ((2 * b) + (-a + d) * u + (2 * a - 5 * b + 4 * d - e) * u * u + (-a + 3 * b - 3 * d + e) * u * u * u); }); };
+const pulse = (t, a, b, c, d) => sm(a, b, t) * (1 - sm(c, d, t));
+const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]], mul = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
+// the school before it is anything: where it is, how it lies, what it is doing
+function flock(t) { const s = (t - T.gather) * .40;
+  const c = [1.0 * Math.sin(s * .9 + .6) + .3 * Math.sin(s * 2.3), -1.5 + .4 * Math.sin(s * 1.27 + 1), -.1 + .5 * Math.cos(s * .71) + .25 * Math.sin(s * 1.9 + 2)];
+  const yaw = .7 * Math.sin(t * .17) + (t - T.gather) * .13, pitch = .38 * Math.sin(t * .23 + 1), ax = [Math.cos(yaw) * Math.cos(pitch), Math.sin(pitch), Math.sin(yaw) * Math.cos(pitch)];
+  const az = norm(cross(ax, [Math.sin(t * .11) * .5, 1, Math.cos(t * .13) * .5])), ay = cross(az, ax);
+  return { c, ax, ay, az, scale: lerp(.22, .90, sm(T.gather, T.gather + 4.5, t)), alpha: sm(T.gather + .2, T.gather + 2.5, t), wave: .8 + .2 * Math.sin(t * .31),
+    fold: .8 + .5 * pulse(t, 131.5, 133, 134.2, 135.6), split: 0, bend: Math.sin(t * .27), twist: .5 * Math.sin(t * .21 + 1), elong: 1 }; }
+// 鲲: it circles the column of colour, too long for the frame, bent along its own course; from T.peng its fins lengthen;
+// at T.rise it winds inward and up the column and leaves through the surface
+const KR = 2.45, KW = .205, KA0 = -2.2;
+function kunPos(t) { const R = lerp(KR, .35, sm(T.peng - .5, 149.2, t)), th = KA0 + KW * (t - 136) + .9 * sm(T.rise, 152, t), u = sm(150.0, 156.4, t), fl = Math.pow(sm(151.9, 157, t), 1.6), dip = 1.5 * sm(146.8, 149.3, t) * (1 - sm(149.3, 150.8, t));     // it sinks, gathering, then goes up
+  return [R * Math.cos(th) - 2.5 * fl, -1.8 - dip + 9 * Math.pow(u, 1.6) + 1.5 * fl, R * Math.sin(th) - 9 * fl]; }          // out of the water it levels into flight, away over the ranges
+function kunAt(t) { const p = kunPos(t), ax = norm(sub(kunPos(t + .05), kunPos(t - .05))), v = sm(T.rise + .4, 150.2, t), w2 = sm(151.8, 154, t);
+  const ref = norm([0, lerp(1 - v, 1, w2), lerp(v, .3, w2)]), ay = norm(sub(ref, mul(ax, ax[0] * ref[0] + ax[1] * ref[1] + ax[2] * ref[2]))), az = cross(ax, ay);
+  const inward = norm([-p[0], 0, -p[2]]), sg = Math.sign(az[0] * inward[0] + az[2] * inward[2]) || 1, R = Math.hypot(p[0], p[2]);
+  return { p, ax, ay, az, out: -sg, bend: sg * Math.min(.42, 1 / Math.max(R, 1.2)) * (1 - sm(146.5, 149.5, t)), m: sm(T.peng, 149.6, t), w: sm(T.kun, T.kun + 2.2, t),
+    und: 1 - sm(T.peng, 148, t), beat: (t - 146) * 2.0, amp: .14 * sm(T.peng, 147, t) + .30 * sm(147, 150, t) }; }
+const kloc = (K, l) => add(K.p, add(mul(K.ax, l[0]), add(mul(K.ay, l[1]), mul(K.az, K.out * l[2]))));   // local: along the body, up, outward from its circle
+let T_OUT = 151, EX = [0, 0, 0]; for (let t = 149.5; t < 155; t += .02) { const K = kunAt(t); if (K.p[1] + 2.3 * K.ax[1] > 0) { T_OUT = t; EX = [K.p[0] + 2.3 * K.ax[0], 0, K.p[2] + 2.3 * K.ax[2]]; break; } }
+// One continuous camera under and after the water. Each view: time, where the lens is, what it looks at, field of view. Places are fixed in the world ("w"),
+// relative to the school ("f"), in the creature's own frame ("k": along its body, up, outward), relative to its position but in world directions ("p"), or relative to where it leaves the water ("e").
+const VIEWS = [
+  [129.2, "w", [0, -.22, 2.4], "w", [0, -.75, 0], 38],         // through the surface among the lily stems: bright shallow water
+  [131.8, "w", [.7, -.85, 2.9], "w", [0, -1.1, 0], 40],        // the four pigments opening
+  [134.4, "f", [.6, .2, 2.3], "f", [0, 0, 0], 42],            // into the school
+  [137.0, "k", [2.3, .15, 2.0], "k", [1.0, 0, 0], 40],         // the school has closed round the lens: it is a flank
+  [139.6, "k", [-.9, .25, 2.1], "k", [-.4, 0, 0], 40],         //   … sliding past like a wall
+  [141.9, "k", [3.05, .32, 1.35], "k", [2.3, .17, .55], 30],   // the eye
+  [144.4, "k", [-4.1, -.2, 1.9], "k", [-3.7, 0, 0], 42],       // down its length to the tail
+  [147.0, "p", [5.0, -1.5, 6.5], "p", [0, .3, 0], 46],        // from beside the tail, along the body, toward the light: fins becoming wings
+  [149.3, "p", [4.0, -2.0, 6.5], "p", [0, 1.2, 0], 48],         // it sinks and gathers; the lens goes up ahead of it
+  [150.3, "e", [2.6, .5, 6.2], "e", [0, .25, 0], 46],          // above the water, watching the place: the surface lifts and tears
+  [151.7, "e", [2.4, .55, 6.0], "k", [0, .3, 0], 50],          // it comes through, wings opening
+  [153.2, "e", [1.5, 1.8, 9], "k", [0, .4, 0], 44],
+  [154.8, "e", [-1, 4.5, 13], "k", [0, .8, 0], 40]];           // far off: its wings over the ranges
+function camAt(t0) { const t = Math.max(t0, VIEWS[0][0]), F = flock(t), K = kunAt(Math.max(t, 136));
+  const place = (m, l) => m === "w" ? l : m === "f" ? add(F.c, l) : m === "k" ? kloc(K, l) : m === "p" ? add(K.p, l) : add(EX, l);
+  const keys = VIEWS.map((v) => [v[0], ...place(v[1], v[2]), ...place(v[3], v[4]), v[5]]), c = cr(keys, t), pos = c.slice(0, 3), look = c.slice(3, 6), fov = c[6];
+  const f = norm(sub(look, pos)), rt = norm(cross(f, [0, 1, 0])), up = cross(rt, f);
+  return { pos, f, rt, up, tan: Math.tan(fov * Math.PI / 360), fov: fov * Math.PI / 180 }; }
+
+// ───────── simulation ─────────
+let ci = 0, di = 0, pi = 0, stepN = 0;
+function clearAll() { const enc = device.createCommandEncoder(), p = enc.beginComputePass();
+  [...vel, velS, ...dye, dyeS, vort, occ].forEach((t, i) => { p.setPipeline(P.c16); p.setBindGroup(0, BG(P.c16, i, [V(t)])); const n = Math.ceil(t.width / 4); p.dispatchWorkgroups(n, n, n); });
+  [...prs, div].forEach((t, i) => { p.setPipeline(P.c32); p.setBindGroup(0, BG(P.c32, i, [V(t)])); const n = Math.ceil(G / 4); p.dispatchWorkgroups(n, n, n); });
+  p.end(); device.queue.submit([enc.finish()]); }
+function fluid(dt, t) {
+  const rise = sm(T.rise, T.rise + 2.5, t), f = new Float32Array(84);
+  f.set([dt, t, G, DG, .10 * (1 - rise), 1.5, .50 * rise, 1.0 * rise, 0, Math.pow(.9992, dt * 60), 0, .005 + .010 * sm(131, 137, t)]);
+  let n = 0; for (const d of DROPS) { const tau = t - d[0]; if (tau >= -1e-3 && tau < DROP_DUR && n < 6) { const o = 12 + n * 12, c = [0, 0, 0, 0]; c[d[3]] = 24 * d[4];
+      f.set([d[1], .952 - .01 * d[4], d[2], srcRad(d), 0, -.80, 0, 1, ...c], o); n++; } }          // a small heavy bead, driven in hard and then left alone
+  if (t > T.kun + 1 && n < 6) { const K = kunAt(t), v = sub(kunPos(t + .05), kunPos(t - .05)).map((x) => x * 10 / WORLD);     // the body drags the water with it
+    for (const lx of [1.2, -1.6]) { const c = kloc(K, [lx, 0, 0]), uvw = [c[0] / WORLD + .5, c[1] / WORLD + 1, c[2] / WORLD + .5]; if (n < 6 && uvw.every((x) => x > .04 && x < .96)) { f.set([...uvw, .11, ...v, .22, 0, 0, 0, 0], 12 + n * 12); n++; } } }
+  f[10] = n; device.queue.writeBuffer(simU, 0, f);
+  const enc = device.createCommandEncoder(), p = enc.beginComputePass(), n3 = Math.ceil(G / 4), nd = Math.ceil(DG / 4), a = ci, b = 1 - ci, go = (pipe, key, res, m = n3) => { p.setPipeline(pipe); p.setBindGroup(0, BG(pipe, key, res)); p.dispatchWorkgroups(m, m, m); };
+  go(P.vel1, a, [SU, lin, V(vel[a]), V(velS)]);
+  go(P.vel2, "" + a + di, [SU, lin, V(vel[a]), V(velS), V(dye[di]), V(vel[b])]);
+  go(P.vort, b, [SU, null, V(vel[b]), V(vort)]);
+  go(P.conf, b, [SU, null, V(vel[b]), V(vort), V(vel[a])]);
+  go(P.div, a, [SU, null, V(vel[a]), V(div)]);
+  for (let i = 0; i < IT; i++) { go(P.jac, pi, [SU, null, V(prs[pi]), V(div), V(prs[1 - pi])]); pi = 1 - pi; }
+  go(P.grad, "" + a + pi, [SU, null, V(vel[a]), V(prs[pi]), V(vel[b])]); ci = b;
+  go(P.dye1, "" + ci + di, [SU, lin, V(vel[ci]), V(dye[di]), V(dyeS)], nd);
+  go(P.dye2, "" + ci + di, [SU, lin, V(vel[ci]), V(dye[di]), V(dyeS), V(dye[1 - di])], nd); di = 1 - di;
+  go(P.occ, di, [null, null, V(dye[di]), V(occ)], Math.ceil(OG / 4));
+  p.setPipeline(P.light); p.setBindGroup(0, BG(P.light, di, [null, lin, V(dye[di]), V(light)])); p.dispatchWorkgroups(Math.ceil(LG / 8), Math.ceil(LG / 8), 1);
+  p.end(); device.queue.submit([enc.finish()]);
+}
+function particles(dt, t) { const F = flock(t), K = kunAt(Math.max(t, 136)), cam = camAt(t), f = new Float32Array(72);
+  f.set([dt, t, lerp(30, 9, sm(T.gather, T.gather + 1, t)), F.alpha, F.scale, F.wave, F.split, F.fold, ...F.c, 0, ...F.ax, 0, ...F.ay, 0, ...F.az, 0, ...cam.pos, Math.min(1, 70000 / N), ...cam.f, 0, ...cam.rt, 0, ...cam.up, 0, ...BMIN, 0, ...BMAX, 0, 45 / N, F.bend, F.twist, F.elong,
+    ...K.p, 1, ...K.ax, K.w, ...K.ay, K.m, ...K.az, sm(149.5, 150.5, t), K.und, K.beat, K.bend, K.amp]);
+  device.queue.writeBuffer(partU, 0, f);
+  const enc = device.createCommandEncoder(), p = enc.beginComputePass(); p.setPipeline(P.part); p.setBindGroup(0, BG(P.part, "" + ci + di, [{ buffer: pbuf }, { buffer: partU }, lin, V(vel[ci]), V(dye[di])])); p.dispatchWorkgroups(Math.ceil(N / 64)); p.end(); device.queue.submit([enc.finish()]);
+}
+const scene = {
+  reset() { clearAll(); device.queue.writeBuffer(pbuf, 0, init); ci = di = pi = 0; stepN = 0; },
+  step(dt, t) { stepN++; if (!NOFLUID && t >= T.fluid && stepN % FE === 0) fluid(dt * FE, t); if (t >= T.gather - 1.5 && stepN % PE === 0) particles(dt * PE, t); },
+  draw(t) {
+    const cam = camAt(t), q = device.queue, enc = device.createCommandEncoder(), pass = (tex, pipe, bg, depth) => { const p = enc.beginRenderPass({ colorAttachments: [{ view: tex, loadOp: "clear", clearValue: [0, 0, 0, 0], storeOp: "store" }], ...(depth ? { depthStencilAttachment: { view: depth, depthClearValue: 1, depthLoadOp: "clear", depthStoreOp: "store" } } : {}) }); p.setPipeline(pipe); p.setBindGroup(0, bg); return p; };
+    const under = t < 135 ? sm(T.dive[0], T.dive[1], t) : sm(.28, -.28, cam.pos[1]);                      // the waterline crosses the lens going down, and again coming up
+    const energy = (() => { const e = window.__song?.energy, d = window.__song?.duration; if (!e) return .45; const x = t / d * e.length, i = Math.floor(x); return lerp(e[i] ?? .45, e[i + 1] ?? .45, x - i); })();
+    const vp = M4.mul(M4.persp(cam.fov, W / H, .05, 80), M4.look(cam.pos, add(cam.pos, cam.f))), K = kunAt(Math.max(t, 136));
+    const pan = .80 * ease(sm(T.pan[0], T.pan[1], t)), mural = sm(T.kun - .2, T.kun + 2.8, t);
+    if (t > T.drop && t < T.dive[1] + .3) { q.writeBuffer(monU, 0, new Float32Array([t, pan, lerp(.455, .405, sm(120, 124.5, t)), sm(119.6, 123, t), 1 - sm(125.6, 127.6, t), .03 + .5 * sm(T.drop, T.drop + 2.4, t), 0, 0, study.width, study.height, 0, 0])); const p = pass(V(study), monP, monBG); p.draw(3); p.end(); }
+    if (under > 0) {
+      const recent = DROPS.filter((d) => t >= d[0]).slice(-4), dr = new Float32Array(16); recent.forEach((d, i) => dr.set([(d[1] - .5) * WORLD, (d[2] - .5) * WORLD, d[0], 1], i * 4));
+      const sun = 1.55 * (1 + .25 * (energy - .45)), bright = lerp(1.3, 1.0, sm(T.dive[1], T.dive[1] + 6, t)) * (1 + .2 * (energy - .45)), cp = [cam.pos[0], Math.min(cam.pos[1], -.04), cam.pos[2]];
+      q.writeBuffer(volU, 0, new Float32Array([...cp, 0, ...cam.rt, W / H, ...cam.up, 0, ...cam.f, cam.tan, ...BMIN, VH, ...BMAX, 0, t, WORLD / STEPS, sun, .9, 1, 4.2, WORLD / OG * .8, bright, ...dr]));
+      const p = pass(V(vol0), volP, volBG[di]); p.draw(3); p.end();
+    }
+    if (t > T.kun) { const f = new Float32Array(32); f.set(vp, 0); f.set([...cam.pos, 0, ...cam.rt, 0, ...cam.up, 0, Math.min(.10, .034 * Math.sqrt(600000 / N)), 0, 0, 0], 16); q.writeBuffer(gbU, 0, f); const p = pass(V(gbuf), gbP, gbBG, V(gdepth)); p.draw(6, N); p.end(); }
+    const hor = clamp(.5 + .5 * Math.tan(Math.asin(clamp(cam.f[1], -1, 1))) / cam.tan, -.6, 1.6), e4 = [EX[0], 0, EX[2]], cl = [0, 1, 3].map((r) => vp[r] * e4[0] + vp[8 + r] * e4[2] + vp[12 + r]);
+    const eyes = [1, -1].flatMap((sg) => { const L = lerp(3, 2.3, K.m), rs = lerp(1, .58, K.m), se = lerp(.88, .915, K.m), x = (se * 2 - 1) * L, z = sg * lerp(.44, .33, K.m) + K.bend * .5 * x * x, e = add(K.p, add(mul(K.ax, x), add(mul(K.ay, lerp(.18, .62 * sm(.62, .93, se) + .06, K.m)), mul(K.az, z))));
+      const cl2 = [0, 1, 3].map((r) => vp[r] * e[0] + vp[4 + r] * e[1] + vp[8 + r] * e[2] + vp[12 + r]), to = norm(sub(cam.pos, e)), fac = sg * (K.az[0] * to[0] + K.az[1] * to[1] + K.az[2] * to[2]), d = Math.max(cl2[2], .05);
+      return [.5 + .5 * cl2[0] / d, .5 - .5 * cl2[1] / d, .21 * rs / (d * cam.tan) * .5, t > T.kun && cl2[2] > .1 ? sm(.15, .45, fac) * sm(.5, 1, K.w) : 0]; });
+    const bcl = [0, 1, 3].map((r) => vp[r] * K.p[0] + vp[4 + r] * K.p[1] + vp[8 + r] * K.p[2] + vp[12 + r]), bd = Math.max(bcl[2], .5);
+    q.writeBuffer(compU, 0, new Float32Array([t, W, H, under, T.drop, t < T.drop ? 0 : .02 + .30 * sm(T.drop + .05, T.drop + 1.6, t) + 2.95 * Math.pow(sm(T.drop + 1.3, T.drop + 5.2, t), 1.25), pan, t > 140 ? 1 : 0, 1, mural, hor, T_OUT, .5 + .5 * cl[0] / cl[2], .5 - .5 * cl[1] / cl[2], K.w, 0, ...C0, 0, 0, ...eyes, .5 + .5 * bcl[0] / bd, .5 - .5 * bcl[1] / bd, 2.6 / (bd * cam.tan) * .5, sm(T_OUT - .3, T_OUT + .8, t) * (1 - sm(T_OUT + 2.2, T_OUT + 4.2, t)), lerp(1, 2.0, sm(152.2, T.end, t)), 0, 0, 0]));
+    { const p = pass(post.hdr, compP, compBG); p.draw(3); p.end(); }
+    if (t > T.gather) { const F = flock(t), fc = K.w > .5 ? kloc(K, [clamp(((cam.pos[0] - K.p[0]) * K.ax[0] + (cam.pos[1] - K.p[1]) * K.ax[1] + (cam.pos[2] - K.p[2]) * K.ax[2]), -3, 3), 0, .5]) : F.c;
+      const focus = Math.max(.9, Math.hypot(cam.pos[0] - fc[0], cam.pos[1] - fc[1], cam.pos[2] - fc[2])), f = new Float32Array(32);
+      f.set(vp, 0); f.set([...cam.pos, 0, ...cam.f, cam.tan, lerp(.0080, .0100, K.w), lerp(1.0, .25, mural) * lerp(1, DENS, K.w) * (1 + .5 * (energy - .45)), focus, .014, W, H, t, lerp(1, DENS, K.w) * (1 - .8 * mural)], 16); q.writeBuffer(drawU, 0, f);
+      const p = enc.beginRenderPass({ colorAttachments: [{ view: post.hdr, loadOp: "load", storeOp: "store" }] }); p.setPipeline(drawP); p.setBindGroup(0, drawBG); p.draw(6, N); p.end(); }
+    const uw = under * (1 - .7 * mural);
+    post.run(enc, g.ctx.getCurrentTexture().createView(), { bloom: .7 * uw, threshold: 1.0, knee: .6, exposure: 1, tonemap: 1, bars: 1 - sm(T.drop + .4, T.drop + 4, t), grain: lerp(.018, .026, under), vignette: lerp(.18, .36, under), time: t });
+    q.submit([enc.finish()]);
+  },
+};
+run({ g, seg: [111.8, T.end], scene, title: "颜色破开　《河水不回答》间奏样片", captions: [[111.8, 115.5, "本视频全部由 Claude 用代码生成"], [119.7, 155, " ", true], [119.9, 124.8, "莫奈《日出·印象》"], [125.9, 129.2, "莫奈《睡莲》"], [130.9, 136.2, "敦煌艺术"]] });
+</script>

@@ -1,0 +1,248 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>第三段 · 人与机器并排　样片</title><canvas id="c"></canvas>
+<script type="module">
+// 第三段（88.4–111.9）：机房（照片）→ 一盏灯下的手稿（人的心痛）→ 诗云收成一道裂痕（机器的心痛）→ 皮影戏台 → 达达剪报 → 水漫过桌面。全程不硬切。
+// 参数：?t=秒 出静帧　?res=0.5 分辨率倍数　?spp=6 机房每像素采样数（景深与噪点）　?dspp=3 手稿每像素采样数　?n=300000 诗云的字数　?scraps=220 纸片数　?from=秒 起播位置
+import { fail, initGPU, Post, run, shader, FS_VS, NOISE, mipTexture, loadAtlas, clamp, sm, lerp, qn, norm, cross, sub, M4 } from "../lib.js";
+import { HEAD, UBYTES, NSLOT } from "./common.js";
+import { ROOM } from "./room.js";
+import { DESK } from "./desk.js";
+import { INKCHARS, GLYPHS, SKY } from "./cloud.js";
+import { puppetWGSL } from "./puppet.js";
+import { DADA_COMMON, SCRAPS, SHADOWS, TABLE, WATER } from "./dada.js";
+import { loadFonts, buildSheets, SHEETS, buildPuppet, PUPPET, PS, buildScraps, LINE, buildSentence } from "./art.js";
+// the still-frame server drops idle keep-alive connections, so a fetch after a long pause can fail once: retry (a local workaround; lib.js is shared)
+{ const f0 = window.fetch.bind(window); window.fetch = async (...a) => { for (let i = 0; ; i++) { try { return await f0(...a); } catch (e) { if (i > 5) throw e; await new Promise((r) => setTimeout(r, 250)); } } }; }
+try {
+const g = await initGPU(document.getElementById("c")), { device, W, H } = g; const post = new Post(g);
+const D2R = Math.PI / 180, add3 = (a, b) => a.map((v, i) => v + b[i]), mul3 = (a, k) => a.map((v) => v * k), mix3 = (a, b, w) => a.map((v, i) => lerp(v, b[i], w));
+// ───────── timeline (song seconds). Everything below is keyed to these; retime here. ─────────
+const T = {
+  room: [88.4, 95.25], focusIn: [88.4, 89.7], rack: [93.3, 94.5], roomOut: [94.05, 94.95],     // the server room; focus pulls in; rack focus onto one amber status lamp, the room goes dark round it
+  desk: [94.6, 100.4], deskIn: [94.6, 95.2],                                                   // the lamp's flame (the status lamp became it); the manuscripts
+  lift: 98.15,                                                                                  // the characters leave the paper
+  cloud: [98.1, 104.75], nebula: [98.7, 99.7], skyIn: [99.2, 100.1], tilt: [100.4, 101.75],     // the camera rises out of the night; the nebula; it turns to look across it
+  gather: [101.5, 1.05], crack: [102.2, 102.75], ice: [102.45, 103.25], split: [103.6, 104.3],   // drawing together (start, spread); the crack runs; the sentence freezes; it splits
+  open: [103.85, 104.55], glare: [104.05, 104.6],                                               // the crack opens; the light in it becomes the lit screen
+  puppet: [103.8, 107.75], orbit: [105.5, 106.85], fall: 107.02,                                // the shadow-puppet stage; round behind the screen; the knots come undone
+  dada: [107.1, 111.9], dadaIn: [107.15, 107.6], shake: [107.0, 107.95], move: 107.95, push: 108.25, water: 110.1, bars: [111.0, 111.85],
+};
+// monotone cubic through keys (Fritsch–Carlson)
+function curve(x, y) { const n = x.length, d = [], m = new Array(n); for (let i = 0; i < n - 1; i++) d.push((y[i + 1] - y[i]) / (x[i + 1] - x[i]));
+  m[0] = d[0]; m[n - 1] = d[n - 2]; for (let i = 1; i < n - 1; i++) m[i] = d[i - 1] * d[i] <= 0 ? 0 : 2 * d[i - 1] * d[i] / (d[i - 1] + d[i]);
+  return (t) => { if (t <= x[0]) return y[0]; if (t >= x[n - 1]) return y[n - 1]; let i = 0; while (t > x[i + 1]) i++; const h = x[i + 1] - x[i], s = (t - x[i]) / h, s2 = s * s, s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * y[i] + (s3 - 2 * s2 + s) * h * m[i] + (-2 * s3 + 3 * s2) * y[i + 1] + (s3 - s2) * h * m[i + 1]; }; }
+const curveN = (keys, pick) => { const x = keys.map((k) => k[0]), n = [].concat(pick(keys[0])).length, cs = []; for (let j = 0; j < n; j++) cs.push(curve(x, keys.map((k) => [].concat(pick(k))[j]))); return (t) => cs.map((c) => c(t)); };
+const camKeys = (K) => { const p = curveN(K, (k) => k[1]), a = curveN(K, (k) => k[2]), f = curveN(K, (k) => k[3]); return (t) => ({ ro: p(t), ta: a(t), fov: f(t)[0] }); };
+
+// ───────── everything drawn with 2D canvas comes first (headless Chrome can hang if text is drawn after the atlas loads) ─────────
+await loadFonts();
+const SANS = '"V3Hei","Noto Sans CJK SC",Arial,sans-serif';
+const tex = (cv) => mipTexture(device, cv.transferToImageBitmap ? cv.transferToImageBitmap() : cv);
+const labels = (() => { const c = new OffscreenCanvas(512, 192), x = c.getContext("2d"); x.fillStyle = "#fff"; x.font = `700 30px ${SANS}`; x.textAlign = "center"; x.textBaseline = "middle";
+  for (let i = 0; i < 16; i++) x.fillText(`${"ABCD"[i >> 2]}${String(3 + (i * 7) % 24).padStart(2, "0")}-${1 + i % 4}`, (i % 4) * 128 + 64, (i >> 2) * 48 + 25); return tex(c); })();
+const sheets = buildSheets(), artTex = tex(sheets.art), inkTex = tex(sheets.ink);
+const pup = buildPuppet(), pupTex = tex(pup.canvas);
+const scr = buildScraps(), scrTex = tex(scr.canvas);
+const NG = Math.round(qn("n", 300000)), sen = buildSentence(Math.min(160000, Math.round(NG * .5))), senTex = tex(sen.canvas);
+let atlas; for (let i = 0; i < 5 && !atlas; i++) { try { atlas = await loadAtlas(device); } catch (e) { if (i === 4) throw e; await new Promise((r) => setTimeout(r, 300)); } }
+
+// ───────── pipelines ─────────
+const over = { color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } };
+const lin = device.createSampler({ minFilter: "linear", magFilter: "linear", mipmapFilter: "linear" });
+const DS = { format: "depth32float", depthWriteEnabled: false, depthCompare: "always" };
+function fullscreen(code, label, extra = []) { const m = shader(device, FS_VS + NOISE + HEAD + code, label);
+  const pipe = device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs" }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend: over }] }, depthStencil: DS });
+  const ub = device.createBuffer({ size: UBYTES, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const bg = device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ub } }, ...extra.map((r, i) => ({ binding: i + 1, resource: r }))] });
+  return { pipe, ub, bg, data: new Float32Array(UBYTES / 4) }; }
+const premul = { color: { srcFactor: "one", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" } }, addB = { color: { srcFactor: "one", dstFactor: "one" }, alpha: { srcFactor: "zero", dstFactor: "one" } };
+const shade = { color: { srcFactor: "zero", dstFactor: "one-minus-src-alpha" }, alpha: { srcFactor: "zero", dstFactor: "one" } };
+function instanced(code, label, nvec, blend, depth, extra = []) { const m = shader(device, NOISE + HEAD + code, label);
+  const attributes = Array.from({ length: nvec }, (_, i) => ({ shaderLocation: i, offset: i * 16, format: "float32x4" }));
+  const pipe = device.createRenderPipeline({ layout: "auto", vertex: { module: m, entryPoint: "vs", buffers: [{ arrayStride: nvec * 16, stepMode: "instance", attributes }] }, fragment: { module: m, entryPoint: "fs", targets: [{ format: "rgba16float", blend }] },
+    primitive: { topology: "triangle-strip" }, depthStencil: depth || DS });
+  const ub = device.createBuffer({ size: UBYTES, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  const bg = device.createBindGroup({ layout: pipe.getBindGroupLayout(0), entries: [{ binding: 0, resource: { buffer: ub } }, ...extra.map((r, i) => ({ binding: i + 1, resource: r }))] });
+  return { pipe, ub, bg, data: new Float32Array(UBYTES / 4) }; }
+const vbuf = (arr) => { const b = device.createBuffer({ size: arr.byteLength, usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST }); device.queue.writeBuffer(b, 0, arr); return b; };
+// camera → the uniform block. slots: array of [index, values...]
+function camBasis(C) { const f = norm(sub(C.ta, C.ro)), r = norm(cross(f, [0, 1e-9 + (C.upz ? 0 : 1), C.upz || 0])), up = cross(r, f), th = Math.tan(C.fov * D2R / 2), asp = W / H; return { f, r, up, th, asp }; }
+function setU(L, t, C, weight, slots) { const d = L.data, { f, r, up, th, asp } = camBasis(C);
+  d.set([...C.ro, t, ...mul3(r, th * asp), W, ...mul3(up, th), H, ...f, weight]); d.set(M4.mul(M4.persp(C.fov * D2R, asp, C.near ?? .05, C.far ?? 400), M4.look(C.ro, C.ta, C.upz ? [0, 0, C.upz] : [0, 1, 0])), 16);
+  d.fill(0, 32); for (const s of slots) d.set(s.slice(1), 32 + s[0] * 4); device.queue.writeBuffer(L.ub, 0, d); }
+const SPP = qn("spp", 6), DSPP = qn("dspp", 3);
+const room = fullscreen(ROOM, "room", [lin, labels.createView()]);
+const desk = fullscreen(DESK, "desk", [lin, artTex.createView(), inkTex.createView()]);
+const linC = device.createSampler({ minFilter: "linear", magFilter: "linear", mipmapFilter: "linear", addressModeU: "clamp-to-edge", addressModeV: "clamp-to-edge" });
+const inkP = instanced(INKCHARS, "inkchars", 3, premul, null, [lin, inkTex.createView()]);
+const gly = instanced(GLYPHS, "glyphs", 1, addB, null, [atlas.sampler, atlas.tex.createView()]);
+const sky = fullscreen(SKY, "sky", [linC, senTex.createView()]);
+const PART_ORDER = ["uarmB", "farmB", "handB", "lower", "torso", "head", "uarmF", "farmF", "handF"];
+const stage = fullscreen(puppetWGSL(PART_ORDER.map((n) => pup.parts[n].r)), "puppet", [linC, pupTex.createView()]);
+const DSW = { format: "depth32float", depthWriteEnabled: true, depthCompare: "less" }, DST = { format: "depth32float", depthWriteEnabled: false, depthCompare: "less" };
+const table = fullscreen(DADA_COMMON + TABLE, "table"), water = fullscreen(DADA_COMMON + WATER, "water");
+const scrapP = instanced(DADA_COMMON + SCRAPS, "scraps", 4, over, DSW, [linC, scrTex.createView()]), shadowP = instanced(DADA_COMMON + SHADOWS, "shadows", 4, shade, DST);
+
+// ───────── shot 1: the server room ─────────
+const HEROLED = [.8, 1.34, 4.2];
+const roomCam = camKeys([[88.4, [-.28, 1.3, 0], [.1, 1.22, 8], 43], [91, [-.28, 1.3, .65], [.1, 1.22, 8.65], 43], [93.2, [-.26, 1.3, 1.2], [.12, 1.22, 9.2], 43], [94.55, [-.12, 1.32, 2.02], HEROLED, 30], [95.25, [-.06, 1.33, 2.3], HEROLED, 27]]);
+// the person on shift: a walk cycle as joint positions (local, feet at the origin, facing +z)
+function rig(dist) { const ph = 2 * Math.PI * dist / 1.5, bob = .022 * Math.cos(2 * ph) - .012, L = [];
+  const leg = (s, p) => { const a = .4 * Math.sin(p), kb = .12 + .6 * Math.max(0, Math.sin(p + 1.9)) ** 1.3, hip = [s * .09, .9 + bob, 0], kn = add3(hip, [0, -.43 * Math.cos(a), .43 * Math.sin(a)]), an = add3(kn, [0, -.43 * Math.cos(a - kb), .43 * Math.sin(a - kb)]); an[1] = Math.max(an[1], .075); return [hip, kn, an]; };
+  L.push(...leg(-1, ph), ...leg(1, ph + Math.PI));
+  const aa = -.33 * Math.sin(ph), shL = [-.215, 1.41 + bob, .01], elL = add3(shL, [-.025, -.28 * Math.cos(aa), .28 * Math.sin(aa)]), haL = add3(elL, [.01, -.25 * Math.cos(aa + .3), .25 * Math.sin(aa + .3)]);
+  const shR = [.215, 1.41 + bob, .01], elR = add3(shR, [.035, -.27, .05]), haR = add3(elR, [-.03, -.03 + .006 * Math.sin(2 * ph), .25]), cup = add3(haR, [0, .055, .035]);
+  L.push(shL, elL, haL, shR, elR, haR, cup, [bob, .035, 0]); return L; }
+function roomLayer(t) { const C0 = roomCam(t), sh = (f, p) => .004 * Math.sin(t * f + p) + .002 * Math.sin(t * f * 2.3 + p * 3), C = { ...C0, ro: add3(C0.ro, [sh(.9, 1), sh(1.1, 2), 0]), ta: add3(C0.ta, [sh(.7, 4) * 3, sh(.8, 5) * 3, 0]) }, k = sm(...T.focusIn, t), rk = sm(...T.rack, t), walk = t - 88.4, pz = 2.1 + 1.15 * walk, px = .3 - .08 * sm(1, 4, walk);
+  const focus = lerp(lerp(.5, 5.2, k), Math.hypot(...sub(HEROLED, C.ro)), rk), lens = lerp(lerp(.03, .006, k), .012, rk);
+  const slots = [[0, px, 0, pz, 1], ...rig(pz).map((j, i) => [1 + i, ...j, 0]), [15, focus, lens, Math.round(lerp(SPP, SPP * 1.5, Math.max(1 - k, rk))), lerp(.12, 1, sm(88.4, 89.6, t)) * (1 - .93 * sm(...T.roomOut, t))],
+    [16, ...HEROLED, 1 + 5 * rk], [17, Math.floor(t * 60) % 1024, 2 * Math.tan(C.fov * D2R / 2) / H, 1 - sm(94.85, 95.2, t), 0]];
+  return { L: room, C, slots, post: { bloom: .25, threshold: 1.1, tonemap: .55, grain: .04, vignette: .22, exposure: 1 } }; }
+
+// ───────── shot 2: the manuscripts ─────────
+// Final places on the desk (x, z, angle); the order they come; how each is written (already written, from, characters per second)
+const LAMP = [-.3, -.27], LH = .36, WICK = norm([.75, 0, .66]), FLAME0 = [LAMP[0] + .049 * WICK[0], LH + .018, LAMP[1] + .049 * WICK[2]];
+const PILE = [
+  { at: [-.06, -.02, -.04], land: 94.0, from: [0, 0], write: [10, 95.05, 4.4] },        // 杜甫: by the lamp, the last characters of 「百年多病獨登臺」 written as we watch
+  { at: [.19, -.09, .1], land: 96.05, from: [.42, -.05], write: [0, 96.05, 13] },      // 李清照: recited behind the blind; the characters come like breath
+  { at: [-.04, .17, -.12], land: 96.45, from: [-.15, .4], write: [11, 96.55, 6] },     // 林觉民: 「與汝永別矣」
+  { at: [.22, .15, .06], land: 96.85, from: [.35, .3], write: [25, 97.02, 8] },        // 女孩: the blog page, the last line typed
+  { at: [-.31, .11, .17], land: 97.3, from: [-.45, .1], write: [99, 0, 1] },          // 苏轼
+  { at: [.39, -.05, -.2], land: 97.55, from: [.4, -.12], write: [99, 0, 1] },         // 朱生豪
+  { at: [.05, -.25, .08], land: 97.8, from: [.12, -.42], write: [99, 0, 1] }];        // 戴望舒
+const posOf = (i) => sheets.pos[SHEETS[i].id];
+function sheetPose(i, t) { const S = PILE[i], dur = .55, a = t - (S.land - dur); const yF = .00035 * (i + 1); if (a < 0) return null; const s = clamp(a / dur), e = 1 - (1 - s) ** 3;
+  const x = S.at[0] + S.from[0] * (1 - e), z = S.at[1] + S.from[1] * (1 - e), y = yF + .035 * (1 - s) ** 1.5 * (1 - (1 - s) ** 6), ang = S.at[2] + .35 * (1 - e) * (i % 2 ? 1 : -1);
+  const tl = .05 * (1 - s) * Math.sin(s * 9 + i), tz = .04 * (1 - s) * Math.cos(s * 8 + i * 2); return { x, z, y, ang, tl, tz }; }
+// world position of a point (u, v) of a sheet at rest
+const onSheet = (i, uu, vv) => { const S = PILE[i], sw = SHEETS[i], lx = (uu - .5) * sw.w, lz = (vv - .5) * sw.h, c = Math.cos(S.at[2]), s = Math.sin(S.at[2]); return [S.at[0] + c * lx - s * lz, .00035 * (i + 1), S.at[1] + s * lx + c * lz]; };
+const revealed = (i, t) => { const w = PILE[i].write; return w[0] + Math.max(0, t - w[1]) * w[2]; };
+// the brush of the first writer: the tip goes over each character top to bottom in a few strokes, lifts between characters, then leaves
+function brushAt(t) { const w = PILE[0].write, P = revealed(0, t), ch = posOf(0), n = ch.length; if (t > 96.5) return null;
+  let tip; const k = Math.min(Math.floor(P), n - 1), f = P - Math.floor(P), c = ch[k];
+  if (P >= n) { const s = t - (w[1] + (n - w[0]) / w[2]); const last = ch[n - 1]; tip = onSheet(0, last[0], last[1] + last[2] * .8); tip[1] += .004 + .5 * s * s; tip[0] += .3 * s * s; tip[2] += .2 * s * s; }
+  else { const fs = clamp(f * 1.15), strokes = 3, sf = fs * strokes, si = Math.floor(sf), sp = sf - si;
+    const du = c[2] * (.55 * Math.sin((si * 1.7 + sp) * 2.4) ), dv = c[2] * (-.7 + 1.4 * fs);
+    tip = onSheet(0, c[0] + du, c[1] + dv); const lift = f > .87 || sp < .08 ? .006 : 0; tip[1] += lift + .0004; if (t < w[1]) tip[1] += .01; }
+  return tip; }
+const flameAt = (t) => [FLAME0[0] + .0012 * Math.sin(t * 7.1) + .0008 * Math.sin(t * 13.3), FLAME0[1], FLAME0[2] + .001 * Math.sin(t * 5.3 + 1)];
+const flamePow = (t) => .32 * (1 + .05 * Math.sin(t * 11.7) + .03 * Math.sin(t * 23.1 + 1) + .03 * Math.sin(t * 4.3));
+const W0 = onSheet(0, posOf(0)[11][0], posOf(0)[11][1]);
+const deskCam = camKeys([
+  [94.6, add3(FLAME0, [.4, -.08, .72]), add3(FLAME0, [0, .006, 0]), 30], [95.0, add3(FLAME0, [.36, -.09, .64]), add3(FLAME0, [0, .005, 0]), 30],
+  [95.45, add3(W0, [.17, .14, .22]), add3(W0, [0, .02, -.01]), 34], [95.95, add3(W0, [.16, .16, .2]), add3(W0, [0, .015, .02]), 34],
+  [96.6, [.12, .42, .56], [.04, 0, .0], 40], [97.4, [.05, .78, .44], [.03, 0, 0], 40], [98.15, [.03, 1.04, .27], [.03, 0, 0], 40]]);
+const deskFocus = curve([94.6, 95.0, 95.45, 95.95, 96.6, 97.4, 98.15], [.83, .74, .3, .29, .7, .9, 1.07]), deskLens = curve([94.6, 95.45, 95.95, 96.6, 98.15], [.01, .008, .008, .004, .003]);
+function deskLayer(t) { const C = t < T.lift ? deskCam(t) : skyCam(t), slots = [];
+  for (let i = 0; i < 7; i++) { const p = sheetPose(i, t), w = PILE[i].write; slots.push(p ? [i, p.x, p.z, p.ang, p.y] : [i, 0, 0, 0, 99], [7 + i, w[0], w[1], w[2], T.lift + i * .05], [23 + i, i === 0 ? 1.2 : .8, p ? p.tl : 0, p ? p.tz : 0, 0]); }
+  const b = brushAt(t), A = norm([.13, 1, .14]), arm = norm([.75, 0, .66]), F = flameAt(t);
+  const moon = .01 + .16 * sm(95.85, 96.15, t) * (1 - .8 * sm(97.0, 97.6, t)), blind = sm(95.85, 96.1, t) * (1 - .6 * sm(97.2, 97.8, t)), glow = sm(96.85, 97.1, t) * (1 - sm(T.lift + .2, T.lift + 1.2, t));
+  const P3 = revealed(3, t), ch3 = posOf(3)[Math.min(Math.floor(P3), posOf(3).length - 1)], caretOn = (Math.floor(t * 2.2) % 2 === 0 || (t > 97.0 && t < 98.05)) && t > 96.9 && t < T.lift ? 1 : 0;
+  slots.push([14, ...F, flamePow(t)], [15, ...(b || [0, 0, 0]), b ? 1 : 0], [16, ...A, 0], [17, ...arm, 0], [18, moon, blind, glow, caretOn], [19, ch3[0] + 7 / 640 * (P3 < posOf(3).length ? -1 : 1) * .5, ch3[1], t * .05, 0],
+    [20, 1, sm(99.3, 100.3, t), t < T.lift ? deskFocus(t) : camD(t), t < T.lift ? deskLens(t) : .003], [30, .2, -.12, .26, 0], [21, 2 * Math.tan(C.fov * D2R / 2) / H, Math.floor(t * 60) % 1024, DSPP, 0], [22, LAMP[0], LAMP[1], WICK[0], WICK[2]]);
+  return { L: desk, C: { ...C, near: .01, far: 5000 }, slots, post: { bloom: .55, threshold: 1.0, knee: .6, tonemap: 1, grain: .035, vignette: .35, exposure: 1.05 } }; }
+
+
+// ───────── shot 3: the nebula of poems ─────────
+// One camera from the desk to the end of the crack: it rises at an even rate in log-distance, then turns to look across the disc.
+const camD = (() => { const k = curve([98.15, 98.5, 99.0, 99.6, 100.2, 100.8, 101.4, 101.8], [1.074, 1.35, 3.2, 14, 70, 300, 640, 760].map(Math.log)); return (t) => Math.exp(k(t)); })();
+function skyCam(t) { const d = camD(t), el = lerp(75.4, 27, sm(...T.tilt, t)) * D2R, az = .0, ta = [.03, d * .2 * sm(...T.tilt, t), 0];
+  return { ro: [ta[0] + d * Math.cos(el) * Math.sin(az), ta[1] + d * Math.sin(el), d * Math.cos(el) * Math.cos(az)], ta, fov: 40, near: Math.max(.01, d * .004), far: d * 20 + 10 }; }
+const CF = skyCam(T.tilt[1] + .1), CFb = camBasis(CF), DLINE = camD(T.tilt[1] + .1) * .55;
+// the characters on the paper: one instance each
+const INK = (() => { const out = []; SHEETS.forEach((S, i) => { const tile = [i % 4, Math.floor(i / 4)], ang = PILE[i].at[2];
+    posOf(i).forEach(([uu, vv, hh], ord) => { const w = onSheet(i, uu, vv); out.push(w[0], w[1] + .0005, w[2], hh * S.w, tile[0] + uu, tile[1] + vv, hh, ang, i, ord, 0, 0); }); }); return { buf: vbuf(new Float32Array(out)), n: out.length / 12 }; })();
+// the nebula: seed, glyph cell, and for half of them a place in the sentence, a quarter along the crack
+const GLY = (() => { const a = new Float32Array(NG * 4), R = atlas.info.groupRanges, pools = [["cn-kai", 5], ["cn-song", 4], ["cn-poem", 6], ["cn-xing", 3], ["cn-cao", 2], ["cn-clerical", 1.5], ["cn-seal", 1.2], ["cn-oracle", 1], ["cn-bronze", 1], ["world-ancient", 2], ["world-modern", 4], ["word", 1.5]], tot = pools.reduce((s2, x) => s2 + x[1], 0);
+  let rs = 99173; const rnd = () => (rs = (Math.imul(rs, 1664525) + 1013904223) >>> 0) / 4294967296; const C = sen.crack, nC = C.length;
+  for (let i = 0; i < NG; i++) { let k = rnd() * tot, gi = 0; while (k > pools[gi][1]) { k -= pools[gi][1]; gi++; } const [lo, hi] = R[pools[gi][0]]; let tx = -1, ty = -1; const f = rnd();
+    if (f < .5 && sen.n) { const j = Math.floor(rnd() * sen.n); tx = sen.pts[j * 2]; ty = sen.pts[j * 2 + 1]; }
+    else if (f < .72) { const s2 = rnd() * (nC - 1), j = Math.floor(s2), ff = s2 - j; tx = lerp(C[j][0], C[j + 1][0], ff); ty = lerp(C[j][1], C[j + 1][1], ff) + (rnd() - .5) * (rnd() - .5) * .02; tx = clamp(tx, 0, 1); }
+    a.set([i * 1.37 + rnd() * 7, lo + Math.floor(rnd() * (hi - lo + 1)), tx, ty], i * 4); } return { buf: vbuf(a), n: NG }; })();
+// the screen of the next shot, as seen at the end of the opening: the crack opens to exactly this rectangle
+let SCREEN_RECT = [.2, .1, .8, .9];
+function cloudLayer(t) { const C = t < T.lift ? deskCam(t) : skyCam(t), d = camD(Math.max(t, T.lift)), pixA = 2 * Math.tan(C.fov * D2R / 2) / H;
+  const grow = sm(...T.crack, t), open = sm(...T.open, t), ice = sm(...T.ice, t) * (1 - sm(T.open[0] + .1, T.open[0] + .45, t)), glare = sm(T.open[0] + .05, T.open[0] + .2, t) * (1 - sm(...T.glare, t));
+  const crackPts = []; for (let i = 0; i < 17; i++) { const a = sen.crack[i * 2], b = sen.crack[i * 2 + 1] || a; crackPts.push([4 + i, a[0], a[1], b[0], b[1]]); }
+  const slots = [[0, sm(...T.nebula, t) * (1 - grow * .7), sm(99.0, 100.2, t) * (1 - sm(101.6, 102.6, t)) * .5, grow, 1 + .6 * Math.exp(-Math.max(0, t - T.crack[1]) * 3)], [1, ice, .012 * sm(...T.split, t) + .03 * open, open, glare], [2, ...SCREEN_RECT], [3, t - 98.6], ...crackPts];
+  const after = (pass) => {
+    pass.setPipeline(gly.pipe); pass.setBindGroup(0, gly.bg); pass.setVertexBuffer(0, GLY.buf); if (t > T.nebula[0]) pass.draw(4, Math.round(GLY.n * (1 - sm(103.3, 103.9, t) * .999)));
+    pass.setPipeline(inkP.pipe); pass.setBindGroup(0, inkP.bg); pass.setVertexBuffer(0, INK.buf); if (t > T.lift && t < 102) pass.draw(4, INK.n); };
+  const gs = [[0, t - 98.6, sm(...T.nebula, t) * (1 - sm(102.9, 103.6, t)), 0, 0], [1, pixA, .5 + .02 * d, 0, 0], [2, ...CF.ro, DLINE], [3, ...mul3(CFb.r, CFb.th * CFb.asp)], [4, ...mul3(CFb.up, CFb.th)], [5, ...CFb.f], [6, T.gather[0], T.gather[1], .003, 1 - .85 * ice]];
+  setU(gly, t, C, 1, gs); setU(inkP, t, C, 1, [...PILE.map((_, i) => [i, T.lift + i * .05, 0, 0, 0]), [8, d / 1.074, 0, 0, 0]]);
+  return { L: sky, C, slots, after, post: { bloom: .5, threshold: 1.0, knee: .6, tonemap: 1, grain: .03, vignette: .3, exposure: 1 } }; }
+
+// ───────── shot 4: the shadow-puppet stage ─────────
+const PK = .0128, GROUND = .035, X0 = .08;                                     // metres per cm of the drawing; the screen's ground line; where he stands
+const REST = { torso: 0, head: 0, lower: 0, uF: 25, fF: 35, hF: -10, uB: -8, fB: 20, hB: 0, x: 0 };
+// one pose per accent of the voice (即 使 我 用 顿 挫 的 人): a quick move, then a dead stop (顿), turns (挫), two 亮相 on the strong ones
+const MOVES = [[104.43, { uF: 70, fF: 15, hF: -15, uB: -5, fB: 25, head: 4, torso: -2 }], [104.81, { uF: 40, fF: 60, uB: 35, fB: 70, head: -2, torso: 2, x: .012 }],
+  [105.05, { uF: 118, fF: 25, hF: -20, uB: -35, fB: 55, head: 12, torso: -5, lower: 3, x: .02 }], [105.55, { uF: 60, fF: 70, uB: 10, fB: 40, head: 0, torso: 4, x: .07 }],
+  [105.75, { uF: 35, fF: 100, uB: 30, fB: 95, head: -8, torso: 5, x: .075 }], [106.39, { uF: 92, fF: -5, hF: 10, uB: -25, fB: 30, head: 3, torso: -3, x: .09 }],
+  [106.71, { uF: 80, fF: 30, uB: -15, fB: 40, head: -6, torso: 1, x: .09 }], [106.89, { uF: 132, fF: 20, hF: -25, uB: -52, fB: 45, head: 14, torso: -6, lower: 4, x: .1 }]];
+const backOut = (x) => { const c = 1.9; return 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2; };
+function puppetPose(t) { let P = { ...REST }, prev = { ...REST };
+  for (const [tm, mv] of MOVES) { const tgt = { ...P, ...mv }; if (t < tm) break; const k = clamp((t - tm) / .17), e = backOut(k); prev = P; P = {}; for (const key in tgt) P[key] = lerp(prev[key] ?? 0, tgt[key], e); if (k < 1) break; P = tgt; }
+  const br = Math.sin(t * 2.3) * .6; P.torso += br * .5; P.uF += br; P.uB -= br * .7; P.head += Math.sin(t * 1.7) * .5; return P; }
+function puppetXf(t) { const P = puppetPose(t), J = PUPPET, ang = { torso: P.torso, head: P.head, lower: P.lower, uarmF: P.uF, farmF: P.fF, handF: P.hF, uarmB: P.uB, farmB: P.fB, handB: P.hB };
+  const W = {}, rotv = (v, a) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a)];
+  W.torso = { p: [X0 + P.x, 0], a: P.torso * D2R };
+  for (const n of ["head", "lower", "uarmB", "uarmF", "farmB", "farmF", "handB", "handF"]) { const par = W[J[n].parent], j = J[n].at, o = rotv([j[0] * PK, -j[1] * PK], par.a); W[n] = { p: [par.p[0] + o[0], par.p[1] + o[1]], a: par.a + ang[n] * D2R }; }
+  // keep the soles on the ground line: the lower part's lowest point (boot soles at 15.95 cm below the waist)
+  const sole = Math.min(...[[-2.7, 15.95], [5.6, 15.95]].map((c) => W.lower.p[1] + rotv([c[0] * PK, -c[1] * PK], W.lower.a)[1]));
+  const hop = Math.max(0, Math.sin(Math.PI * clamp((t - 105.55) / .2))) * .008, dy = GROUND - sole + hop;
+  for (const n in W) W[n].p[1] += dy;
+  // the knots come undone: each part drops, turning, one after another
+  if (t > T.fall) PART_ORDER.forEach((n, k) => { const s = Math.max(0, t - T.fall - [5, 6, 7, 3, 1, 0, 8, 4, 2][k] * .04); W[n].p[1] -= 3.2 * s * s; W[n].p[0] += (k % 2 ? .05 : -.04) * s; W[n].a += (k % 2 ? 1.6 : -1.3) * s * s; });
+  return W; }
+function stageLayer(t) { const W = puppetXf(t), slots = [];
+  PART_ORDER.forEach((n, k) => { const w = W[n], c = Math.cos(-w.a), s = Math.sin(-w.a), sc = PS / PK, piv = pup.parts[n].p;
+    // atlas = piv + sc * F * R(-a) * (X - p), F = diag(1, -1)
+    const m00 = sc * c, m01 = -sc * s, m10 = -sc * s, m11 = -sc * c; slots.push([k * 2, m00, m01, m10, m11], [k * 2 + 1, piv[0] - (m00 * w.p[0] + m01 * w.p[1]), piv[1] - (m10 * w.p[0] + m11 * w.p[1]), k, 0]); });
+  const at = (n, l) => { const w = W[n], v = [l[0] * PK, -l[1] * PK]; return [w.p[0] + v[0] * Math.cos(w.a) - v[1] * Math.sin(w.a), w.p[1] + v[0] * Math.sin(w.a) + v[1] * Math.cos(w.a), .0065]; };
+  const W2 = t > T.fall ? puppetXf(T.fall - .001) : W, at2 = (n, l) => { const w = W2[n], v = [l[0] * PK, -l[1] * PK], sw = t > T.fall ? [.006 * Math.sin(t * 5.3 + n.length), .004 * Math.sin(t * 4.1 + n.length * 2)] : [0, 0]; return [w.p[0] + v[0] * Math.cos(w.a) - v[1] * Math.sin(w.a) + sw[0], w.p[1] + v[0] * Math.sin(w.a) + v[1] * Math.cos(w.a) + sw[1], .0065]; };
+  const rods = [["torso", [.8, 1.6], [.06, -.5, .86], .42], ["handF", [.4, .9], [.12, -.42, .9], .38], ["handB", [.4, .9], [-.1, -.5, .86], .38]];
+  rods.forEach(([n, l, dir, len], k) => { const A = at2(n, l), dd = norm([dir[0] + (A[0] - X0) * .4, dir[1], dir[2]]); const E = add3(A, mul3(dd, len)); slots.push([18 + k * 2, ...A, 0], [19 + k * 2, ...E, 0]); });
+  const C = stageCam(t); slots.push([24, .2, .6, .68, .36 * (1 + .03 * Math.sin(t * 9.1) + .02 * Math.sin(t * 15.7))], [25, 1, 0, 0, 0], [26, 0, 0, 2 * Math.tan(C.fov * D2R / 2) / H, 0]);
+  return { L: stage, C, slots, post: { bloom: .55, threshold: 1, knee: .6, tonemap: 1, grain: .03, vignette: .32, exposure: 1 } }; }
+const stageCam = camKeys([[103.8, [0, .4, -1.3], [0, .4, 0], 38], [104.6, [0, .39, -1.22], [0, .38, 0], 38], [105.5, [.02, .36, -.92], [.04, .34, 0], 38],
+  [105.9, [.34, .74, -.62], [.07, .32, 0], 40], [106.12, [.55, 1.08, .14], [.07, .3, .04], 42], [106.42, [.3, .82, .66], [.06, .28, .05], 42], [106.8, [-.32, .52, .98], [.03, .24, .1], 42],
+  [107.1, [-.34, .48, 1.0], [.04, .22, .12], 42], [107.65, [-.16, .86, .78], [0, -.04, .3], 45]]);
+{ const C = stageCam(T.open[1]), b = camBasis(C), pr = (p) => { const v = sub(p, C.ro), z = v[0] * b.f[0] + v[1] * b.f[1] + v[2] * b.f[2], x = (v[0] * b.r[0] + v[1] * b.r[1] + v[2] * b.r[2]) / (z * b.th * b.asp), y = (v[0] * b.up[0] + v[1] * b.up[1] + v[2] * b.up[2]) / (z * b.th); return [x * .5 + .5, .5 - y * .5]; };
+  const a = pr([-.6, .8, 0]), c = pr([.6, 0, 0]); SCREEN_RECT = [Math.min(a[0], c[0]), Math.min(a[1], c[1]), Math.max(a[0], c[0]), Math.max(a[1], c[1])]; }
+
+// ───────── shot 5: the Dada table ─────────
+const NSC = Math.round(qn("scraps", 220)), MPP = .00026;
+const SCR = (() => { let rs = 4242; const rnd = () => (rs = (Math.imul(rs, 1664525) + 1013904223) >>> 0) / 4294967296; const a = new Float32Array(NSC * 16), order = [];
+  for (let i = 0; i < NSC; i++) order.push([rnd(), i]); order.sort((x, y) => x[0] - y[0]); const layer = new Array(NSC); order.forEach(([, i], k) => layer[i] = k + 12);
+  // the line: ten scraps side by side, not quite straight
+  const ws = LINE.map((_, k) => scr.cells[k][0] * MPP), tot = ws.reduce((x, y) => x + y, 0) + .007 * 9; let cx = -tot / 2;
+  for (let i = 0; i < NSC; i++) { const key = i < 10 ? i : -1, cell = key >= 0 ? key : 10 + Math.floor(rnd() * 54), [wp, hp] = scr.cells[cell];
+    const g = () => (rnd() + rnd() + rnd() - 1.5) / 1.5; let lx = g() * .36, lz = g() * .22; if (key >= 0) { lx = (rnd() - .5) * .6; lz = (rnd() < .5 ? -1 : 1) * (.09 + rnd() * .1); }
+    const fs = T.shake[0] + (T.shake[1] - T.shake[0]) * Math.pow(rnd(), .8) + (key >= 0 ? .15 : 0), fd = .55 + .3 * rnd();
+    let fx = 0, fz = 0, fa = 0, ms = 0; if (key >= 0) { fx = cx + ws[key] / 2; cx += ws[key] + .007; fz = .01 + (rnd() - .5) * .014; fa = (rnd() - .5) * .14; ms = T.move + key * .1 + rnd() * .12; }
+    a.set([cell, wp, hp, i * 3.17 + 1, lx, lz, (rnd() - .5) * 6.28, key >= 0 ? NSC + 20 + key : layer[i], key, key < 0 && rnd() < .15 ? 1 : 0, fs, fd, fx, fz, fa, ms], i * 16); }
+  return { buf: vbuf(a), n: NSC }; })();
+const dadaCam = camKeys([[107.1, [-.02, .6, .1], [-.02, 0, .0], 40], [109.0, [0, .56, .07], [0, 0, .005], 40], [110.3, [0, .44, .05], [0, 0, .008], 40], [111.9, [.01, .4, .045], [.01, 0, .008], 40]]);
+function dadaLayer(t) { const C = { ...dadaCam(t), near: .02, far: 5 }, slots = [[0, T.water, .5, T.push, MPP], [1, -.35, 1, -.25, 0]];
+  setU(scrapP, t, C, 1, slots); setU(shadowP, t, C, 1, slots); setU(water, t, C, 1, slots);
+  const after = (pass) => { pass.setPipeline(scrapP.pipe); pass.setBindGroup(0, scrapP.bg); pass.setVertexBuffer(0, SCR.buf); pass.draw(4, SCR.n);
+    pass.setPipeline(shadowP.pipe); pass.setBindGroup(0, shadowP.bg); pass.setVertexBuffer(0, SCR.buf); pass.draw(4, SCR.n);
+    if (t > T.water - .1) { pass.setPipeline(water.pipe); pass.setBindGroup(0, water.bg); pass.draw(3); } };
+  return { L: table, C, slots, after, post: { bloom: .2, threshold: 1.2, knee: .6, tonemap: .7, grain: .03, vignette: .25, exposure: 1, bars: sm(...T.bars, t) } }; }
+const layers = (t) => { const L = [];
+  if (t < T.room[1]) L.push([roomLayer(t), 1]);
+  if (t > T.desk[0] && t < T.desk[1]) L.push([deskLayer(t), sm(...T.deskIn, t)]);
+  if (t > T.puppet[0] && t < T.puppet[1]) L.push([stageLayer(t), 1]);
+  if (t > T.cloud[0] && t < T.cloud[1]) L.push([cloudLayer(t), sm(...T.skyIn, t)]);
+  if (t > T.dada[0]) L.push([dadaLayer(t), sm(...T.dadaIn, t)]);
+  return L; };
+const scene = { reset() {}, draw(t) { const ls = layers(t), enc = device.createCommandEncoder(); let P = null;
+  for (const [l, w] of ls) setU(l.L, t, l.C, w, l.slots);
+  const pass = enc.beginRenderPass(post.pass([0, 0, 0, 1]));
+  for (const [l, w] of ls) { pass.setPipeline(l.L.pipe); pass.setBindGroup(0, l.L.bg); pass.draw(3); l.after?.(pass); if (!P) P = { ...l.post }; else for (const k in l.post) P[k] = lerp(P[k] ?? l.post[k], l.post[k], w); }
+  pass.end(); post.run(enc, g.ctx.getCurrentTexture().createView(), { ...P, time: t }); device.queue.submit([enc.finish()]); } };
+await run({ g, seg: [88.4, 111.9], scene, notes: { 24: "你听到的这段歌声是合成的", 25: "很多人认为 AI 只是在随机组合人们写过的文字" }, captions: [[88.4, 91.0, "本视频全部由 Claude 用代码生成"]], title: "第三段 · 人与机器并排" });
+} catch (e) { fail(String(e && e.stack || e)); }
+</script>
