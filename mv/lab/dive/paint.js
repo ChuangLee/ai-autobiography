@@ -49,8 +49,8 @@ fn sunrise(uv:vec2f)->vec3f{
   c=mix(c,pigment,smoothstep(.032,.026,d));
   return c;
 }
-fn pads(p:vec2f, cs:vec2f, raft:f32, sd:f32, c:ptr<function,vec3f>){
-  if(raft<=.0001){return;}
+fn pads(p:vec2f, cs:vec2f, raft:f32, sd:f32, c:ptr<function,vec3f>)->f32{
+  if(raft<=.0001){return 0.;}
   let q=p/cs; let i=floor(q); var pad=0.; var pc=vec3f(0.); var blo=0.; var bc=vec3f(0.);
   for(var dy=-1;dy<=1;dy++){ for(var dx=-1;dx<=1;dx++){ let cc=i+vec2f(f32(dx),f32(dy)); let h=hash22(cc+sd); if(hash21(cc+11.+sd)>clamp(raft,0.,1.)*.9){ continue; }
       let radius=.30+.42*hash21(cc+5.+sd);
@@ -85,7 +85,7 @@ fn pads(p:vec2f, cs:vec2f, raft:f32, sd:f32, c:ptr<function,vec3f>){
         }
       }
   } }
-  *c=mix(*c,pc,pad*.96); *c=mix(*c,mix(bc,vec3f(.98,.52,.18),u.par2.x*.65),blo); }
+  *c=mix(*c,pc,pad*.96); *c=mix(*c,mix(bc,vec3f(.98,.52,.18),u.par2.x*.65),blo); return max(.63*pad,blo); }
 // A close blossom. Three staggered whorls share a centre; upturned inner petals
 // catch warm light while the lower ones meet the blue reflection.
 fn blossom(p:vec2f, base:vec3f)->vec3f{
@@ -107,24 +107,66 @@ fn blossom(p:vec2f, base:vec3f)->vec3f{
   }
   return mix(c,vec3f(.98,.72,.27),.9*smoothstep(.16,.07,length(p+vec2f(.015,.11))));
 }
-fn lilies(p:vec2f)->vec3f{                                   // p.y runs on down the tall canvas
-  var c=mix(vec3f(.10,.13,.34),vec3f(.03,.17,.15),smoothstep(.30,.60,fbm(vec2f(p.x*3.4,p.y*.8+2.))));
-  c=mix(c,vec3f(.02,.08,.09),.75*smoothstep(.50,.72,fbm(vec2f(p.x*9.,p.y*.55+6.))));                      // trees that are not in the picture, standing in the water
-  c=mix(c,vec3f(.20,.11,.36),.55*smoothstep(.52,.78,fbm(vec2f(p.x*5.+3.,p.y*.7+1.))));                    // violet between them
-  c=mix(c,vec3f(.50,.47,.76),.55*smoothstep(.60,.80,fbm(vec2f(p.x*1.5+9.,p.y*1.2))));                     // openings of lilac sky
-  c=mix(c,vec3f(.90,.70,.70),.40*smoothstep(.70,.88,fbm(vec2f(p.x*2.2+1.,p.y*1.7+5.))));                  // one pink cloud
+// Under the floating leaves the bank exists only as a reflection. Broken
+// verticals come from the overhanging trees; gaps in their canopy catch the sky.
+fn pondWater(p:vec2f,t:f32)->vec4f{
+  let row=72.*p.y+2.7*sin(10.*p.x+3.7*p.y)+.80*sin(21.*p.x-2.1*p.y);
+  let group=vnoise(vec2f(p.x*7.1-t*.017,p.y*13.+2.1));
+  let ripple=sin(row+t*.83+2.8*group);
+  let ripple2=sin(.61*row-13.*p.x-t*.52+3.*group);
+  let q=p+vec2f(.019*ripple+.008*ripple2,.005*ripple2);
+  let bend=.035*sin(q.y*5.8)+.015*sin(q.y*10.5+1.1);
+  let branches=fbm(vec2f((q.x+bend)*7.8+.72*q.y,q.y*2.7+1.7));
+  let crown=fbm(vec2f(q.x*3.4+2.1,q.y*2.2+4.9));
+  let channel=.61-.19*(q.y-1.30)+.091*sin(4.5*q.y-1.20);
+  let fromChannel=(q.x-channel)/.21;let clearing=exp(-fromChannel*fromChannel);
+  let opening=smoothstep(.41,.78,.31*clearing+.43*branches+.43*crown);
+  let bole=smoothstep(.39,.67,branches+.12*(crown-.5));
+  let trunks=mix(vec3f(.082,.115,.265),vec3f(.088,.229,.211),bole);
+  let sky=mix(vec3f(.159,.226,.456),vec3f(.455,.488,.667),opening);
+  var water=mix(trunks,sky,.13+.85*opening);
+  // The light side and lilac underside of a crest part the reflected colour.
+  let wind=smoothstep(.38,.69,group);
+  let silver=smoothstep(.42,.95,ripple)*smoothstep(-.55,.43,ripple2)*wind;
+  let broken=smoothstep(.59,.94,-ripple)*(1.-.55*wind);
+  water=mix(water,vec3f(.508,.570,.641),silver*(.16+.37*opening));
+  water=mix(water,vec3f(.206,.150,.358),broken*(.17+.19*bole));
+  let rose=clearing*smoothstep(.51,.70,crown)*smoothstep(.47,.85,group);
+  water=mix(water,vec3f(.70,.57,.605),rose*(.25+.23*silver));
+  // Hanging willow tips are imaged *under* the waves. Break each reflection
+  // into a few paired touches; the bright facet of a ripple erases their ends.
+  let run=(q.x+.049*sin(q.y*4.3)+.044*(q.y-1.1))*21.;
+  let stem=floor(run);let seed=hash22(vec2f(stem,7.));
+  let drop=(q.y-1.05-.30*seed.y)/(.21+.32*seed.x);
+  let centre=.50+.17*sin(q.y*12.+seed.x*5.7)+.13*(drop-.45);
+  let side=fract(run)-centre;
+  let sprig=drop*7.+seed.x;
+  let alternating=sin(sprig*3.14159);
+  let leaf=abs(side-.17*alternating);
+  let strand=(1.-smoothstep(.034,.186,leaf))*(.35+.65*alternating*alternating);
+  let curtain=(1.-smoothstep(.71,1.,drop))*smoothstep(-.13,.20,drop)
+      *smoothstep(.28,.65,crown+seed.y*.17)*(1.-.73*clearing)*(1.-.81*silver);
+  let willow=strand*curtain;
+  let reflected=mix(vec3f(.07,.13,.169),vec3f(.249,.359,.258),seed.y*.74+.16*group);
+  water=mix(water,reflected,willow*.84);
+  return vec4f(water,-willow*.56);
+}
+fn lilies(p:vec2f)->vec4f{
+  let reflection=pondWater(p,u.par.x);var c=reflection.rgb;
   let raft=smoothstep(.48,.60,fbm(vec2f(p.x*1.5+3.,p.y*4.2)))+exp(-pow((p.x-SX)/.11,2.))*smoothstep(.85,1.05,p.y)*smoothstep(1.7,1.3,p.y);
-  pads(p,vec2f(.157,.068),raft*.85,0.,&c); pads(p+vec2f(.03,.01),vec2f(.052,.023),raft*smoothstep(.40,.62,fbm(p*vec2f(5.,9.)+8.)),40.,&c);
+  let large=pads(p,vec2f(.157,.068),raft*.85,0.,&c);
+  let small=pads(p+vec2f(.03,.01),vec2f(.052,.023),raft*smoothstep(.40,.62,fbm(p*vec2f(5.,9.)+8.)),40.,&c);
+  var cover=max(large,small);
   let centre=vec2f(.56+.0009*sin(u.par.x*.65),1.385+.0016*sin(u.par.x*.83));
   let flower=(p-centre)/vec2f(.063,.051);
-  if(length(flower)<1.12){c=blossom(flower,c);}
-  return c;
+  if(length(flower)<1.12){let painted=blossom(flower,c);cover=max(cover,smoothstep(.025,.17,length(painted-c)));c=painted;}
+  return vec4f(c,mix(reflection.a,cover,smoothstep(0.,.21,cover)));
 }
 @fragment fn fs(@builtin(position) fc:vec4f)->@location(0) vec4f{
   let uv=fc.xy/u.res.xy; let Y=uv.y+u.par.y; let p=vec2f(uv.x,Y);
-  if(Y<=.98){return vec4f(sunrise(p),1.);}
-  if(Y>=1.22){return vec4f(lilies(p),1.);}
-  return vec4f(mix(sunrise(p),lilies(p),smoothstep(.98,1.22,Y)),1.); }
+  if(Y<=.98){return vec4f(sunrise(p),0.);}
+  if(Y>=1.22){return lilies(p);}
+  return mix(vec4f(sunrise(p),0.),lilies(p),smoothstep(.98,1.22,Y)); }
 `;
 export const INK = HILLS + `
 fn hills(uv:vec2f, hor:f32, soft:f32)->f32{
@@ -169,22 +211,35 @@ export const DABS = `
 fn reach(p:vec2f, c0:vec2f)->f32{ let q=(p-c0)*vec2f(1.7778,1.); return min(length(q*vec2f(.8,1.3))+.24,abs(q.x)*5.+select(3.,q.y*.6,q.y>0.)); }   // the sun's road first, then outward from the disc
 fn dabs(uv:vec2f, pan:f32, t:f32, ink:vec3f, fr:f32, c0:vec2f)->vec3f{
   let cv=vec2f(uv.x*1.7778,uv.y+pan); let whole=step(3.1,fr);
-  var col=mix(ink,textureSampleLevel(study,samp,uv,0.).rgb*.88+vec3f(0.,.01,.025),max(whole,smoothstep(fr-.30,fr-.75,reach(vec2f(uv.x,uv.y+pan),c0))));
+  let ground=textureSampleLevel(study,samp,uv,0.);
+  let pond=smoothstep(1.01,1.23,cv.y);
+  let water=pond*(1.-smoothstep(.07,.38,ground.a));
+  var slope=0.;
+  if(pond>0.){
+    let gust=vnoise(vec2f(cv.x*4.7+.52*cv.y,cv.y*9.-.022*t));
+    slope=.095*sin(cv.y*20.+cv.x*3.4+t*.31)+.24*(gust-.5);
+  }
+  var col=mix(ink,ground.rgb*.88+vec3f(0.,.01,.025),max(whole,smoothstep(fr-.30,fr-.75,reach(vec2f(uv.x,uv.y+pan),c0))));
   for(var L=0;L<3;L++){ let fl=f32(L); let cs=vec2f(.070,.034)*pow(.60,fl); let dr=vec2f(t*.003*(fl+1.)*smoothstep(.455,.62,cv.y)*(1.-smoothstep(.97,1.22,cv.y)),0.); let q=(cv+dr)/cs; let i=floor(q);
     for(var dy=-1;dy<=1;dy++){ for(var dx=-1;dx<=1;dx++){ let cc=i+vec2f(f32(dx),f32(dy)); let h=hash22(cc+fl*37.); let h2=hash21(cc*1.7+fl*11.);
         if(h2<.10*fl){ continue; }
         let ctr=(cc+.5+(h-.5)*.9)*cs-dr; let on=max(whole,smoothstep(fr,fr-.07,reach(vec2f(ctr.x/1.7778,ctr.y),c0)+.22*h.y-.05*fl)); if(on<.01){ continue; }
-        let th=(h.x-.5)*.5+(h2-.5)*1.1*step(ctr.y,.30)+1.5708*step(.62,h2)*smoothstep(1.02,1.2,ctr.y); let e=cv-ctr; let cth=cos(th); let sth=sin(th);
-        let l=vec2f(e.x*cth+e.y*sth,-e.x*sth+e.y*cth)/(cs*vec2f(.36+.50*h2,.52)*(.75+.5*h.y));
+        let dryAngle=(h.x-.5)*.5+(h2-.5)*1.1*step(ctr.y,.30)+1.5708*step(.62,h2)*smoothstep(1.02,1.2,ctr.y);
+        let waveAngle=slope+.08*(h.x-.5);
+        let tree=mix(waveAngle,1.29+.18*(h.y-.5),clamp(-2.2*ground.a,0.,.86));
+        let th=mix(dryAngle,tree,water); let e=cv-ctr; let cth=cos(th); let sth=sin(th);
+        let brush=vec2f(.36+.50*h2,.52)*mix(vec2f(1.),vec2f(1.36,.68),water);
+        let l=vec2f(e.x*cth+e.y*sth,-e.x*sth+e.y*cth)/(cs*brush*(.75+.5*h.y));
         let d=length(l); let br=vnoise(vec2f(l.x*2.2+h2*9.,l.y*7.+h.x*20.)); let a=smoothstep(1.,.70,d+.28*(br-.5))*on;
-        if(a>.01){ var c=textureSampleLevel(study,samp,vec2f(ctr.x/1.7778,ctr.y-pan),0.).rgb; let j=hash33(vec3f(cc,fl+3.))-.5;
+        if(a>.01){ let touch=textureSampleLevel(study,samp,vec2f(ctr.x/1.7778,ctr.y-pan),0.); var c=touch.rgb; let j=hash33(vec3f(cc,fl+3.))-.5;
           c=c*(1.+.18*j.x)+vec3f(j.y,-.5*j.y,j.z)*.08; let m=max(c.r,max(c.g,c.b)); c=mix(vec3f(m),c,1.22); c*=.94+.14*br+.10*l.y;
           let bristles=cos(l.y*24.+br*2.5)*smoothstep(1.,.3,d);
           c*=1.+.038*bristles;
-          let preserve=mix(.93,.56,smoothstep(1.04,1.27,ctr.y));
+          let sameLayer=1.-smoothstep(.15,.55,abs(touch.a-ground.a));
+          let preserve=mix(.93,.27+.54*sameLayer,smoothstep(1.04,1.27,ctr.y));
           col=mix(col,c,a*preserve); } } } }
   // A final thin glaze restores the petal edges and negative space between leaves.
-  let layer=textureSampleLevel(study,samp,uv,0.).rgb;
+  let layer=ground.rgb;
   let edge=max(0.,layer.r-layer.g*.88);
   col=mix(col,layer,smoothstep(1.02,1.30,cv.y)*(.26+.37*smoothstep(.02,.26,edge)));
   // Keep the vermilion disc intact where the reflected light breaks into strokes below.
