@@ -201,10 +201,20 @@ function updateFrame() {
   if (!wanted || busy || dragging || audio.paused) return;
   const t = clamp(audio.currentTime, 0, duration), index = chapterAt(t);
   if (index !== current.index) {
-    if (spare?.index !== index || !Number.isFinite(spare.time) || spare.error || !spare.api.frame(t)) {
-      go(t, true); return;
+    if (chapters[current.index][1] === "sitter" && chapters[index][1] === "windows") {
+      // The camera has travelled through the cheek into this very room. Its
+      // glyphs, shaders and device are already resident in the current scene.
+      if (!current.api.frame(t)) { go(t, true); return; }
+      retire();
+      current.index = index;
+      current.frame.title = "windows";
+      document.body.dataset.scene = "windows";
+    } else {
+      if (spare?.index !== index || !Number.isFinite(spare.time) || spare.error || !spare.api.frame(t)) {
+        go(t, true); return;
+      }
+      spare.time = t; show(spare, true, t, true);
     }
-    spare.time = t; show(spare, true, t, true);
   } else {
     if (current.time !== t && !current.api.frame(t)) { go(t); return; }
     if (riverJoin) mixRiver(t);
@@ -212,7 +222,7 @@ function updateFrame() {
   current.time = position = t;
   captions(current, t); displayTime(t);
   const next = chapters[index + 1];
-  if (next && next[0] - t < 7 && !spare && !outgoing) {
+  if (next && chapters[index][1] !== "sitter" && next[0] - t < 7 && !spare && !outgoing) {
     const nextSlot = allocate(index + 1);
     prepare(nextSlot, next[0]).catch(error => sceneError(nextSlot, error.message));
   }

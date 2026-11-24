@@ -12,6 +12,6 @@ import { createSitterShot } from "./sitter-shot.js";
 try {
   const g=await initGPU(document.getElementById("c"));
   const scene=await createSitterShot(g,await loadAtlas(g.device));
-  await run({g,scene,seg:[44.58,55.92],title:"河岸上的目光",notes:{9:"AI（大语言模型）由人类写下的文字训练而成"}});
+  await run({g,scene,seg:[44.58,new URLSearchParams(location.search).has("film")?88.4:55.92],title:"河岸上的目光",notes:{9:"AI（大语言模型）由人类写下的文字训练而成"}});
 } catch(error) {fail(error.stack||String(error));}
 </script></html>

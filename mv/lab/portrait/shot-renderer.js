@@ -60,12 +60,13 @@ export async function createPortraitShot(g,atlas,shot){
   const glyphIndex=atlas.info.glyphs.find(x=>x.group==="cn-kai"&&x.text==="口").i;
   const [ka,kb]=atlas.info.groupRanges["cn-kai"],[wa,wb]=atlas.info.groupRanges["world-ancient"];
   const basis=v=>[-v[0],v[1],-v[2]],params=new Float32Array(56);
-  let roomReady=false;
+  let windowScene;
   const still=new URLSearchParams(location.search).has("t");
   function prepareRoom(){
-    if(roomReady)return;
-    const windowScene=createWindowScene(g,post,makeWindowText(device),atlas,false);
-    windowScene.draw(55.92,room);roomReady=true;
+    if(windowScene)return;
+    windowScene=createWindowScene(g,post,makeWindowText(device),atlas,!!shot.continueIntoWindows);
+    if(shot.continueIntoWindows)windowScene.draw(62.1,room);
+    windowScene.draw(55.92,room);
   }
   // Compile and draw the destination before the soundtrack can start. Preparing
   // it halfway through this short shot can skip the whole exchange of looks.
@@ -75,6 +76,7 @@ export async function createPortraitShot(g,atlas,shot){
   }
   return {draw(t){
     if(t>=53.)prepareRoom();
+    if(shot.continueIntoWindows && t>=55.92){windowScene.draw(t);return;}
     const cam=shot.camera(t,W/H),[x,y,z]=cam.eye;
     params.set([FIG.x-x*FIG.s,(y-riverLevel)*FIG.s,FIG.z-z*FIG.s,t],0);
     params.set([...basis(cam.r),Math.tan(cam.fov/2),...basis(cam.up),W/H,...basis(cam.f),1],4);
