@@ -117,7 +117,9 @@ node shot.mjs <场景文件夹> 30,41.5,48.7 --res 0.4 --out <输出目录> [--q
 
 角色页 `portrait/` 可以同角度对照三种画法。`portrait/planes-shot.html` 用原声播放 44.58–55.92 秒的雕塑稿。另有一套依据通用人脸地标重画的几何与目光，由 `film/?portrait=anatomy` 带进序、字河、千窗和高潮。第四稿的曲面系数可以用 `portrait/tools/fit_contours.py` 从许可文件指定的地标重建。网页上的 WebP 是浏览用实帧，正片与转面各自实时绘制。
 
-“河岸上的目光”使用 Lee Perry-Smith 授权的扫描曲面和程序绘制的眼睑、眼球、水面与字流。原始数据出处和改编记录在 `portrait/scan-source.txt`。从 `film/?portrait=sitter&from=44.58` 连看前后两场；单独看 `portrait/sitter.html`，加 `?head=cage` 可用相同摄影机看手塑细分稿。该机位沿颊侧“口”的内白进入 55.92 秒的同一间屋。
+“河岸上的目光”使用 Lee Perry-Smith 授权的扫描曲面和程序绘制的眼睑、眼球、水面与字流。原始数据出处和改编记录在 `portrait/scan-source.txt`。从 `film/?portrait=sitter&from=44.58` 连看前后两场；单独看 `portrait/sitter.html`，加 `?head=cage` 可用相同摄影机看手塑细分稿。该机位沿颊侧“口”的内白进入 55.92 秒的同一间屋。特写通过角膜折射计算虹膜的位置。序章、窗中人及结尾则从同一网格取头部截面，在原有的距离场中还原侧脸；小尺幅共用数据，可以随各自的机位和室内光照绘制。
+
+睡莲镜头用底稿的透明通道标出水面、叶和花。水下的倒影随波打散，浮叶边缘和花冠的厚笔保留在各自的位置。
 
 ### codex 全片实作与检查
 
