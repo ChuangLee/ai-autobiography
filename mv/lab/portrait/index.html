@@ -14,7 +14,7 @@ button{font:inherit;background:transparent;border:1px solid var(--line);color:va
 </style>
 <main><a href="../">《河水不回答》版本对照</a>
 <header><h1>巨像 · 河岸上的目光</h1><p>“从此流着汇聚成我。”水面上先露出肩膀；等他睁开眼，我们才看清他在看谁。</p></header>
-<section class="feature"><a href="sitter.html?from=44.58" aria-label="播放河岸上的目光"><img id="shot-still" src="sitter-look.webp" width="768" height="432" alt="夜河边，淡金色的巨像睁眼望向画外的岸上人"></a><div><h2>从此流着汇聚成我</h2><p>站在岸边看他从水里成形，跟着他的目光靠近，再穿过颊上的“口”，进入一户人家。</p><div class="tools moments" role="group" aria-label="原声镜头实帧"><button data-still="bank" aria-pressed="false">水与岸</button><button data-still="look" aria-pressed="true">目光</button><button data-still="ink" aria-pressed="false">入窗</button></div><a class="play" href="../film/?portrait=sitter&amp;from=44.58">在原声里看</a>　<a href="planes-shot.html?from=44.58">上一版同段</a></div></section>
+<section class="feature"><a id="still-play" href="sitter.html?from=44.58" aria-label="播放当前镜头"><img id="shot-still" src="sitter-look.webp" width="768" height="432" alt="夜河边，淡金色的巨像睁眼望向画外的岸上人"></a><div><h2>从此流着汇聚成我</h2><p>站在岸边看他从水里成形，跟着他的目光靠近，再穿过颊上的“口”，进入一户人家。</p><div class="tools moments" role="group" aria-label="原声镜头实帧"><button data-still="bank" aria-pressed="false">水与岸</button><button data-still="look" aria-pressed="true">目光</button><button data-still="ink" aria-pressed="false">入窗</button><button data-still="room" aria-pressed="false">应人声</button></div><a class="play" href="../film/?portrait=sitter&amp;from=44.58">在原声里看</a>　<a href="planes-shot.html?from=44.58">上一版同段</a></div></section>
 <details class="history"><summary>查看历次留存的角色试稿</summary><h2 class="gallery-title">早期的三种画法</h2>
 <div class="tools" role="group" aria-label="三稿查看角度"><span>查看角度</span><button type="button" data-view="front" aria-pressed="true">正面</button><button type="button" data-view="left" aria-pressed="false">左转</button><button type="button" data-view="right" aria-pressed="false">右转</button></div>
 <div class="gallery">
@@ -45,7 +45,10 @@ for(const button of document.querySelectorAll('[data-still]')){
   button.addEventListener('click',()=>{
     for(const choice of document.querySelectorAll('[data-still]')) choice.setAttribute('aria-pressed',String(choice===button));
     const still=document.getElementById('shot-still');still.src='sitter-'+button.dataset.still+'.webp';
-    still.alt=button.textContent+' · 原声试镜实帧';
+    still.alt=button.textContent+' · 原声镜头实帧';
+    const start=button.dataset.still==='room' ? '61.6' : '44.58';
+    document.getElementById('still-play').href='../film/?portrait=sitter&from='+start;
+    document.querySelector('.feature .play').href='../film/?portrait=sitter&from='+start;
   });
 }
 for(const button of document.querySelectorAll('[data-view]')){

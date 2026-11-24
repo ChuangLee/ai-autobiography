@@ -1,7 +1,10 @@
 // Keep the published take available while the proposed head is being reviewed.
-export const portraitStudy = new URLSearchParams(globalThis.location?.search).get("portrait") === "anatomy";
+const portraitVersion = new URLSearchParams(globalThis.location?.search).get("portrait");
+const measuredSitter = portraitVersion === "sitter";
+export const portraitStudy = measuredSitter || portraitVersion === "anatomy";
 const [study, body] = portraitStudy ? await Promise.all([
-  import("../portrait/anatomy.wgsl.js"), import("../portrait/body.wgsl.js"),
+  measuredSitter ? import("../portrait/sitter-shell.js") : import("../portrait/anatomy.wgsl.js"),
+  import("../portrait/body.wgsl.js"),
 ]) : [null, null];
 const TORSO = `
 fn figureEll(p:vec3f, r:vec3f)->f32{ let k0=length(p/r); let k1=length(p/(r*r)); return k0*(k0-1.)/max(k1,1e-5); }
@@ -74,6 +77,11 @@ fn headSd(q:vec3f)->f32{
 export const BUST = `const anatomyStudy=${portraitStudy};
 ` + TORSO + (body?.BODY ?? "") + (study?.HEAD ?? PRIOR_HEAD) + `
 fn headQ(q:vec3f)->vec3f{ let a=.19; let v=q-vec3f(0.,1.72,.02); return vec3f(v.x, v.y*cos(a)-v.z*sin(a), v.y*sin(a)+v.z*cos(a))+vec3f(0.,1.72,.02); }
+${measuredSitter ? `fn sitterHeadOnly(p:vec3f)->f32{
+  let y=p.y-.85;let a=.10*smoothstep(1.05,1.78,y);
+  let x=p.x*cos(a)+p.z*sin(a);let z=p.z*cos(a)-p.x*sin(a);
+  return headSd(headQ(vec3f(x,y-.055*x*(1.-smoothstep(1.04,1.55,y)),z)));
+}` : ""}
 fn bust(p:vec3f)->f32{ var q=p; q.y-=.85;
   if(anatomyStudy){
     let turn=.10*smoothstep(1.05,1.78,q.y);
@@ -81,7 +89,9 @@ fn bust(p:vec3f)->f32{ var q=p; q.y-=.85;
     q.y-=.055*q.x*(1.-smoothstep(1.04,1.55,q.y));
   }
   ${body ? `if(q.y<1.2){return emergingTorso(q);}` : ""}
-  q.x=abs(q.x); if(q.y<1.2){ return torsoSd(q); } if(q.y>2.12){ return headSd(headQ(q)); } return figureUnion(torsoSd(q),headSd(headQ(q)),.10); }
+  ${measuredSitter ? `let head=headQ(q);q.x=abs(q.x);
+  if(q.y>2.12){return headSd(head);}return figureUnion(torsoSd(q),headSd(head),.10);` :
+  `q.x=abs(q.x); if(q.y<1.2){ return torsoSd(q); } if(q.y>2.12){ return headSd(headQ(q)); } return figureUnion(torsoSd(q),headSd(headQ(q)),.10);`} }
 fn bustN(p:vec3f)->vec3f{ let e=vec2f(.004,-.004); return normalize(e.xyy*bust(p+e.xyy)+e.yyx*bust(p+e.yyx)+e.yxy*bust(p+e.yxy)+e.xxx*bust(p+e.xxx)); }
 `;
 export const GAZE = study?.GAZE ?? `

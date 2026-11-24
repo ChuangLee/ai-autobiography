@@ -1,5 +1,7 @@
 // The visitor's coat, hands and weight-bearing foot use room metres. The head
 // alone returns to the shared giant's coordinates, including its eye material.
+const sitter = new URLSearchParams(globalThis.location?.search).get("portrait") === "sitter";
+const gesture = sitter ? await import("./visitor-sitter.js") : null;
 export const ATTENTIVE_VISITOR = `
 fn visitorBody(p:vec3f)->vec3f { return p*.252+vec3f(0.,.78,0.); }
 fn visitorHead(model:vec3f)->vec3f {
@@ -14,7 +16,7 @@ fn visitorLimb(p:vec3f,a:vec3f,b:vec3f,r0:f32,r1:f32)->f32{
   let ba=b-a;let h=clamp(dot(p-a,ba)/dot(ba,ba),0.,1.);
   return length(p-a-ba*h)-mix(r0,r1,h);
 }
-fn visitorHands(p:vec3f)->f32{
+${gesture?.WINDOW_HANDS ?? `fn visitorHands(p:vec3f)->f32{
   // One palm turns towards the writer. The other supports the forearm.
   var d=visitorLimb(p,vec3f(-.110,1.067,-.201),vec3f(-.072,1.097,-.220),.025,.030);
   d=figureUnion(d,visitorLimb(p,vec3f(-.074,1.096,-.220),vec3f(-.003,1.102,-.229),.029,.017),.012);
@@ -22,7 +24,7 @@ fn visitorHands(p:vec3f)->f32{
   var lower=visitorLimb(p,vec3f(.027,1.025,-.206),vec3f(-.039,1.034,-.225),.026,.030);
   lower=figureUnion(lower,visitorLimb(p,vec3f(-.039,1.034,-.225),vec3f(-.097,1.057,-.214),.030,.019),.012);
   return min(d,lower);
-}
+}`}
 fn attentiveDistance(model:vec3f)->f32{
   let p=visitorBody(model);
   let outside=max(abs(p-vec3f(0.,.847,-.026))-vec3f(.318,.874,.277),vec3f(0.));
@@ -42,10 +44,17 @@ fn attentiveDistance(model:vec3f)->f32{
   d=figureUnion(d,collar,.016);
   if(p.y>1.262){
     let neck=visitorLimb(p,vec3f(-.013,1.312,-.029),vec3f(-.014,1.454,-.026),.060,.058);
-    let face=max(bust(visitorHead(model))*.248,1.388-p.y);
+    ${sitter ? `let head=sitterHeadOnly(visitorHead(model))*.248;
+    // Below the mastoid, the scan spreads toward the shoulders. Let the back
+    // roll into the coat's neck opening, preserving the scan under the chin.
+    let posterior=smoothstep(-.024,.025,p.z);
+    let radius=.061+.102*smoothstep(1.387,1.494,p.y);
+    let nape=length(vec2f((p.x+.013)*.88,max(p.z+.030,0.)*1.15))-radius-.20*(1.-posterior);
+    let face=-figureUnion(-head,-nape,.006);`
+  : "let face=max(bust(visitorHead(model))*.248,1.388-p.y);"}
     d=figureUnion(d,figureUnion(neck,face,.013),.013);
   }
-  if(p.y>.92 && p.y<1.39){
+${gesture?.WINDOW_SLEEVES ?? `  if(p.y>.92 && p.y<1.39){
     let shoulderR=vec3f(.143,1.245,-.019); let elbowR=vec3f(.260,1.048,-.036);
     var arms=visitorLimb(p,shoulderR,elbowR,.064,.047);
     arms=figureUnion(arms,visitorLimb(p,elbowR,vec3f(.039,1.024,-.204),.048,.034),.025);
@@ -54,7 +63,7 @@ fn attentiveDistance(model:vec3f)->f32{
     sleeve=figureUnion(sleeve,visitorLimb(p,elbowL,vec3f(-.117,1.065,-.196),.047,.034),.021);
     d=figureUnion(d,min(arms,sleeve),.037);
     d=figureUnion(d,visitorHands(p),.009);
-  }
+  }`}
   if(p.y<.718){
     // The near foot carries the weight. A relaxed knee comes half a step forward.
     let rightHip=vec3f(.079,.685,.010); let rightKnee=vec3f(.098,.371,.028); let rightFoot=vec3f(.113,.093,.038);

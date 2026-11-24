@@ -1,5 +1,7 @@
 // 千窗 → 粼光: one fragment shader. A ray-cast ink city (grid traversal, interiors up close), a far field of light points,
 // and a moonlit sea; the same points of light serve as windows and as glints, and `u.s` carries the city into the water.
+const neighbour = new URLSearchParams(globalThis.location?.search).get("portrait") === "sitter"
+  ? (await import("./visitor-sitter.js")).NEIGHBOUR_SITTER : "";
 export const WGSL = /* wgsl */`
 struct U { res:vec2f, t:f32, tw:f32,
   ro:vec3f, s:f32,
@@ -98,13 +100,13 @@ fn interior(o2:vec2f, dl:vec3f, h:vec3f, st:f32, hero:f32)->vec3f{
     col=mix(col,PAPER*(.01+.16*rim)+GOLD*.5*u.misc3.x*smoothstep(-.05,0.,sd)*smoothstep(.3,-.2,(p.x-px)*flip)*step(.8,p.y),a); }
   // the one who answers, standing beside them: a robed figure of gold grains, and its light on the room
   if(u.misc3.x>.001){ let fx=.92*flip; col+=GOLD*u.misc3.x*.5*alb/(dot(q-vec3f(fx,1.2,1.6),q-vec3f(fx,1.2,1.6))+.5);
-    let tf=1.62/d.z; if(tf<tr){ let p=o.xy+d.xy*tf-vec2f(fx,0.); var sd=length(p-vec2f(-.02*flip,1.57))-.1;
+    let tf=1.62/d.z; if(tf<tr){ let p=o.xy+d.xy*tf-vec2f(fx,0.); ${neighbour || `var sd=length(p-vec2f(-.02*flip,1.57))-.1;
       sd=smin(sd,sdSeg(p,vec2f(-.17,1.36),vec2f(.17,1.36))-.075,.05); sd=smin(sd,sdSeg(p,vec2f(0.,1.3),vec2f(0.,.95))-.15,.06);
       let limb=vec2f(abs(p.x),p.y);
       sd=smin(sd,sdSeg(limb,vec2f(.084,.98),vec2f(.11,.085))-.061,.07);
       sd=smin(sd,sdSeg(limb,vec2f(.18,1.36),vec2f(.23,.88))-.052,.04);
       sd=smin(sd,sdSeg(p,vec2f(0.,1.39),vec2f(0.,1.51))-.048,.022);
-      let gr=.54+.36*smoothstep(-.18,.15,-p.x*flip)+.15*vnoise(p*24.+h.xy*50.); let a=smoothstep(.02,-.03,sd); col+=GOLD*u.misc3.x*(.8*a*gr*smoothstep(-.02,.5,p.y)+.04*exp(-max(sd,0.)*9.)); } }
+      let gr=.54+.36*smoothstep(-.18,.15,-p.x*flip)+.15*vnoise(p*24.+h.xy*50.); let a=smoothstep(.02,-.03,sd); col+=GOLD*u.misc3.x*(.8*a*gr*smoothstep(-.02,.5,p.y)+.04*exp(-max(sd,0.)*9.));`} } }
   return col*st; }
 
 struct Fac{ col:vec3f, em:f32 }

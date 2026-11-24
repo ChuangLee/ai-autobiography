@@ -30,3 +30,13 @@ To reproduce, use Python with numpy, scipy, numba and Pillow (WebP support).
 Download the three files above from the r180 directory and run inside portrait/:
 
 python3 tools/pack_sitter.py LeePerrySmith.glb sitter-scan.bin --relief Infinite-Level_02_Tangent_SmoothUV.jpg Infinite-Level_02_Disp_NoSmoothUV-4096.jpg sitter-detail.webp
+
+sitter-shell-data.js is a compact geometric derivative for the river, smaller
+windows, their reflections and the painted coda. The offline fit intersects the
+aligned scan with 73 horizontal planes and 96 rays per plane. Three 10-bit
+radii share each 32-bit word. A periodic cubic B-spline reconstructs the
+asymmetric head and its local slope. The very top uses a smoothly joined
+ellipsoid fitted to the uppermost scan vertices. Below the jaw, the back of
+the scanned neck tapers inside the existing costume collar. Reproduce with:
+
+python3 tools/fit_sitter_shell.py sitter-scan.bin sitter-shell-data.js
