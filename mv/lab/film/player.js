@@ -3,17 +3,20 @@
 // prepare in the second slot shortly before the boundary.
 import { loadSong, clamp } from "../lib.js";
 
+const params = new URLSearchParams(location.search), still = params.has("t");
+const riverPortrait = params.get("portrait") === "sitter";
 const chapters = [
-  [0, "prelude"], [18.9, "river"], [55.92, "windows"], [88.4, "verse3"],
+  [0, "prelude"], [18.9, "river"], ...(riverPortrait ? [[44.58, "sitter", "../portrait/sitter.html"]] : []), [55.92, "windows"], [88.4, "verse3"],
   [111.83, "dive"], [154.6, "verse4"], [192.7, "bridge"], [223, "finale"],
 ];
 const $ = id => document.getElementById(id);
 const stage = $("stage"), cover = $("cover"), start = $("start"), toggle = $("toggle"), track = $("track"), status = $("status");
 const audio = new Audio();
 audio.preload = "auto";
-const params = new URLSearchParams(location.search), still = params.has("t");
 let duration = 263.63, current = null, spare = null, outgoing = null, retirement = 0;
 let wanted = false, busy = true, dragging = false, position = 0, revision = 0, idleTimer;
+let riverJoin = null;
+const riverJoinSeconds = .52;
 const chapterAt = t => chapters.findLastIndex(([begin]) => t >= begin);
 const format = t => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
 const displayTime = t => {
@@ -51,6 +54,7 @@ function release(slot) {
   slot.frame.remove();
 }
 function retire() {
+  if (riverJoin) { riverJoin.frame.style.opacity = 1; riverJoin = null; }
   clearTimeout(retirement);
   release(outgoing); outgoing = null;
 }
@@ -62,7 +66,7 @@ function allocate(index) {
   frame.tabIndex = -1;
   frame.setAttribute("aria-hidden", "true");
   frame.title = chapters[index][1];
-  const url = new URL("../" + chapters[index][1] + "/", location.href);
+  const url = new URL(chapters[index][2] ?? "../" + chapters[index][1] + "/", location.href);
   // River grid is a scale factor. The dive's grid is an absolute cell count.
   const localGrid = chapters[index][1] + "Grid";
   for (const [key, value] of params) {
@@ -118,15 +122,36 @@ function prepare(slot, t) {
   slot.task = work.finally(() => { if (slot.job === job) slot.working = false; });
   return slot.task;
 }
-function show(slot, dissolve) {
-  if (slot === current) return;
+// The witness in the two river views occupies the same mark. Let the current
+// carry across on the song clock, so pausing or a dropped frame cannot leave a
+// second silhouette behind the listener after the new camera starts to climb.
+function mixRiver(t) {
+  const u = clamp((t - chapters[riverJoin.index][0]) / riverJoinSeconds, 0, 1);
+  if (u === 1) { retire(); return; }
+  riverJoin.frame.style.opacity = u * u * (3 - 2 * u);
+}
+function show(slot, dissolve, t, continuous = false) {
+  if (slot === current) {
+    if (riverJoin) mixRiver(t);
+    return;
+  }
   retire();
   const previous = current;
   if (slot === spare) spare = null;
   current = slot;
   slot.frame.style.zIndex = 1;
   slot.frame.style.opacity = 1;
-  if (previous && dissolve) {
+  const [begin, name] = chapters[slot.index];
+  const enteringRiver = riverPortrait && name === "sitter";
+  const enteringRoom = riverPortrait && previous && chapters[previous.index][1] === "sitter"
+    && name === "windows";
+  if (enteringRiver && previous && dissolve && chapters[previous.index][1] === "river"
+      && (continuous || previous.time >= begin - .45) && t < begin + riverJoinSeconds) {
+    outgoing = previous;
+    outgoing.frame.style.zIndex = 0;
+    riverJoin = slot;
+    mixRiver(t);
+  } else if (previous && dissolve && !enteringRiver && !enteringRoom) {
     outgoing = previous;
     previous.frame.style.zIndex = 0;
     slot.frame.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 850, easing: "ease-in-out" });
@@ -139,7 +164,7 @@ async function resume() {
   try { await audio.play(); }
   catch (error) { if (error.name !== "AbortError" && wanted) report("点击继续播放 · " + error.message); }
 }
-async function seek(time, dissolve = true) {
+async function seek(time, dissolve = true, continuous = false) {
   const target = clamp(Number.isFinite(time) ? time : 0, 0, duration), request = ++revision;
   audio.pause();
   busy = true; position = target; displayTime(target); controls();
@@ -150,7 +175,7 @@ async function seek(time, dissolve = true) {
   try {
     if (!await prepare(slot, target) || request !== revision) return;
     audio.currentTime = target;
-    show(slot, dissolve && !still); captions(slot, target);
+    show(slot, dissolve && !still, target, continuous); captions(slot, target);
     window.__err = ""; status.textContent = ""; busy = false; controls();
     if (wanted) await resume();
   } catch (error) {
@@ -160,7 +185,7 @@ async function seek(time, dissolve = true) {
     throw error;
   }
 }
-function go(t) { seek(t).catch(() => {}); }
+function go(t, continuous = false) { seek(t, true, continuous).catch(() => {}); }
 function togglePlay() {
   if (wanted) {
     wanted = false; audio.pause();
@@ -177,11 +202,12 @@ function updateFrame() {
   const t = clamp(audio.currentTime, 0, duration), index = chapterAt(t);
   if (index !== current.index) {
     if (spare?.index !== index || !Number.isFinite(spare.time) || spare.error || !spare.api.frame(t)) {
-      go(t); return;
+      go(t, true); return;
     }
-    spare.time = t; show(spare, true);
-  } else if (current.time !== t && !current.api.frame(t)) {
-    go(t); return;
+    spare.time = t; show(spare, true, t, true);
+  } else {
+    if (current.time !== t && !current.api.frame(t)) { go(t); return; }
+    if (riverJoin) mixRiver(t);
   }
   current.time = position = t;
   captions(current, t); displayTime(t);

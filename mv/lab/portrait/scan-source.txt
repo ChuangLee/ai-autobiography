@@ -1,0 +1,32 @@
+LPS Head — © I-R Entertainment Ltd. Head scan by Lee Perry-Smith, Infinite-Realities.
+License: Creative Commons Attribution 3.0 Unported
+https://creativecommons.org/licenses/by/3.0/
+Original credit and archive: https://casual-effects.com/g3d/data10/
+Redistribution: https://github.com/mrdoob/three.js/tree/r180/examples/models/gltf/LeePerrySmith
+
+Upstream geometry inputs and SHA-256 digests:
+LeePerrySmith.glb
+402b8a8ac9f03232e6d64b5962929703a069daf99d3c49ac8eb0e48bedc9c576
+Infinite-Level_02_Tangent_SmoothUV.jpg
+36925e51ad9b324b94e8faf4692da1b4132809f2762bb8d5bd549ffd215d4ca6
+Infinite-Level_02_Disp_NoSmoothUV-4096.jpg
+937dea3ab1adea4624c9743ea0653fcb022235e6dcdebfb6e739b93f9d2a5cef
+
+Changes for 河水不回答: aligned and quantized the surface, encoded its smooth
+normals and UV coordinates, and integrated angular visibility on the mesh.
+The eyelid margins are fitted to separate measured curves on each side. The
+gaze is ray-traced through a curved cornea to a recessed iris. Eyelid and brow
+motion, breath, pose and incident light are animated in code. The gold skin color and its reflectance are authored in code.
+
+sitter-detail.webp stores three signed components of a rest-pose surface normal
+correction. It combines the supplied tangent-space normal field with the fine
+spatial frequencies of the supplied scalar displacement field. The offline bake
+transforms these measurements through the UV metric and the model alignment.
+Facial and auricular relief retains the native 1536-square bake density. A
+smooth transition to lower frequencies covers the shoulders and back of the head.
+The renderer samples the data in linear color space with mip filtering.
+
+To reproduce, use Python with numpy, scipy, numba and Pillow (WebP support).
+Download the three files above from the r180 directory and run inside portrait/:
+
+python3 tools/pack_sitter.py LeePerrySmith.glb sitter-scan.bin --relief Infinite-Level_02_Tangent_SmoothUV.jpg Infinite-Level_02_Disp_NoSmoothUV-4096.jpg sitter-detail.webp

@@ -1,11 +1,11 @@
-import {M4, NOISE, FS_VS, Post, shader, sm, norm, cross, sub} from "../lib.js";
+import {M4, NOISE, FS_VS, sm, norm, cross, sub} from "../lib.js";
 import {BG_FS, OVER_FS} from "../river/draw.js";
 import {COMMON, STATUE} from "../river/sim.js";
 import {BUST, GAZE} from "../river/figure.js";
-import {FIG, MOUTH, buildWorld, cxf} from "../river/world.js";
-import {createWindowScene, makeWindowText} from "../windows/scene.js";
-import {makePlanesMesh, chestPoint} from "./planes-mesh.js";
-import {planesPose, planesPaint, planesInscription} from "./planes.js";
+import {FIG, cxf} from "../river/world.js";
+import {createPortraitShot} from "./shot-renderer.js";
+import {makePlanesMesh} from "./planes-mesh.js";
+import {planesPose, planesPaint} from "./planes.js";
 
 const riverLevel=-1.78, walker=[cxf(192)-16.5,0,192];
 const bankX=(FIG.x-walker[0])/FIG.s;
@@ -150,85 +150,14 @@ function shoulder(t,dx,dy){
   const cy=y+.88,cz=z+.13,r=cy*Math.sin(p)+cz*Math.cos(p);
   return [x*Math.cos(a)+r*Math.sin(a),-.88+cy*Math.cos(p)-cz*Math.sin(p),-.13-x*Math.sin(a)+r*Math.cos(a)];
 }
-export async function createPlanesShot(g,atlas){
-  const {device,W,H,format}=g,q=device.queue;
-  const post=new Post(g),hdrFormat="rgba16float";
-  const makeUniform=size=>device.createBuffer({size,usage:GPUBufferUsage.UNIFORM|GPUBufferUsage.COPY_DST});
-  const group=(pipeline,resources)=>device.createBindGroup({layout:pipeline.getBindGroupLayout(0),entries:resources.map((resource,binding)=>({binding,resource}))});
-  const tex=()=>device.createTexture({size:[W,H],format,usage:GPUTextureUsage.RENDER_ATTACHMENT|GPUTextureUsage.TEXTURE_BINDING}).createView();
-  const link=(module,fmt,depthStencil,blend,buffers=[])=>device.createRenderPipeline({layout:"auto",vertex:{module,entryPoint:"vs",buffers},fragment:{module,entryPoint:"fs",targets:[{format:fmt,blend}]},depthStencil});
-  const alpha={color:{srcFactor:"src-alpha",dstFactor:"one-minus-src-alpha"},alpha:{srcFactor:"one",dstFactor:"one-minus-src-alpha"}};
-  const stage=tex(),room=tex(),mesh=makePlanesMesh(),ink=await planesInscription(device);
-  const lin=device.createSampler({minFilter:"linear",magFilter:"linear"});
-  const world=buildWorld(64,256,atlas.info);
-  function uploadTexture(data){
-    const texture=device.createTexture({size:[64,256],format:"rgba8unorm",usage:GPUTextureUsage.COPY_DST|GPUTextureUsage.TEXTURE_BINDING});
-    q.writeTexture({texture},data,{bytesPerRow:256},[64,256]);return texture.createView();
-  }
-  function upload(data,usage){
-    const buffer=device.createBuffer({size:data.byteLength,usage:GPUBufferUsage.COPY_DST|usage});
-    q.writeBuffer(buffer,0,data);return buffer;
-  }
-  const chest=device.createTexture({size:[128,128],format:"rgba32float",usage:GPUTextureUsage.COPY_DST|GPUTextureUsage.TEXTURE_BINDING});
-  const surface=new Float32Array(128*128*4);
-  for(let y=0;y<128;y++)for(let x=0;x<128;x++)surface.set(chestPoint(x/127,-1.78+.86*y/127),(128*y+x)*4);
-  q.writeTexture({texture:chest},surface,{bytesPerRow:128*16},[128,128]);
-  const depth={format:"depth32float",depthWriteEnabled:true,depthCompare:"less"};
-  const vertex=upload(mesh.vertices,GPUBufferUsage.VERTEX),index=upload(mesh.indices,GPUBufferUsage.INDEX);
-  const drawRiver=link(shader(device,FS_VS+NOISE+COMMON+BUST+GAZE+STATUE+BG_FS,"墨山与水岸"),hdrFormat);
-  const drawWake=link(shader(device,WATER_VEIL,"水线前的薄雾"),hdrFormat,undefined,alpha);
-  const drawBank=link(shader(device,FS_VS+COMMON+OVER_FS,"岸上人"),hdrFormat,undefined,alpha);
-  const drawActor=link(shader(device,planesPaint,"汇聚成人"),hdrFormat,depth,alpha,[{arrayStride:40,attributes:[{shaderLocation:0,offset:0,format:"float32x3"},{shaderLocation:1,offset:12,format:"float32x3"},{shaderLocation:2,offset:24,format:"float32x2"},{shaderLocation:3,offset:32,format:"float32"}]}]);
-  const drawFlow=link(shader(device,FLOW,"河与锁骨上的文字"),hdrFormat,{...depth,depthWriteEnabled:false},alpha);
-  const drawPortal=link(shader(device,PORTAL,"肩上的口"),format);
-  const U=makeUniform(224),face=makeUniform(96),mirror=makeUniform(96),stream=makeUniform(112),portal=makeUniform(48);
-  const atlasView=atlas.tex.createView(),ridge=group(drawRiver,[{buffer:U},lin,uploadTexture(world.field),uploadTexture(world.deco),atlas.sampler,atlasView]);
-  const wake=group(drawWake,[{buffer:U}]);
-  const person=group(drawBank,[{buffer:U}]),body=group(drawActor,[{buffer:face},ink.createView(),lin]);
-  const reflection=group(drawActor,[{buffer:mirror},ink.createView(),lin]);
-  const glyphs=group(drawFlow,[{buffer:stream},atlasView,atlas.sampler,chest.createView()]),join=group(drawPortal,[{buffer:portal},lin,stage,room,atlasView]);
-  const glyphIndex=atlas.info.glyphs.find(x=>x.group==="cn-kai"&&x.text==="口").i;
-  const [ka,kb]=atlas.info.groupRanges["cn-kai"],[wa,wb]=atlas.info.groupRanges["world-ancient"];
-  const basis=v=>[-v[0],v[1],-v[2]],params=new Float32Array(56);
-  let roomReady=false,queued=false;
-  const still=new URLSearchParams(location.search).has("t");
-  function prepareRoom(){
-    if(roomReady)return;
-    const windowScene=createWindowScene(g,post,makeWindowText(device),atlas,false);
-    windowScene.draw(55.92,room);roomReady=true;
-  }
-  return {draw(t){
-    if(t>=53.0)prepareRoom();
-    else if(!still&&!queued){
-      queued=true;
-      if(window.requestIdleCallback)window.requestIdleCallback(prepareRoom,{timeout:2700});
-      else setTimeout(prepareRoom,0);
-    }
-    const cam=camera(t,W/H),[x,y,z]=cam.eye;
-    params.set([FIG.x-x*FIG.s,(y-riverLevel)*FIG.s,FIG.z-z*FIG.s,t],0);
-    params.set([...basis(cam.r),Math.tan(cam.fov/2),...basis(cam.up),W/H,...basis(cam.f),1],4);
-    params.set([.6,85,.03,0,FIG.x,FIG.z,FIG.s,.3,0,MOUTH,1,.21,W,H,0,44.6],16);
-    params[39]=.6;params.set([...walker,1],44);params[50]=1-.70*sm(45.6,49.8,t);params[51]=1;
-    q.writeBuffer(U,0,params);
-    q.writeBuffer(face,0,new Float32Array([...cam.vp,...cam.eye,1,t,1,0,0]));
-    q.writeBuffer(mirror,0,new Float32Array([...cam.vp,...cam.eye,1,t,1,1,0]));
-    q.writeBuffer(stream,0,new Float32Array([...cam.vp,...cam.r,t,...cam.up,0,ka,kb-ka+1,wa,wb-wa+1]));
+function portalUniform(cam,t,W,H,glyphIndex){
     const pos=project(cam.vp,shoulder(t,0,0)),ri=project(cam.vp,shoulder(t,.12,0)),lo=project(cam.vp,shoulder(t,0,-.12));
-    q.writeBuffer(portal,0,new Float32Array([W,H,t,pos[2]>.05?1:0,pos[0],pos[1],glyphIndex,0,2*(ri[0]-pos[0]),2*(ri[1]-pos[1]),2*(lo[0]-pos[0]),2*(lo[1]-pos[1])]));
-    const enc=device.createCommandEncoder();
-    const pass=(view,loadOp,withDepth=false)=>enc.beginRenderPass({colorAttachments:[{view,loadOp,storeOp:"store",clearValue:[0,0,0,1]}],...(withDepth?{depthStencilAttachment:{view:post.depth,depthClearValue:1,depthLoadOp:"clear",depthStoreOp:"discard"}}:{})});
-    let p=pass(post.hdr,"clear");
-    p.setPipeline(drawRiver);p.setBindGroup(0,ridge);p.draw(3);p.end();
-    p=pass(post.hdr,"load",true);
-    if(t>44.9){p.setPipeline(drawActor);p.setVertexBuffer(0,vertex);p.setIndexBuffer(index,"uint32");if(t<50.5){p.setBindGroup(0,reflection);p.drawIndexed(mesh.indices.length);}p.setBindGroup(0,body);p.drawIndexed(mesh.indices.length);}
-    p.setPipeline(drawFlow);p.setBindGroup(0,glyphs);p.draw(6,1680);p.end();
-    if(t<50.3){
-      p=pass(post.hdr,"load");p.setPipeline(drawWake);p.setBindGroup(0,wake);p.draw(3);
-      if(t<49.){p.setPipeline(drawBank);p.setBindGroup(0,person);p.draw(3);}
-      p.end();
-    }
-    post.run(enc,stage,{bloom:.25,threshold:.86,knee:.4,tonemap:.87,exposure:1.0,grain:.019,vignette:.30,bars:1-sm(47.9,49.5,t),time:t});
-    p=pass(g.ctx.getCurrentTexture().createView(),"clear");p.setPipeline(drawPortal);p.setBindGroup(0,join);p.draw(3);p.end();
-    q.submit([enc.finish()]);
-  }};
+    return new Float32Array([W,H,t,pos[2]>.05?1:0,pos[0],pos[1],glyphIndex,0,2*(ri[0]-pos[0]),2*(ri[1]-pos[1]),2*(lo[0]-pos[0]),2*(lo[1]-pos[1])]);
+}
+export function createPlanesShot(g,atlas){
+  return createPortraitShot(g,atlas,{
+    camera, makeMesh:makePlanesMesh, paint:planesPaint, night:FS_VS+NOISE+COMMON+BUST+GAZE+STATUE+BG_FS,
+    water:WATER_VEIL, bank:FS_VS+COMMON+OVER_FS, flow:FLOW, portal:PORTAL, portalUniform, portalSize:48,
+    flowCount:1680, finish:{bloom:.25,threshold:.86,knee:.4,tonemap:.87,exposure:1,grain:.019,vignette:.30}
+  });
 }

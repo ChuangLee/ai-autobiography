@@ -117,6 +117,8 @@ node shot.mjs <场景文件夹> 30,41.5,48.7 --res 0.4 --out <输出目录> [--q
 
 角色页 `portrait/` 可以同角度对照三种画法。`portrait/planes-shot.html` 用原声播放 44.58–55.92 秒的雕塑稿。另有一套依据通用人脸地标重画的几何与目光，由 `film/?portrait=anatomy` 带进序、字河、千窗和高潮。第四稿的曲面系数可以用 `portrait/tools/fit_contours.py` 从许可文件指定的地标重建。网页上的 WebP 是浏览用实帧，正片与转面各自实时绘制。
 
+“河岸上的目光”使用 Lee Perry-Smith 授权的扫描曲面和程序绘制的眼睑、眼球、水面与字流。原始数据出处和改编记录在 `portrait/scan-source.txt`。从 `film/?portrait=sitter&from=44.58` 连看前后两场；单独看 `portrait/sitter.html`，加 `?head=cage` 可用相同摄影机看手塑细分稿。该机位沿颊侧“口”的内白进入 55.92 秒的同一间屋。
+
 ### codex 全片实作与检查
 
 - 全片入口 `film/` 用同一音轨从 0 播至 263.63 秒。序章、第一段、第二段、第三段、间奏、第四段、桥段、尾声依次在 0、18.9、55.92、88.4、111.83、154.6、192.7、223 秒交接。用 `film/?from=秒` 定位。低分辨率检查全片时可用 `res=.25&riverGrid=.125&diveGrid=20`，分别指定字河的网格倍率和水下的网格边长。播放器预备下一场，交接后释放旧场的 GPU 设备。
