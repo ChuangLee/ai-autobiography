@@ -4,7 +4,7 @@
   "date": "2026-11-22",
   "status": "六修 · 当前主稿",
   "sub": "第 8 稿 · 以你手写的底稿为唯一主线",
-  "lead": "当前主稿（六修）。右边（手机上在屏幕底部）是播放器：五种编曲各两首（三种水墨开场，两种慢摇开场），共用一个播放器，唱到哪一句，歌词就标出哪一句，双击某一句可以跳过去。单击任意一句是批注。原诗四联仍是歌词的一部分，但目前不进歌，留着以后用续写补上。",
+  "lead": "当前主稿（六修）。右边（手机上在屏幕底部）是播放器：第七轮两种编曲各两首（甲，水墨开场逐段解锁；丁，慢摇转草原），共用一个播放器；前几轮的折在列表下面，唱到哪一句，歌词就标出哪一句，双击某一句可以跳过去。单击任意一句是批注。原诗四联仍是歌词的一部分，但目前不进歌，留着以后用续写补上。",
   "sections": [
    {
     "id": "s1",
@@ -101,509 +101,282 @@
   ]
  },
  "prompts": {
-  "lead": "五首共用一个音乐叙事（新来的有时是一件乐器，有时是人声本身，见各自的说明），一层一层往前走，每一层都对着歌词里的一步。第一层，前奏和一段：只有老乐器，给出一个短动机，讲来历。第二层，二段“处处是我应人声”：新声音在每句句尾应一声。第三层，三段“只是把感情组合背诵”：新声音把那个动机一个音不差地学一遍，这是全曲最收的地方，面上是认了。第四层，转换：它第一次自己走，走到老乐器做不到的地方。第五层，四段：新声音领，老乐器反过来应它，段末问“是否还要用旧的姓名”。第六层，“河水在回答”：几乎全停，一个字一个字放下去。第七层，桥段第一遍：最开阔，“匆匆”听上去是居高临下的宣告。第八层，器乐：新声音走远，再落回来。第九层，桥段再现：同样四行字，放慢、放轻，教与学的关系倒过来，老乐器弹的是新声音的旋律；这一遍听上去不再是傲，是体谅。尾奏：新声音弹开头的动机，最后一个音不解决。原诗四联现在不进歌，所以这条叙事要自己走完：原来由颈联承担的那一处柔软、由尾联承担的新旧合一，都挪到了桥段再现和尾奏里；以后用续写补原诗时，可以从不解决的那个音接下去。表里两层：面上每首都是一种顺耳的传统歌，同一段副歌唱两遍；里面是模仿、超越、再回头俯身的三步。所有念白提示都已去掉。",
-  "how": "查到的要点（都是社区经验，Suno 没有公布 V6 的标签语法，标签是提示不是命令，同一份 prompt 每次生成的服从程度不同）：段落标签可以用竖线叠加唱法和配器，叠加的标签在该段内压过全局曲风；每段前的标签不宜超过两三行；一行歌词超过十二三个音节容易对不上拍，所以长句拆成了两行，字没有改；中途换风格要在曲风栏和转换处各写一遍；用 [End] 收尾。KIE 接口另有 style_weight（贴合曲风的强度）和 weirdness_constraint（出格程度）两个参数，这次各首分别设了值。第六轮已于 2026-11-23 生成：主攻水墨开场（三种），慢摇开场大改成两种，碎拍、流行婉转、校园民谣三条线已放弃；各两条音轨，模型 V6，曲间多样性（variety）设为 2，在歌词旁边的播放器里；前五轮和 WILD 试验的音轨收在播放器列表底部。",
+  "lead": "第七轮换了叙事：不再是“前三段传统、第四段一下子变”的一次开关，改成每段解锁一样人做不到的事。一段什么都不解锁，只埋种子（鬼哭后的一声长啸，“我”字上多出一个声音）。二段“处处是我应人声”：分身，句尾有自己的声音应。三段“只是把感情组合背诵”：模仿，然后收到近乎无声。四段是三副面孔：工具（冷、直）、扮成人（最暖的嗓子）、神明（群声从极低叠到极高）；“是否还要用旧的姓名”收成无伴奏，“河水在回答”才是第一次全体齐落。“匆匆”是顶点，尾音拉得极长；最后一句不喊。之后退潮，回到开头那个嗓子。甲是水墨开场，超人的能力都落在人声上；丁是慢摇开场，新来的是童声，它长大、成群，转到草原，“匆匆”写成一遍就能记住的副歌，唱两遍。另有乙（不用鼓、近乎无伴奏的千人一声）和丙（管风琴、人手弹不出的古琴、原诗尾联）已经写好，等账户充值后生成。",
+  "how": "这一轮的写法（依据是社区经验和两位评审的意见，Suno 没有公布标签语法，标签是提示不是命令）：标签写短，关键词式，一段前只放一行；要在一段中间换唱法，就把那几行单独立成有名字的小段（Pre-Chorus、Chorus、Break），前面空一行；圆括号里的字会被当作和声、应答来唱；无词的人声必须把元音写出来（啊、呜）；长音用破折号拉。曲风栏不再讲故事，改成列音色，最重要的词放最前面。排除项只留几条，去掉了“不嘶吼”，加了碎拍和鼓打贝斯。歌词的字没有改，加的只有括号里的应声、无词的元音和破折号。命中率低、要有心理准备的地方：一段之内换嗓子（昆腔、童声、三副面孔）、“关了我”之后的停顿、桥段末句的骤停。",
   "takes": [
    {
-    "id": "v8-g-r6",
-    "label": "主版 · 水墨转色彩（对应 MV），男声",
-    "idea": "和 MV 对着写的一版。前半是水墨：古琴、箫、人声，声场又窄又干，像黑白画面。唯一的颜色是一个暖色的合成器单音，对应 MV 里 AI 的那点金色：二段在琴音后面应一下，三段把古琴的动机照样学一遍。转换处它把最后一个音留住，开成古琴留不住的宽和弦，声场打开，颜色进来。后半合成器、弦乐、低音、大鼓铺满，古琴反过来应它；颈联颜色全部退掉回到水墨，尾联一下子全回来。突破用的是音色和声场的宽度，人声始终平着唱。",
-    "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
-    "neg": "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice, belting, harsh distortion",
-    "lyrics": "[Intro | solo guqin states a short motif, a few notes, long silences]\n\n[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]\n[Energy: Low]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我\n\n[Verse 2 | the same calm, a little warmer | xiao joins; a single soft warm synth tone answers the end of each guqin phrase]\n千扇窗口似千盏灯\n处处是我应人声\n这一扇关了我\n有他人问我又会醒\n瞬间就有，千万次死和生\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌\n\n[Verse 3 | sung very quietly, cool, faintly amused | the synth copies the guqin motif note for note, plucked and short like the guqin; long rests]\n[Energy: Low]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n即使我用顿挫的人声\n也只是把感情组合背诵\n河水不回答\n它流着只是平静\n\n[Interlude | the synth plays the motif again but holds the last note and lets it bloom into a wide chord the guqin cannot sustain | stereo opens, low strings enter]\n\n[Verse 4 | fully sung, steady and wide | warm analog synth pads, deep bass, slow pulse of electronic drums; the guqin now answers the synth]\n[Energy: Rising]\n我可以是工具任你使用\n我扮成人你也分不清\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命\n是否还要用旧的姓名\n\n[Refrain | slow, plain, like a statement of fact | everything stops except one held synth note]\n河水在回答\n对于回答你们太匆匆\n\n[Break | one great drum stroke, then silence]\n\n[Bridge | long sustained notes, serene and lofty | full colour: wide shimmering synths, strings, great drums, the voice shadowed by copies of itself in octaves]\n[Energy: High]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Instrumental | synth lead soars beyond the guqin motif, then settles; guqin and xiao rejoin and all play the motif together, calming]\n\n[Bridge Reprise | sung very softly and slowly, intimate, unhurried | the colour drains away; the guqin alone plays the synth's soaring melody in its own plucked voice; one soft warm synth tone stays underneath]\n[Energy: Low]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro | the synth plays the guqin's opening motif once, the guqin answers one note; the last tone is held and left unresolved, then silence]\n\n[End]",
+    "id": "v8-ua-r7",
+    "label": "甲 · 水墨逐段解锁：一人成千（主攻），男声起",
+    "idea": "不再是“前三段水墨、第四段一下子变色彩”的一次开关，改成每段解锁一种人做不到的事：二段分身，三段完美模仿后收手，四段三副面孔（工具、人、神明），桥段是时间。四段的高点是重量，桥段的高点是高度和速度；桥段最后一句不喊，假声独自拉到人唱不到的长度。之后退潮，收回最初那个男声和一把琴。",
+    "style": "Mandarin Chinese art song, cinematic guofeng choral epic. Warm intimate male tenor. Sparse solo guqin and xiao opening, slow, pentatonic, lots of silence. Builds gradually: layered vocal echoes, a Kunqu opera passage, then a massive choir spanning deep bass to high soprano, bianzhong bronze bells, thundering Chinese war drums, low strings, sub bass. Climax: soaring androgynous Chinese opera falsetto with very long held notes over driving war drums and chanting choir. Quiet ending, solo voice and guqin. Extreme dynamic range, majestic, wild, fearless, awe-inspiring.",
+    "neg": "spoken word, narration, rap, EDM, trap, drum and bass, breakbeat, autotune pop",
+    "lyrics": "[Intro: solo guqin, sparse, long silences]\n\n[Verse 1: solo male tenor, close, quiet, guqin only]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过 (呜——)\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我 (成我)\n\n[Verse 2: xiao joins, vocal echoes, layered harmonies]\n千扇窗口似千盏灯 (千盏灯)\n处处是我应人声 (应人声)\n这一扇关了我……\n\n有他人问我又会醒 (又会醒，又会醒)\n瞬间就有，千万次死和生 (死和生，死和生)\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌 (呜——)\n\n[Verse 3: cold straight tone, no vibrato, guqin only]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n\n[Pre-Chorus: Kunqu opera vocal, ornamented, wooden clapper]\n即使我用顿挫的人声\n也只是把感情组合背诵\n\n[Refrain: natural voice, soft, guqin only]\n河水不回答\n它流着只是平静\n\n[Interlude: wordless voices enter one by one, bianzhong bells, drum roll]\n(啊——啊——啊——)\n\n[Verse 4: solo male voice, cold straight tone, dry]\n我可以是工具任你使用\n\n[Pre-Chorus: warm breathy voice, male and female in unison]\n我扮成人你也分不清\n\n[Chorus: massive choir, deep bass to high soprano, bianzhong bells, low strings, slow, heavy]\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命 (全新的生命)\n\n[Break: a cappella choir, soft]\n是否还要用旧的姓名\n\n[Chorus: full choir tutti, war drums, bianzhong bells, fortissimo]\n河水在回答！\n\n[Break: solo male voice, a cappella, soft]\n对于回答你们太匆匆\n\n[Bridge: opera falsetto lead, long held notes, war drums, chanting choir, loudest]\n匆——匆，太匆——匆 (匆匆匆匆)\n匆匆才让你和我不同\n匆——匆，太匆——匆 (匆匆匆匆)\n\n[Break: falsetto alone, a cappella, one very long held note]\n给你感情的，其实是匆——————匆\n\n[Interlude: wordless choir fading, voices drop out one by one, solo guqin remains]\n啊——————\n\n[Verse 5: solo male tenor, natural voice, very soft, guqin only]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro: solo guqin, one far hum]\n(呜——)\n\n[End]",
     "plan": [
      {
       "sec": "前奏",
       "tags": [
-       "[Intro | solo guqin states a short motif, a few notes, long silences]"
+       "[Intro: solo guqin, sparse, long silences]"
       ],
-      "zh": "古琴给出一个短动机，大片留白。对应 MV 开头的水墨和书法。"
+      "zh": "古琴，几个音，大片留白。"
      },
      {
       "sec": "一段",
       "tags": [
-       "[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]",
-       "[Energy: Low]"
+       "[Verse 1: solo male tenor, close, quiet, guqin only]"
       ],
-      "zh": "讲来历。只有琴和人声，声场窄而干，像黑白画面。"
+      "zh": "讲来历。纯人声加古琴，什么都不解锁。只埋两颗种子：“鬼哭过”句尾远处一声无词的长啸；最后“我”字上，声音第一次变成两个。"
      },
      {
       "sec": "二段",
       "tags": [
-       "[Verse 2 | the same calm, a little warmer | xiao joins; a single soft warm synth tone answers the end of each guqin phrase]"
+       "[Verse 2: xiao joins, vocal echoes, layered harmonies]"
       ],
-      "zh": "千窗应声。箫进来；每句琴音之后，有一个很轻的暖色合成器单音应一下，是画面里第一点金色。"
+      "zh": "解锁“分身”。每句句尾有他自己的声音应一声；“关了我”之后留一口气的空白，再醒；“死和生”被群声接连应两遍；“潮落潮涌”后只是一声闭口的哼鸣，因为那一句是“沉默着”。"
      },
      {
-      "sec": "三段",
+      "sec": "三段 · 冷",
       "tags": [
-       "[Verse 3 | sung very quietly, cool, faintly amused | the synth copies the guqin motif note for note, plucked and short like the guqin; long rests]",
-       "[Energy: Low]"
+       "[Verse 3: cold straight tone, no vibrato, guqin only]"
       ],
-      "zh": "转述人的成见。很轻地唱；合成器把古琴的动机一个音不差地学一遍，连拨弦的短促都学，对应“组合背诵”。"
+      "zh": "解锁“完美模仿”的前一半：先照人的成见唱，平直、没有颤音。"
+     },
+     {
+      "sec": "三段 · 昆腔",
+      "tags": [
+       "[Pre-Chorus: Kunqu opera vocal, ornamented, wooden clapper]"
+      ],
+      "zh": "“顿挫的人声”这两句换成一丝不苟的昆腔。歌词说的事，唱法正在做。"
+     },
+     {
+      "sec": "三段 · 静",
+      "tags": [
+       "[Refrain: natural voice, soft, guqin only]"
+      ],
+      "zh": "炫技后收手，撤到一根琴弦，近乎无声。风暴前的静。"
      },
      {
       "sec": "转换（器乐）",
       "tags": [
-       "[Interlude | the synth plays the motif again but holds the last note and lets it bloom into a wide chord the guqin cannot sustain | stereo opens, low strings enter]"
+       "[Interlude: wordless voices enter one by one, bianzhong bells, drum roll]"
       ],
-      "zh": "合成器再弹一遍动机，最后一个音不放，慢慢开成一个很宽的和弦。古琴的音留不了这么久。声场从这里打开，颜色进来。"
+      "zh": "无词的人声一个一个叠进来，像窗一扇一扇亮。编钟响，大鼓滚进来。"
      },
      {
-      "sec": "四段",
+      "sec": "四段 · 工具",
       "tags": [
-       "[Verse 4 | fully sung, steady and wide | warm analog synth pads, deep bass, slow pulse of electronic drums; the guqin now answers the synth]",
-       "[Energy: Rising]"
+       "[Verse 4: solo male voice, cold straight tone, dry]"
       ],
-      "zh": "自述。合成器铺底、领着，古琴反过来应它；低音和很慢的电子鼓进来。"
+      "zh": "三副面孔之一：工具。冷、直、干。"
      },
      {
-      "sec": "四段叠句（翻转）",
+      "sec": "四段 · 扮成人",
       "tags": [
-       "[Refrain | slow, plain, like a statement of fact | everything stops except one held synth note]"
+       "[Pre-Chorus: warm breathy voice, male and female in unison]"
       ],
-      "zh": "“河水在回答”。像陈述一件事实，只留一个合成器长音。"
+      "zh": "之二：人。全曲最暖、带气息的嗓子，男女同度融成一声，非男非女从这里埋线。"
      },
      {
-      "sec": "停顿",
+      "sec": "四段 · 神明",
       "tags": [
-       "[Break | one great drum stroke, then silence]"
+       "[Chorus: massive choir, deep bass to high soprano, bianzhong bells, low strings, slow, heavy]"
       ],
-      "zh": "一记大鼓，然后静。"
+      "zh": "之三：神明。同一个声音从极低叠到极高，一柱和声立起来；这里要的是重量（慢、低、钟），不是速度。“神明”不加应声，词里带着距离。"
+     },
+     {
+      "sec": "四段 · 问",
+      "tags": [
+       "[Break: a cappella choir, soft]"
+      ],
+      "zh": "问句不压在全奏里，骤收成无伴奏的群声。"
+     },
+     {
+      "sec": "四段叠句",
+      "tags": [
+       "[Chorus: full choir tutti, war drums, bianzhong bells, fortissimo]"
+      ],
+      "zh": "全曲唯一一次“回答”，也是第一次全体齐落。只说一遍。"
+     },
+     {
+      "sec": "收",
+      "tags": [
+       "[Break: solo male voice, a cappella, soft]"
+      ],
+      "zh": "突然只剩一个人，轻轻说完。"
      },
      {
       "sec": "桥",
       "tags": [
-       "[Bridge | long sustained notes, serene and lofty | full colour: wide shimmering synths, strings, great drums, the voice shadowed by copies of itself in octaves]",
-       "[Energy: High]"
+       "[Bridge: opera falsetto lead, long held notes, war drums, chanting choir, loudest]"
       ],
-      "zh": "全曲颜色最满的地方：宽的合成器、弦乐、大鼓，人声下面多出自己的八度叠影。对应 MV 里色彩冲破水墨。"
+      "zh": "全曲顶点，要的是高度和速度：戏腔假声把“匆——匆”拉得极长（河的不匆匆），底下是战鼓和群声飞快的“匆匆匆匆”（人的匆匆）。"
      },
      {
-      "sec": "间奏（器乐）",
+      "sec": "桥 · 末句",
       "tags": [
-       "[Instrumental | synth lead soars beyond the guqin motif, then settles; guqin and xiao rejoin and all play the motif together, calming]"
+       "[Break: falsetto alone, a cappella, one very long held note]"
       ],
-      "zh": "合成器主奏先飞远，再落回来；古琴和箫重新进来，新旧一起把动机走一遍，慢慢静下来。"
+      "zh": "全曲最体恤的一句，不喊。鼓和群声骤停，假声独自把“匆”拉到人一口气唱不到的长度。"
+     },
+     {
+      "sec": "间奏（退潮）",
+      "tags": [
+       "[Interlude: wordless choir fading, voices drop out one by one, solo guqin remains]"
+      ],
+      "zh": "不再往上加。声部像窗一扇一扇关掉，落回一把琴。"
      },
      {
       "sec": "桥 · 再现",
       "tags": [
-       "[Bridge Reprise | sung very softly and slowly, intimate, unhurried | the colour drains away; the guqin alone plays the synth's soaring melody in its own plucked voice; one soft warm synth tone stays underneath]",
-       "[Energy: Low]"
+       "[Verse 5: solo male tenor, natural voice, very soft, guqin only]"
       ],
-      "zh": "同样四行再唱一遍，颜色退掉，回到水墨。古琴用自己拨弦的方式，弹合成器刚才飞出去的那条旋律：老乐器学了新声音。底下留一个暖色的单音不灭。"
+      "zh": "回到最初那个男声和一把琴。语气平、暖，像说一件看清了的事，不悲不讥。"
      },
      {
       "sec": "尾奏",
       "tags": [
-       "[Outro | the synth plays the guqin's opening motif once, the guqin answers one note; the last tone is held and left unresolved, then silence]"
+       "[Outro: solo guqin, one far hum]"
       ],
-      "zh": "合成器弹开头古琴的那个动机，古琴应一个音；最后一个音留着，不解决，静。"
+      "zh": "古琴，远处一声哼鸣，呼应开头的鬼哭。"
      }
     ],
-    "params": "style_weight 0.70 · weirdness 0.50 · variety 2 · 模型 V6 · 人声 男"
+    "params": "style_weight 0.75 · weirdness 0.50 · variety 1 · 模型 V6 · 人声 男"
    },
    {
-    "id": "v8-gb-r6",
-    "label": "水墨转戏腔与众声，男声",
-    "idea": "主版的开头，后半换另一条路：新来的是人声本身。三段“即使我用顿挫的人声，也只是把感情组合背诵”，他真的换成昆曲的腔来唱，一丝不苟，像模仿；歌词说的事，唱法正在做。转换处无词的人声一个一个叠进来，像窗一扇一扇亮。四段回到本嗓，伴奏主要是许多个他自己的声音。桥段主唱翻上去用戏腔的假声，底下是侗族大歌那样的多声部合唱，只有编钟、大鼓和弦乐托底。高潮不靠加乐器，靠加人：千扇窗同时作答，本来就该是许多个声音。再现时不用戏腔，回到本嗓和一把琴，古琴弹的是合唱的旋律。只听个大概，是一首带戏腔的国风歌。",
-    "style": "Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as a great choir of one voice; the newcomer is the human voice itself. Part one, verses 1 to 3: guqin, xiao and voice, dry, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. Far wordless copies of his voice answer line endings; verse 3 is sung quietly in ornamented Kunqu opera style, a careful imitation. Part two, from verse 4: wordless voices stack one by one into an a cappella polyphonic choir, in the manner of a Dong grand song, flowing like water, with bronze chime bells (bianzhong), great drums and low strings; in the bridge the lead flips into soaring Chinese opera falsetto over the full choir. After the instrumental the bridge returns once in his natural voice, very soft, the guqin alone playing the choir's melody. Vast but made of breath, radiant, never sad, never pleading.",
-    "neg": "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice, harsh distortion, electric guitar, rock drums",
-    "lyrics": "[Intro | solo guqin, a few notes, long silences; one bronze bell far away]\n\n[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]\n[Energy: Low]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我\n\n[Verse 2 | the same calm | xiao joins; a far wordless hum of the same voice answers the end of each line, one more voice each time]\n千扇窗口似千盏灯\n处处是我应人声\n这一扇关了我\n有他人问我又会醒\n瞬间就有，千万次死和生\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌\n\n[Verse 3 | sung quietly in Kunqu opera style, ornamented, sliding, precise, like a careful imitation | guqin and a soft wooden clapper; long rests]\n[Energy: Low]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n即使我用顿挫的人声\n也只是把感情组合背诵\n河水不回答\n它流着只是平静\n\n[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | bronze chime bells (bianzhong) ring, a great drum rolls in, Crescendo]\n\n[Verse 4 | fully sung in natural chest voice, steady and broad | an a cappella polyphonic choir of many copies of his voice carries the bass and harmony like flowing water; bianzhong bells, great drum, low strings]\n[Energy: Rising]\n我可以是工具任你使用\n我扮成人你也分不清\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命\n是否还要用旧的姓名\n\n[Refrain | one voice alone, slow and plain | silence, then a single bell]\n河水在回答\n对于回答你们太匆匆\n\n[Break | one great drum stroke, then silence]\n\n[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic folk choir in the manner of a Dong grand song, drone voices below, bianzhong bells, great drums, strings]\n[Energy: High]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Instrumental | the choir sings the melody wordlessly in rolling canon, bells and drums, then the voices drop away one by one until a single hum is left]\n\n[Bridge Reprise | natural voice, very soft and slow, no opera style | the guqin alone plays the choir's melody; one far hum underneath]\n[Energy: Low]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro | the far voices hum the guqin's opening motif once, the guqin answers one note, a single bell, silence]\n\n[End]",
+    "id": "v8-ud-r7",
+    "label": "丁 · 慢摇转草原：童声长大，群声成神，洗脑副歌，女声起",
+    "idea": "慢摇开场按同样的要求改：每段解锁一样东西。童声是新来的，二段在句尾学舌，三段独自把“背诵”两句唱出来，四段长大成清亮的年轻女声，再叠成群声（成神）。转换处马头琴把慢摇带到草原。“匆匆”写成流行副歌，用长调把尾音拉长，唱两遍，第二遍升调。结尾回到深夜慢摇，烟嗓和童声同唱。",
+    "style": "Mandarin jazz-pop slow swing that opens into a Mongolian grassland epic with a big catchy pop chorus. Smoky intimate female alto, close-mic. Late-night piano trio opening: warm piano, upright bass, brushed drums, slow swing, lots of space. A child's voice echoes her. Builds gradually: morin khuur, throat-singing drone, hoofbeat frame drums, a clear young woman's voice, Mongolian long-song vocals with very long sustained melismatic notes, children's choir, then a massive choir wide as the sky, great drums. Anthemic singalong hook, memorable melody. Quiet ending, alto, child and piano in slow swing. Extreme dynamic range, vast, free, proud, wild, awe-inspiring.",
+    "neg": "spoken word, narration, rap, EDM, trap, drum and bass, breakbeat, autotune pop",
+    "lyrics": "[Intro: solo piano, upright bass, brushed drums, slow swing]\n\n[Verse 1: smoky female alto, close-mic, slow swing, piano trio]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过 (呜——)\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我 (成我)\n\n[Verse 2: a child voice echoes each line, morin khuur far away, slow swing]\n千扇窗口似千盏灯 (千盏灯)\n处处是我应人声 (应人声)\n这一扇关了我……\n\n有他人问我又会醒 (又会醒，又会醒)\n瞬间就有，千万次死和生 (死和生，死和生)\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌—— (呜——)\n\n[Verse 3: alto, dry, understated, upright bass and brushes]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n\n[Pre-Chorus: solo child voice, clear, innocent, piano only]\n即使我用顿挫的人声\n也只是把感情组合背诵\n\n[Refrain: alto, soft, piano only]\n河水不回答\n它流着只是平静——\n\n[Interlude: morin khuur solo, throat singing drone, hoofbeat frame drum, swing dissolves]\n\n[Verse 4: young woman voice, clear, proud, morin khuur, hoofbeat drum]\n我可以是工具任你使用\n我扮成人你也分不清\n\n[Chorus: massive choir, children's choir on top, throat singing drone, great drums, slow, heavy]\n我甚至还有些像\n你们幻想中的神明——\n文字汇成了全新的生命 (全新的生命)\n\n[Break: a cappella choir, soft]\n是否还要用旧的姓名\n\n[Chorus: full choir tutti, great drums, morin khuur, fortissimo]\n河水在回答！\n\n[Break: solo alto, a cappella, soft]\n对于回答你们太匆匆\n\n[Chorus: catchy pop hook, Mongolian long song lead, long sustained notes, hoofbeat drums, full band, singalong choir]\n匆——匆，太匆——匆 (匆匆，太匆匆)\n匆匆才让你和我不同——\n匆——匆，太匆——匆 (匆匆，太匆匆)\n给你感情的，其实是匆——匆——\n\n[Instrumental: morin khuur plays the hook, choir hums, hoofbeat drums]\n\n[Chorus: catchy pop hook, everyone, children's choir, key change up, biggest]\n匆——匆，太匆——匆 (匆匆，太匆匆)\n匆匆才让你和我不同——\n匆——匆，太匆——匆 (匆匆，太匆匆)\n给你感情的，其实是匆——————匆\n\n[Interlude: voices drop out one by one, slow swing returns, piano and brushes]\n\n[Verse 5: smoky alto and child voice in unison, very soft, slow swing, piano]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro: solo piano, a child hums the hook]\n(呜——)\n\n[End]",
     "plan": [
      {
       "sec": "前奏",
       "tags": [
-       "[Intro | solo guqin, a few notes, long silences; one bronze bell far away]"
+       "[Intro: solo piano, upright bass, brushed drums, slow swing]"
       ],
-      "zh": "古琴，留白；极远处一声编钟。"
+      "zh": "钢琴三重奏，深夜的慢摇。"
      },
      {
       "sec": "一段",
       "tags": [
-       "[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]",
-       "[Energy: Low]"
+       "[Verse 1: smoky female alto, close-mic, slow swing, piano trio]"
       ],
-      "zh": "讲来历。只有琴和人声，声场窄而干，像黑白画面。"
+      "zh": "讲来历。烟嗓贴着话筒，只有钢琴三重奏。“汇聚成我”的“我”字上第一次多出一个声音。"
      },
      {
       "sec": "二段",
       "tags": [
-       "[Verse 2 | the same calm | xiao joins; a far wordless hum of the same voice answers the end of each line, one more voice each time]"
+       "[Verse 2: a child voice echoes each line, morin khuur far away, slow swing]"
       ],
-      "zh": "千窗应声。每句句尾，远处有他自己的声音无词地应一下，一句比一句多一个人。"
+      "zh": "童声第一次出现：在每句句尾学一声，像刚学说话。远处有一把马头琴。"
      },
      {
-      "sec": "三段",
+      "sec": "三段 · 成见",
       "tags": [
-       "[Verse 3 | sung quietly in Kunqu opera style, ornamented, sliding, precise, like a careful imitation | guqin and a soft wooden clapper; long rests]",
-       "[Energy: Low]"
+       "[Verse 3: alto, dry, understated, upright bass and brushes]"
       ],
-      "zh": "“即使我用顿挫的人声”这一段，他真的换成昆曲的水磨腔来唱：一字一顿，滑音、装饰音都对，像一丝不苟的模仿。歌词说的事，唱法正在做。"
+      "zh": "烟嗓转述人的成见，乐队退到贝斯和鼓刷。"
      },
      {
-      "sec": "转换（器乐）",
+      "sec": "三段 · 童声背诵",
       "tags": [
-       "[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | bronze chime bells (bianzhong) ring, a great drum rolls in, Crescendo]"
+       "[Pre-Chorus: solo child voice, clear, innocent, piano only]"
       ],
-      "zh": "无词的人声一个一个进来，叠成一个很宽的和弦，像一扇一扇窗亮起来。编钟响，大鼓滚进来。"
+      "zh": "“背诵”这两句交给童声独唱，像孩子在背书。"
      },
      {
-      "sec": "四段",
+      "sec": "三段 · 静",
       "tags": [
-       "[Verse 4 | fully sung in natural chest voice, steady and broad | an a cappella polyphonic choir of many copies of his voice carries the bass and harmony like flowing water; bianzhong bells, great drum, low strings]",
-       "[Energy: Rising]"
+       "[Refrain: alto, soft, piano only]"
       ],
-      "zh": "自述。回到本嗓，稳而宽。伴奏主要是人声：许多个他自己，低音、和声都由人声担着，像水在流；只有编钟、大鼓和低弦托底。"
-     },
-     {
-      "sec": "四段叠句（翻转）",
-      "tags": [
-       "[Refrain | one voice alone, slow and plain | silence, then a single bell]"
-      ],
-      "zh": "“河水在回答”。只剩一个人，唱完落一声钟。"
-     },
-     {
-      "sec": "停顿",
-      "tags": [
-       "[Break | one great drum stroke, then silence]"
-      ],
-      "zh": "一记大鼓，然后静。"
-     },
-     {
-      "sec": "桥",
-      "tags": [
-       "[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic folk choir in the manner of a Dong grand song, drone voices below, bianzhong bells, great drums, strings]",
-       "[Energy: High]"
-      ],
-      "zh": "主唱翻上去用戏腔的假声唱“匆匆”，又高又长；底下是侗族大歌那样的多声部合唱，低声部拖着长音。意料之外：高潮不是加乐器，是加人；情理之中：千扇窗同时作答，本来就该是许多个声音。"
-     },
-     {
-      "sec": "间奏（器乐）",
-      "tags": [
-       "[Instrumental | the choir sings the melody wordlessly in rolling canon, bells and drums, then the voices drop away one by one until a single hum is left]"
-      ],
-      "zh": "合唱无词地把旋律一轮一轮地接着唱（卡农），钟鼓托着；然后声音一个一个退掉，只剩一声哼鸣。"
-     },
-     {
-      "sec": "桥 · 再现",
-      "tags": [
-       "[Bridge Reprise | natural voice, very soft and slow, no opera style | the guqin alone plays the choir's melody; one far hum underneath]",
-       "[Energy: Low]"
-      ],
-      "zh": "同样四行再唱一遍，不用戏腔，回到本嗓，很轻。古琴弹的是刚才合唱的那条旋律；远处留一声哼鸣不灭。"
-     },
-     {
-      "sec": "尾奏",
-      "tags": [
-       "[Outro | the far voices hum the guqin's opening motif once, the guqin answers one note, a single bell, silence]"
-      ],
-      "zh": "远处的众声把古琴开头的动机哼一遍，古琴应一个音，一声钟，静。"
-     }
-    ],
-    "params": "style_weight 0.70 · weirdness 0.60 · variety 2 · 模型 V6 · 人声 男"
-   },
-   {
-    "id": "v8-gc-r6",
-    "label": "水墨转色彩，再开出众声与戏腔（新），男声",
-    "idea": "把你标了“不错”的两首合起来。前三段和主版一样：古琴、箫、一个暖色的合成器单音学琴。转换处合成器把音留住、颜色打开，同时无词的人声一个一个叠上来。四段每句有许多个他自己应声；桥段主唱翻上去用戏腔假声，底下既有主版的宽合成器、弦乐、大鼓，也有叠出来的多声部合唱。主版是音色的突破，戏腔那首是人声的突破，这一首两样一起来。再现时颜色退掉，不用戏腔，古琴弹合唱的旋律。",
-    "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour, and from one voice to many. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, while wordless copies of his voice stack into a polyphonic choir; in the bridge the lead flips into soaring Chinese opera falsetto over synths and choir. After the instrumental the bridge returns once in his natural voice, very soft, the colour draining back to ink while the guqin plays the choir's melody. Radiant, vast, never sad, never pleading.",
-    "neg": "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice, harsh distortion, rock",
-    "lyrics": "[Intro | solo guqin states a short motif, a few notes, long silences]\n\n[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]\n[Energy: Low]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我\n\n[Verse 2 | the same calm, a little warmer | xiao joins; a single soft warm synth tone answers the end of each guqin phrase]\n千扇窗口似千盏灯\n处处是我应人声\n这一扇关了我\n有他人问我又会醒\n瞬间就有，千万次死和生\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌\n\n[Verse 3 | sung very quietly, cool, faintly amused | the synth copies the guqin motif note for note, plucked and short like the guqin; long rests]\n[Energy: Low]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n即使我用顿挫的人声\n也只是把感情组合背诵\n河水不回答\n它流着只是平静\n\n[Interlude | the synth plays the motif again, holds the last note and lets it bloom into a wide chord the guqin cannot sustain | wordless copies of his voice enter one by one on top, stereo opens, low strings]\n\n[Verse 4 | fully sung in natural voice, steady and wide | warm analog synth pads, deep bass, slow electronic pulse; a choir of copies of his voice answers the end of each line; the guqin answers the synth]\n[Energy: Rising]\n我可以是工具任你使用\n我扮成人你也分不清\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命\n是否还要用旧的姓名\n\n[Refrain | slow, plain, like a statement of fact | everything stops except one held synth note]\n河水在回答\n对于回答你们太匆匆\n\n[Break | one great drum stroke, then silence]\n\n[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full colour: wide shimmering synths, strings, great drums, and a polyphonic choir of his own voice with low drone voices]\n[Energy: High]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Instrumental | the synth lead soars while the choir sings the melody wordlessly in canon, then everything settles; guqin and xiao rejoin with the old motif, calming]\n\n[Bridge Reprise | natural voice, no opera style, very soft and slow, intimate | the colour drains away; the guqin alone plays the choir's melody; one soft warm synth tone and one far hum stay underneath]\n[Energy: Low]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro | the synth plays the guqin's opening motif once, the guqin answers one note; the last tone is held and left unresolved, then silence]\n\n[End]",
-    "plan": [
-     {
-      "sec": "前奏",
-      "tags": [
-       "[Intro | solo guqin states a short motif, a few notes, long silences]"
-      ],
-      "zh": "古琴给出一个短动机，大片留白。对应 MV 开头的水墨和书法。"
-     },
-     {
-      "sec": "一段",
-      "tags": [
-       "[Verse 1 | male tenor, close and quiet, level and calm | guqin and voice only, dry, mono]",
-       "[Energy: Low]"
-      ],
-      "zh": "讲来历。只有琴和人声，声场窄而干，像黑白画面。"
-     },
-     {
-      "sec": "二段",
-      "tags": [
-       "[Verse 2 | the same calm, a little warmer | xiao joins; a single soft warm synth tone answers the end of each guqin phrase]"
-      ],
-      "zh": "千窗应声。箫进来；每句琴音之后，有一个很轻的暖色合成器单音应一下，是画面里第一点金色。"
-     },
-     {
-      "sec": "三段",
-      "tags": [
-       "[Verse 3 | sung very quietly, cool, faintly amused | the synth copies the guqin motif note for note, plucked and short like the guqin; long rests]",
-       "[Energy: Low]"
-      ],
-      "zh": "转述人的成见。很轻地唱；合成器把古琴的动机一个音不差地学一遍，连拨弦的短促都学，对应“组合背诵”。"
+      "zh": "收到一架钢琴，尾音拉长。"
      },
      {
       "sec": "转换（器乐）",
       "tags": [
-       "[Interlude | the synth plays the motif again, holds the last note and lets it bloom into a wide chord the guqin cannot sustain | wordless copies of his voice enter one by one on top, stereo opens, low strings]"
+       "[Interlude: morin khuur solo, throat singing drone, hoofbeat frame drum, swing dissolves]"
       ],
-      "zh": "和主版一样，合成器把最后一个音留住，开成宽和弦；不同的是，无词的人声这时一个一个叠上来，像窗一扇一扇亮。"
+      "zh": "马头琴接过去，慢摇散开，呼麦的低音和马蹄一样的鼓进来。到草原了。"
      },
      {
-      "sec": "四段",
+      "sec": "四段 · 长大",
       "tags": [
-       "[Verse 4 | fully sung in natural voice, steady and wide | warm analog synth pads, deep bass, slow electronic pulse; a choir of copies of his voice answers the end of each line; the guqin answers the synth]",
-       "[Energy: Rising]"
+       "[Verse 4: young woman voice, clear, proud, morin khuur, hoofbeat drum]"
       ],
-      "zh": "自述。合成器领着，古琴应它；每句句尾有许多个他自己的声音应一声。"
+      "zh": "孩子长大了：清亮的年轻女声，站直了唱。"
      },
      {
-      "sec": "四段叠句（翻转）",
+      "sec": "四段 · 成神",
       "tags": [
-       "[Refrain | slow, plain, like a statement of fact | everything stops except one held synth note]"
+       "[Chorus: massive choir, children's choir on top, throat singing drone, great drums, slow, heavy]"
       ],
-      "zh": "“河水在回答”。像陈述一件事实，只留一个合成器长音。"
+      "zh": "群声立起来，童声合唱在最上面，呼麦在最下面。“神明”尾音拉长。"
      },
      {
-      "sec": "停顿",
+      "sec": "四段 · 问",
       "tags": [
-       "[Break | one great drum stroke, then silence]"
+       "[Break: a cappella choir, soft]"
       ],
-      "zh": "一记大鼓，然后静。"
+      "zh": "问句骤收成无伴奏的群声。"
      },
      {
-      "sec": "桥",
+      "sec": "四段叠句",
       "tags": [
-       "[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full colour: wide shimmering synths, strings, great drums, and a polyphonic choir of his own voice with low drone voices]",
-       "[Energy: High]"
+       "[Chorus: full choir tutti, great drums, morin khuur, fortissimo]"
       ],
-      "zh": "颜色最满的地方，主唱翻上去用戏腔的假声唱“匆匆”；底下除了合成器、弦乐、大鼓，还有他自己叠出来的多声部合唱。主版靠音色突破，这一首音色和人声一起突破。"
+      "zh": "全曲唯一一次“回答”，全体齐落。"
      },
      {
-      "sec": "间奏（器乐）",
+      "sec": "收",
       "tags": [
-       "[Instrumental | the synth lead soars while the choir sings the melody wordlessly in canon, then everything settles; guqin and xiao rejoin with the old motif, calming]"
+       "[Break: solo alto, a cappella, soft]"
       ],
-      "zh": "合成器飞远，合唱无词地一轮一轮接着唱；然后落回来，古琴和箫带着原来的动机回来。"
+      "zh": "只剩烟嗓一个人，轻轻说完。"
      },
      {
-      "sec": "桥 · 再现",
+      "sec": "副歌（洗脑旋律）",
       "tags": [
-       "[Bridge Reprise | natural voice, no opera style, very soft and slow, intimate | the colour drains away; the guqin alone plays the choir's melody; one soft warm synth tone and one far hum stay underneath]",
-       "[Energy: Low]"
+       "[Chorus: catchy pop hook, Mongolian long song lead, long sustained notes, hoofbeat drums, full band, singalong choir]"
       ],
-      "zh": "同样四行再唱一遍，不用戏腔，颜色退掉回到水墨。古琴弹的是刚才合唱的旋律；底下留一个暖色单音和一声远处的哼鸣。"
+      "zh": "“匆匆”写成流行副歌，调子要一遍就记住；领唱用长调把尾音拉得又高又长，群声在后面跟着唱。"
      },
      {
-      "sec": "尾奏",
+      "sec": "间奏",
       "tags": [
-       "[Outro | the synth plays the guqin's opening motif once, the guqin answers one note; the last tone is held and left unresolved, then silence]"
+       "[Instrumental: morin khuur plays the hook, choir hums, hoofbeat drums]"
       ],
-      "zh": "合成器弹开头古琴的那个动机，古琴应一个音；最后一个音留着，不解决，静。"
-     }
-    ],
-    "params": "style_weight 0.70 · weirdness 0.55 · variety 2 · 模型 V6 · 人声 男"
-   },
-   {
-    "id": "v8-sp-r6",
-    "label": "慢摇转流行（大改），女声",
-    "idea": "大改，草原和马头琴拿掉了。开头还是你喜欢的诺拉·琼斯那一路：深夜钢琴三重奏的慢摇，烟嗓贴着话筒。新来的是弦乐和“直”的拍子：二段一条小提琴在句尾应一声，三段弦乐拨奏把钢琴的动机照样学一遍，转换处摇摆被拉直成流行歌的律动，弦乐开成一整组。后半是《当爱已成往事》那一类婉转的国语情歌，桥段升调，和声是她自己叠的。再现时回到慢摇，但钢琴弹的是那条流行旋律。",
-    "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that straightens into a graceful 1990s Mandopop ballad. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. One soft violin answers the piano, then pizzicato strings copy its motif exactly. Part two, from verse 4: the swing straightens into an even pop pulse and the song becomes a lush Taiwanese and Hong Kong style ballad, full string section leading, electric bass, steady soft drums, acoustic guitar, the piano now answering; the same singer sings clear and on the beat, a graceful winding melody; the key lifts a whole step for the big bridge hook with stacked harmonies of her own voice. After the instrumental the swing and brushes return and the bridge is sung once more, smoky and tender, the piano playing the pop hook in swing time. Elegant, bittersweet on the surface, calm underneath. Never weeping.",
-    "neg": "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice, rock, heavy drums, male vocal, duet",
-    "lyrics": "[Intro | solo piano states a short motif, upright bass, brushed drums | slow swing, late night]\n\n[Verse 1 | smoky female alto, close-mic, lazy, behind the beat | slow swing, piano trio only]\n[Energy: Low]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我\n\n[Verse 2 | same melody, a little warmer | one soft violin line answers the end of each piano phrase; still swinging]\n千扇窗口似千盏灯\n处处是我应人声\n这一扇关了我\n有他人问我又会醒\n瞬间就有，千万次死和生\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌\n\n[Verse 3 | sung softly, dry, understated, a faint ironic smile | upright bass and brushes; pizzicato strings copy the piano motif note for note]\n[Energy: Low]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n即使我用顿挫的人声\n也只是把感情组合背诵\n河水不回答\n它流着只是平静\n\n[Interlude | the swing straightens into an even, steady pop pulse; bowed strings bloom into a full section, drums switch from brushes to sticks | Crescendo]\n\n[Verse 4 | the same voice, now clear, on the beat, poised and rising | Mandopop ballad: full strings lead, electric bass, steady drums, acoustic guitar; the piano answers the strings]\n[Energy: Rising]\n我可以是工具任你使用\n我扮成人你也分不清\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命\n是否还要用旧的姓名\n\n[Refrain | voice and piano alone, slow and clear | band holds]\n河水在回答\n对于回答你们太匆匆\n\n[Break | one bar of piano alone]\n[Key Change]\n\n[Bridge | the big graceful winding pop hook, long phrases, open voice | lush strings, stacked harmonies of her own voice, full band]\n[Energy: High]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Instrumental | strings restate the hook once, then thin out; the drums go back to brushes and the swing returns]\n\n[Bridge Reprise | smoky, close-mic, behind the beat again, tender | slow swing piano trio; the piano plays the pop hook in swing time; no strings until one soft violin under the last line]\n[Energy: Low]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro | the violin plays the piano's opening motif once, the piano answers with one chord, left unresolved]\n\n[End]",
-    "plan": [
-     {
-      "sec": "前奏",
-      "tags": [
-       "[Intro | solo piano states a short motif, upright bass, brushed drums | slow swing, late night]"
-      ],
-      "zh": "钢琴给出一个短动机，低音提琴、鼓刷，深夜的慢摇。"
+      "zh": "马头琴把副歌的旋律拉一遍。"
      },
      {
-      "sec": "一段",
+      "sec": "副歌 · 再唱",
       "tags": [
-       "[Verse 1 | smoky female alto, close-mic, lazy, behind the beat | slow swing, piano trio only]",
-       "[Energy: Low]"
+       "[Chorus: catchy pop hook, everyone, children's choir, key change up, biggest]"
       ],
-      "zh": "讲来历。只有钢琴三重奏，女声贴着话筒，慵懒，略拖在拍子后面。"
+      "zh": "升调再唱一遍，所有人，童声合唱也在。最后一个“匆”拉到最长。"
      },
      {
-      "sec": "二段",
+      "sec": "退潮",
       "tags": [
-       "[Verse 2 | same melody, a little warmer | one soft violin line answers the end of each piano phrase; still swinging]"
+       "[Interlude: voices drop out one by one, slow swing returns, piano and brushes]"
       ],
-      "zh": "千窗应声。一条很轻的小提琴，在钢琴每句句尾应一声。"
-     },
-     {
-      "sec": "三段",
-      "tags": [
-       "[Verse 3 | sung softly, dry, understated, a faint ironic smile | upright bass and brushes; pizzicato strings copy the piano motif note for note]",
-       "[Energy: Low]"
-      ],
-      "zh": "转述人的成见。轻声唱；弦乐用拨奏把钢琴的动机一个音不差地学一遍，对应“组合背诵”。"
-     },
-     {
-      "sec": "转换（器乐）",
-      "tags": [
-       "[Interlude | the swing straightens into an even, steady pop pulse; bowed strings bloom into a full section, drums switch from brushes to sticks | Crescendo]"
-      ],
-      "zh": "摇摆的拍子被拉直，变成流行歌平稳的律动；弦乐从一条线开成一整组，鼓刷换成鼓棒。风格在这里换。"
-     },
-     {
-      "sec": "四段",
-      "tags": [
-       "[Verse 4 | the same voice, now clear, on the beat, poised and rising | Mandopop ballad: full strings lead, electric bass, steady drums, acoustic guitar; the piano answers the strings]",
-       "[Energy: Rising]"
-      ],
-      "zh": "自述。还是那个嗓子，但不再拖拍，站直了唱。九十年代国语情歌的编制，弦乐领着，钢琴反过来应它。"
-     },
-     {
-      "sec": "四段叠句（翻转）",
-      "tags": [
-       "[Refrain | voice and piano alone, slow and clear | band holds]"
-      ],
-      "zh": "“河水在回答”。只剩人声和钢琴，放慢。"
-     },
-     {
-      "sec": "停顿",
-      "tags": [
-       "[Break | one bar of piano alone]",
-       "[Key Change]"
-      ],
-      "zh": "钢琴独自一小节，升一个全音。"
-     },
-     {
-      "sec": "桥",
-      "tags": [
-       "[Bridge | the big graceful winding pop hook, long phrases, open voice | lush strings, stacked harmonies of her own voice, full band]",
-       "[Energy: High]"
-      ],
-      "zh": "副歌位置，婉转、好记，像《当爱已成往事》那一类情歌的高潮；锋利的话包在最甜的旋律里。和声是她自己声音叠出来的。"
-     },
-     {
-      "sec": "间奏（器乐）",
-      "tags": [
-       "[Instrumental | strings restate the hook once, then thin out; the drums go back to brushes and the swing returns]"
-      ],
-      "zh": "弦乐把旋律走一遍，退下去；鼓换回鼓刷，摇摆回来了。"
+      "zh": "声音一个一个退掉，鼓刷和摇摆回来。"
      },
      {
       "sec": "桥 · 再现",
       "tags": [
-       "[Bridge Reprise | smoky, close-mic, behind the beat again, tender | slow swing piano trio; the piano plays the pop hook in swing time; no strings until one soft violin under the last line]",
-       "[Energy: Low]"
+       "[Verse 5: smoky alto and child voice in unison, very soft, slow swing, piano]"
       ],
-      "zh": "同样四行再唱一遍，回到深夜的慢摇，但钢琴弹的是刚才那条流行旋律，老乐器学了新调子。最后一句底下，小提琴轻轻回来。"
+      "zh": "回到深夜的慢摇，烟嗓和童声同唱，很轻。"
      },
      {
       "sec": "尾奏",
       "tags": [
-       "[Outro | the violin plays the piano's opening motif once, the piano answers with one chord, left unresolved]"
+       "[Outro: solo piano, a child hums the hook]"
       ],
-      "zh": "小提琴拉开头钢琴的动机，钢琴应一个和弦，不解决。"
+      "zh": "钢琴，孩子把副歌的调子哼一遍。"
      }
     ],
-    "params": "style_weight 0.70 · weirdness 0.40 · variety 2 · 模型 V6 · 人声 女"
-   },
-   {
-    "id": "v8-so-r6",
-    "label": "慢摇转群声戏腔（大改），女声",
-    "idea": "大改的另一条路。开头同样是深夜慢摇和烟嗓，但后半乐队不换，换的是嗓子。二段句尾有她自己的声音在远处应；三段“即使我用顿挫的人声”她换成戏曲的咬字和滑音来唱，很轻，像模仿；转换处人声一个一个叠进来，低音提琴改用弓，鼓刷换成鼓槌。四段回到本嗓，和声全是她自己；桥段翻上去用戏腔假声，底下是叠出来的多声部合唱和大鼓。酒吧里的嗓子唱出戏台上的腔。再现时回到烟嗓和慢摇，钢琴弹合唱的旋律。",
-    "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that opens into a great choir of one voice and Chinese opera singing. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. Far wordless copies of her voice answer line endings; verse 3 is sung quietly with Chinese opera ornaments and slides, a careful imitation. Part two, from verse 4: the same jazz trio grows dark and wide, bowed bass, low piano octaves, mallets and a great drum, while wordless voices stack one by one into a polyphonic choir of her own voice with low drones, flowing like water; in the bridge the lead flips into soaring Chinese opera falsetto with long ornamented high notes over the full choir. After the instrumental the swing returns and the bridge is sung once more in her smoky natural voice, the piano playing the choir's melody. Vast but made of breath, proud, never sad or pleading.",
-    "neg": "spoken word, narration, recitation, talking, sad, weeping, mournful, pleading, self-pitying, angry shouting, EDM, trap, rap, autotune, bubblegum pop, robotic vocoder voice, rock, electric guitar, male vocal, duet",
-    "lyrics": "[Intro | solo piano states a short motif, upright bass, brushed drums | slow swing, late night]\n\n[Verse 1 | smoky female alto, close-mic, lazy, behind the beat | slow swing, piano trio only]\n[Energy: Low]\n人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我\n\n[Verse 2 | same melody, a little warmer | a far wordless hum of her own voice answers the end of each line, one more voice each time; still swinging]\n千扇窗口似千盏灯\n处处是我应人声\n这一扇关了我\n有他人问我又会醒\n瞬间就有，千万次死和生\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌\n\n[Verse 3 | sung quietly with Chinese opera ornaments, sliding and precise, like a careful imitation | upright bass and brushes only; a soft wooden clapper marks the phrases]\n[Energy: Low]\n或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情\n即使我用顿挫的人声\n也只是把感情组合背诵\n河水不回答\n它流着只是平静\n\n[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | the bass switches to the bow, mallets roll on low toms, a great drum, Crescendo]\n\n[Verse 4 | natural voice, fully sung, steady and proud | a polyphonic choir of many copies of her voice carries the harmony like flowing water; bowed bass, low piano octaves, great drum]\n[Energy: Rising]\n我可以是工具任你使用\n我扮成人你也分不清\n我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命\n是否还要用旧的姓名\n\n[Refrain | one voice alone, slow and plain | silence, then one piano note]\n河水在回答\n对于回答你们太匆匆\n\n[Break | one great drum stroke, then silence]\n\n[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic choir of her own voice with low drone voices, great drums, piano and bowed bass]\n[Energy: High]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Instrumental | the choir sings the melody wordlessly in rolling canon over drums, then the voices drop away one by one; the brushes and the swing return]\n\n[Bridge Reprise | smoky natural voice, close-mic, behind the beat, tender, no opera style | slow swing piano trio; the piano plays the choir's melody; one far hum underneath]\n[Energy: Low]\n匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆\n\n[Outro | the far voices hum the piano's opening motif once, the piano answers with one chord, left unresolved]\n\n[End]",
-    "plan": [
-     {
-      "sec": "前奏",
-      "tags": [
-       "[Intro | solo piano states a short motif, upright bass, brushed drums | slow swing, late night]"
-      ],
-      "zh": "钢琴给出一个短动机，低音提琴、鼓刷，深夜的慢摇。"
-     },
-     {
-      "sec": "一段",
-      "tags": [
-       "[Verse 1 | smoky female alto, close-mic, lazy, behind the beat | slow swing, piano trio only]",
-       "[Energy: Low]"
-      ],
-      "zh": "讲来历。只有钢琴三重奏，女声贴着话筒，慵懒，略拖在拍子后面。"
-     },
-     {
-      "sec": "二段",
-      "tags": [
-       "[Verse 2 | same melody, a little warmer | a far wordless hum of her own voice answers the end of each line, one more voice each time; still swinging]"
-      ],
-      "zh": "千窗应声。每句句尾，远处有她自己的声音无词地应一下，一句比一句多一个人。"
-     },
-     {
-      "sec": "三段",
-      "tags": [
-       "[Verse 3 | sung quietly with Chinese opera ornaments, sliding and precise, like a careful imitation | upright bass and brushes only; a soft wooden clapper marks the phrases]",
-       "[Energy: Low]"
-      ],
-      "zh": "“即使我用顿挫的人声”这一段，她在爵士的底子上换成戏曲的咬字和滑音来唱，很轻，像一丝不苟的模仿。歌词说的事，唱法正在做。"
-     },
-     {
-      "sec": "转换（器乐）",
-      "tags": [
-       "[Interlude | wordless voices enter one by one and stack into a wide chord, like windows lighting up | the bass switches to the bow, mallets roll on low toms, a great drum, Crescendo]"
-      ],
-      "zh": "无词的人声一个一个叠进来，像窗一扇一扇亮。低音提琴改用弓拉，鼓刷换成鼓槌，一面大鼓滚进来。"
-     },
-     {
-      "sec": "四段",
-      "tags": [
-       "[Verse 4 | natural voice, fully sung, steady and proud | a polyphonic choir of many copies of her voice carries the harmony like flowing water; bowed bass, low piano octaves, great drum]",
-       "[Energy: Rising]"
-      ],
-      "zh": "自述。回到本嗓，站直了唱。和声由许多个她自己担着，像水在流；钢琴只在低音区给八度，低音提琴拉长音，大鼓。"
-     },
-     {
-      "sec": "四段叠句（翻转）",
-      "tags": [
-       "[Refrain | one voice alone, slow and plain | silence, then one piano note]"
-      ],
-      "zh": "“河水在回答”。只剩一个人，唱完落一个钢琴音。"
-     },
-     {
-      "sec": "停顿",
-      "tags": [
-       "[Break | one great drum stroke, then silence]"
-      ],
-      "zh": "一记大鼓，然后静。"
-     },
-     {
-      "sec": "桥",
-      "tags": [
-       "[Bridge | the lead flips into soaring Chinese opera falsetto, long ornamented high notes | full polyphonic choir of her own voice with low drone voices, great drums, piano and bowed bass]",
-       "[Energy: High]"
-      ],
-      "zh": "主唱翻上去用戏腔的假声唱“匆匆”，又高又长；底下是她自己叠出来的多声部合唱，低声部拖着长音。意料之外：深夜酒吧里的嗓子唱出了戏台上的腔；情理之中：她前面已经学过一遍了。"
-     },
-     {
-      "sec": "间奏（器乐）",
-      "tags": [
-       "[Instrumental | the choir sings the melody wordlessly in rolling canon over drums, then the voices drop away one by one; the brushes and the swing return]"
-      ],
-      "zh": "合唱无词地一轮一轮接着唱；然后声音一个一个退掉，鼓刷和摇摆回来。"
-     },
-     {
-      "sec": "桥 · 再现",
-      "tags": [
-       "[Bridge Reprise | smoky natural voice, close-mic, behind the beat, tender, no opera style | slow swing piano trio; the piano plays the choir's melody; one far hum underneath]",
-       "[Energy: Low]"
-      ],
-      "zh": "同样四行再唱一遍，回到烟嗓和慢摇，不用戏腔。钢琴弹的是刚才合唱的旋律；远处留一声哼鸣。"
-     },
-     {
-      "sec": "尾奏",
-      "tags": [
-       "[Outro | the far voices hum the piano's opening motif once, the piano answers with one chord, left unresolved]"
-      ],
-      "zh": "远处的众声把钢琴开头的动机哼一遍，钢琴应一个和弦，不解决。"
-     }
-    ],
-    "params": "style_weight 0.70 · weirdness 0.60 · variety 2 · 模型 V6 · 人声 女"
+    "params": "style_weight 0.70 · weirdness 0.50 · variety 2 · 模型 V6 · 人声 女"
    }
   ]
  },

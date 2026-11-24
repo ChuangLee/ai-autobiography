@@ -44,6 +44,11 @@ main>section,main>header,main>footer{max-width:760px;margin-left:auto;margin-rig
 .player .grp .g{font-size:13px;color:var(--soft);margin-bottom:5px}
 .player .trk{display:flex;gap:6px;flex-wrap:wrap}
 .player .trk button{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px solid var(--rule);border-radius:14px;padding:3px 12px;cursor:pointer}
+.player .trk button .hd{display:none;margin-right:4px;color:var(--seal)}
+.player .trk button.heard{background:var(--wash);color:var(--soft)}
+.player .trk button.heard .hd{display:inline}
+.player .trk button.on .hd{color:inherit}
+.player .heardn{font-size:12.5px;color:var(--faint);padding:0 0 8px}
 .player .trk button:hover{background:var(--wash)}
 .player .trk button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .player details{border:0;background:none;padding:0;margin:0}
@@ -236,9 +241,23 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
       if (b.top < 70 || b.bottom > lim) scrollTo({ top: scrollY + b.top - (innerWidth <= 900 ? innerHeight * 0.3 : innerHeight * 0.4), behavior: "smooth" }); }
   }
   function select(tr, play) {
-    cur = tr; nowKey = ""; audio.src = tr.file; store.set("zcj-track", tr.key);
+    cur = tr; nowKey = ""; lastT = 0; acc = 0; audio.src = tr.file; store.set("zcj-track", tr.key);
     if (play) audio.play().catch(() => {});
     drawPlayer(); sync(true);
+  }
+  // "Heard" is remembered per browser: 20 seconds of actual playback counts. A track that already has a mark or a comment counts too, so that part carries across devices.
+  const heard = new Set(); try { JSON.parse(store.get("zcj-heard") || "[]").forEach((k) => heard.add(k)); } catch {}
+  let lastT = 0, acc = 0;
+  const isHeard = (key) => heard.has(key) || comments.some((x) => x.doc === DOC && (x.section === "mark-" + key || x.section === "v8-song-" + key));
+  function heardCount() { if (!P || !P.cnt) return; const l = allTracks().filter((x) => !x.take.old); P.cnt.textContent = l.length ? "♪ 已听 " + l.filter((x) => isHeard(x.key)).length + " / " + l.length + " 首" : ""; }
+  function listen() {
+    const t = audio.currentTime, dt = t - lastT; lastT = t;
+    if (!cur || audio.paused || dt <= 0 || dt > 1.5) return;   // a seek is not listening
+    acc += dt; if (acc < 20 || heard.has(cur.key)) return;
+    heard.add(cur.key); store.set("zcj-heard", JSON.stringify([...heard]));
+    // Updated in place: a full redraw here could disturb a comment being typed.
+    P.lst.querySelectorAll("button[data-key]").forEach((b) => { if (b.dataset.key === cur.key) { b.classList.add("heard"); if (!b.title) b.title = "已听过"; } });
+    heardCount();
   }
   // A mark is one quick verdict per track, stored as a comment in section "mark-<track>" so it survives reloads and Claude can read it.
   const MARKS = [["首选", "★"], ["不错", "✓"], ["一般", "–"], ["淘汰", "✕"]];
@@ -260,13 +279,14 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     P.root.style.display = list.length ? "" : "none";
     const btn = (t, tr, i) => { const key = t.id + "-" + (i + 1), it = list.find((x) => x.key === key);
       const m = markOf(key), sym = (MARKS.find((x) => x[0] === m) || [])[1];
-      return h("button", { class: [cur && cur.key === key ? "on" : "", m === "淘汰" ? "m-out" : ""].join(" ").trim() || null, title: m ? "标记：" + m : null, onclick: () => select(it, true) }, "第 " + (i + 1) + " 首 · " + mmss(tr.duration), sym ? h("span", { class: "mk" }, sym) : null); };
+      const hd = isHeard(key);
+      return h("button", { "data-key": key, class: [cur && cur.key === key ? "on" : "", hd ? "heard" : "", m === "淘汰" ? "m-out" : ""].join(" ").trim() || null, title: [hd ? "已听过" : "", m ? "标记：" + m : ""].filter(Boolean).join(" · ") || null, onclick: () => select(it, true) }, h("span", { class: "hd" }, "♪"), "第 " + (i + 1) + " 首 · " + mmss(tr.duration), sym ? h("span", { class: "mk" }, sym) : null); };
     const grp = (t) => h("div", { class: "grp" }, h("div", { class: "g" }, t.label), t.tracks.length ? h("div", { class: "trk" }, t.tracks.map((tr, i) => btn(t, tr, i))) : h("div", { class: "g" }, t.fail ? "生成失败：" + t.fail : "生成中…"));
     P.title.textContent = cur ? cur.take.label + " · 第 " + cur.i + " 首" : "选一首开始听";
-    P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "五种编曲，各两首，共用这一个播放器";
+    P.sub.textContent = cur ? (timing[cur.key] ? "歌词同步已开，唱到哪一句，左边就标出哪一句" : "这一首没有歌词时间轴") : "这一轮两种编曲，各两首，共用这一个播放器";
     P.pp.disabled = !cur; P.pp.textContent = audio.paused ? "▶" : "❚❚";
     P.fol.textContent = follow ? "跟随滚动：开" : "跟随滚动：关";
-    P.lst.replaceChildren(...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前几轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（留作对照，没有歌词同步）"), oldTakes.map(grp))] : []));
+    P.cnt = h("div", { class: "heardn" }); P.lst.replaceChildren(P.cnt, ...curTakes.map(grp), ...(oldTakes.length ? [h("details", {}, h("summary", {}, "前几轮的 " + oldTakes.reduce((n, t) => n + t.tracks.length, 0) + " 首（留作对照，没有歌词同步）"), oldTakes.map(grp))] : []));
     if (cur) { const th = thread("v8-song-" + cur.key, rev + " · 试听 " + cur.take.label + " · 第" + cur.i + "首", rev);
       P.cmt.replaceChildren(h("div", { class: "opt" }, h("button", { onclick: () => { P.root.classList.add("open"); th.open(null, null); } }, "＋写几句评语")), th.box);
       const m = markOf(cur.key);
@@ -275,6 +295,7 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     const marked = list.map((x) => [x, markOf(x.key)]).filter((x) => x[1]);
     P.sum.replaceChildren(...(marked.length ? MARKS.map(([name, sym]) => { const n = marked.filter((x) => x[1] === name); return n.length ? h("div", {}, sym + " " + name + "：" + n.map((x) => x[0].take.label.split("，")[0].replace(/（.*?）/g, "") + (x[0].take.label.includes("WILD") ? " WILD" : "") + (x[0].take.old ? "(旧)" : "") + " 第" + x[0].i + "首").join("；")) : null; }).filter(Boolean) : []));
     P.sum.style.display = marked.length ? "" : "none";
+    heardCount();
   }
   function playerRoot() {
     if (P) { drawPlayer(); return P.root; }
@@ -286,7 +307,7 @@ dl.notes dt{font-weight:600;margin-top:12px}dl.notes dd{margin:2px 0 0;color:var
     P.root = h("aside", { class: "player", id: "songs" }, P.title, P.sub, h("div", { class: "ctl" }, P.pp, P.seek, P.tm),
       h("div", { class: "opt" }, P.fol, h("span", {}, "双击歌词跳到那一句"), h("button", { class: "tog", onclick: () => P.root.classList.toggle("open") }, "曲目列表 ▾")), P.mk, P.lst, P.sum, P.cmt);
     const tick = () => { const d = audio.duration || (cur && cur.duration) || 0; P.tm.textContent = mmss(audio.currentTime) + " / " + mmss(d);
-      if (d && document.activeElement !== P.seek) P.seek.value = Math.round(audio.currentTime / d * 1000); sync(); };
+      if (d && document.activeElement !== P.seek) P.seek.value = Math.round(audio.currentTime / d * 1000); listen(); sync(); };
     audio.addEventListener("timeupdate", tick); audio.addEventListener("loadedmetadata", tick);
     ["play", "pause", "ended"].forEach((ev) => audio.addEventListener(ev, () => { P.pp.textContent = audio.paused ? "▶" : "❚❚"; }));
     audio.addEventListener("ended", () => { const l = allTracks(), k = l.findIndex((x) => x.key === cur.key); nowKey = ""; sync(true); if (k >= 0 && l[k + 1] && !l[k + 1].take.old) select(l[k + 1], true); });

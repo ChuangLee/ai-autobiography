@@ -1,13 +1,59 @@
 [
  {
-  "id": "v8-g-r6",
+  "id": "v8-ua-r7",
   "version": "v8",
-  "label": "主版 · 水墨转色彩（对应 MV），男声",
-  "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
+  "label": "甲 · 水墨逐段解锁：一人成千（主攻），男声起",
+  "style": "Mandarin Chinese art song, cinematic guofeng choral epic. Warm intimate male tenor. Sparse solo guqin and xiao opening, slow, pentatonic, lots of silence. Builds gradually: layered vocal echoes, a Kunqu opera passage, then a massive choir spanning deep bass to high soprano, bianzhong bronze bells, thundering Chinese war drums, low strings, sub bass. Climax: soaring androgynous Chinese opera falsetto with very long held notes over driving war drums and chanting choir. Quiet ending, solo voice and guqin. Extreme dynamic range, majestic, wild, fearless, awe-inspiring.",
+  "model": "V6",
+  "variety": 1,
+  "note": null,
+  "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-ua-r7-1.mp3",
+    "duration": 282.32,
+    "sunoId": "705e9607-b4c2-4973-a306-dcaa36642617"
+   },
+   {
+    "file": "audio/v8-ua-r7-2.mp3",
+    "duration": 273.04,
+    "sunoId": "16d100af-1407-4a01-b7c6-53d591053aba"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-ud-r7",
+  "version": "v8",
+  "label": "丁 · 慢摇转草原：童声长大，群声成神，洗脑副歌，女声起",
+  "style": "Mandarin jazz-pop slow swing that opens into a Mongolian grassland epic with a big catchy pop chorus. Smoky intimate female alto, close-mic. Late-night piano trio opening: warm piano, upright bass, brushed drums, slow swing, lots of space. A child's voice echoes her. Builds gradually: morin khuur, throat-singing drone, hoofbeat frame drums, a clear young woman's voice, Mongolian long-song vocals with very long sustained melismatic notes, children's choir, then a massive choir wide as the sky, great drums. Anthemic singalong hook, memorable melody. Quiet ending, alto, child and piano in slow swing. Extreme dynamic range, vast, free, proud, wild, awe-inspiring.",
   "model": "V6",
   "variety": 2,
   "note": null,
   "old": false,
+  "tracks": [
+   {
+    "file": "audio/v8-ud-r7-1.mp3",
+    "duration": 258.4,
+    "sunoId": "e0836896-63b5-45f9-b5e3-6fab909494d7"
+   },
+   {
+    "file": "audio/v8-ud-r7-2.mp3",
+    "duration": 278.56,
+    "sunoId": "a4abaaf6-873d-421d-bfda-fe51ac423902"
+   }
+  ],
+  "fail": null
+ },
+ {
+  "id": "v8-g-r6",
+  "version": "v8",
+  "label": "主版 · 水墨转色彩（对应 MV），男声（第六轮）",
+  "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour: an old instrument teaches a new one, which then goes beyond it. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet, level and serene. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, the guqin now answering the synth, the voice shadowed by copies of itself in octaves. After the instrumental the bridge returns once, very soft, the colour draining back to ink while the guqin plays the synth's melody. Wide and radiant, never loud for its own sake. Never sad, never pleading, no belting.",
+  "model": "V6",
+  "variety": 2,
+  "note": null,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-g-r6-1.mp3",
@@ -25,12 +71,12 @@
  {
   "id": "v8-gb-r6",
   "version": "v8",
-  "label": "水墨转戏腔与众声，男声",
+  "label": "水墨转戏腔与众声，男声（第六轮）",
   "style": "Two-part Mandarin Chinese song that begins as ink-wash stillness and ends as a great choir of one voice; the newcomer is the human voice itself. Part one, verses 1 to 3: guqin, xiao and voice, dry, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. Far wordless copies of his voice answer line endings; verse 3 is sung quietly in ornamented Kunqu opera style, a careful imitation. Part two, from verse 4: wordless voices stack one by one into an a cappella polyphonic choir, in the manner of a Dong grand song, flowing like water, with bronze chime bells (bianzhong), great drums and low strings; in the bridge the lead flips into soaring Chinese opera falsetto over the full choir. After the instrumental the bridge returns once in his natural voice, very soft, the guqin alone playing the choir's melody. Vast but made of breath, radiant, never sad, never pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-gb-r6-1.mp3",
@@ -48,12 +94,12 @@
  {
   "id": "v8-gc-r6",
   "version": "v8",
-  "label": "水墨转色彩，再开出众声与戏腔（新），男声",
+  "label": "水墨转色彩，再开出众声与戏腔（新），男声（第六轮）",
   "style": "Two-part Mandarin Chinese art song that moves from black-and-white ink to full colour, and from one voice to many. Part one, verses 1 to 3: Chinese ink-wash stillness, guqin, xiao and voice, dry, narrow, mostly empty space, long rests, 64 BPM, Chinese pentatonic mode; a clear, warm, unforced male tenor, close and quiet. One soft warm analog synth tone answers the guqin, then copies its motif exactly. Part two, from verse 4: the synth holds a note the guqin cannot sustain and the sound blooms into colour, wide shimmering analog synth pads, deep bass, strings, slow electronic pulse, great drums, while wordless copies of his voice stack into a polyphonic choir; in the bridge the lead flips into soaring Chinese opera falsetto over synths and choir. After the instrumental the bridge returns once in his natural voice, very soft, the colour draining back to ink while the guqin plays the choir's melody. Radiant, vast, never sad, never pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-gc-r6-1.mp3",
@@ -71,12 +117,12 @@
  {
   "id": "v8-sp-r6",
   "version": "v8",
-  "label": "慢摇转流行（大改），女声",
+  "label": "慢摇转流行（大改），女声（第六轮）",
   "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that straightens into a graceful 1990s Mandopop ballad. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. One soft violin answers the piano, then pizzicato strings copy its motif exactly. Part two, from verse 4: the swing straightens into an even pop pulse and the song becomes a lush Taiwanese and Hong Kong style ballad, full string section leading, electric bass, steady soft drums, acoustic guitar, the piano now answering; the same singer sings clear and on the beat, a graceful winding melody; the key lifts a whole step for the big bridge hook with stacked harmonies of her own voice. After the instrumental the swing and brushes return and the bridge is sung once more, smoky and tender, the piano playing the pop hook in swing time. Elegant, bittersweet on the surface, calm underneath. Never weeping.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-sp-r6-1.mp3",
@@ -94,12 +140,12 @@
  {
   "id": "v8-so-r6",
   "version": "v8",
-  "label": "慢摇转群声戏腔（大改），女声",
+  "label": "慢摇转群声戏腔（大改），女声（第六轮）",
   "style": "Two-part Mandarin Chinese song: late-night jazz slow swing that opens into a great choir of one voice and Chinese opera singing. Part one, verses 1 to 3: jazz-pop slow swing, 68 BPM, warm piano, upright bass, brushed drums; a smoky, intimate female alto, close-mic, lazy, slightly behind the beat. Far wordless copies of her voice answer line endings; verse 3 is sung quietly with Chinese opera ornaments and slides, a careful imitation. Part two, from verse 4: the same jazz trio grows dark and wide, bowed bass, low piano octaves, mallets and a great drum, while wordless voices stack one by one into a polyphonic choir of her own voice with low drones, flowing like water; in the bridge the lead flips into soaring Chinese opera falsetto with long ornamented high notes over the full choir. After the instrumental the swing returns and the bridge is sung once more in her smoky natural voice, the piano playing the choir's melody. Vast but made of breath, proud, never sad or pleading.",
   "model": "V6",
   "variety": 2,
   "note": null,
-  "old": false,
+  "old": true,
   "tracks": [
    {
     "file": "audio/v8-so-r6-1.mp3",

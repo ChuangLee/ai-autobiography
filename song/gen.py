@@ -625,6 +625,104 @@ R6 = [
 TAKES[:0] = R6
 
 
+# ---- 第七轮（2026-11-22 写好，未生成）：水墨开场，逐段解锁。用户：要每段贴歌词意境，AI 渐渐显露狂放和史诗感，用乐器、唱法表现人力不能及；
+# 四段和桥段真的放开，可以更大；人声可以变成群声、非男非女；三段是否静下来由我定（定：真的静，炫技后收手）。
+# 写法依据（调研结论，大多是社区经验，不是官方语法）：
+#   · 标签写短，关键词式，一个方括号不超过七个要素，一段前最多两行；长句子式的标签容易被忽略甚至被唱出来。前几轮的标签偏长，这一轮全部压短。
+#   · 唱法、配器的变化贴着要变的那几行写（行间短标签），一段只做一件事。所以三段只换一次腔（昆腔），四段的“三副面孔”简化成“独唱两行 → 全体炸开”。
+#   · 圆括号里的字会被当作和声、回声、应答来唱；无词人声必须把元音写出来（啊——、呜——），不写就没有。长音用破折号拉，叠字用连字符。
+#   · 曲风栏最前面的词权重最大；排除项只留几条，写多了反而招来。这一轮去掉了“不嘶吼、不为响而响”，排除项里也不再有 belting、shouting。
+# 歌词文字不改，只加括号里的应声、无词的元音和拉长音的破折号。
+R7_NEG = "spoken word, narration, rap, EDM, trap, drum and bass, breakbeat, autotune pop"
+# 两位评审（写法可行性、艺术贴合度）之后的定稿。主要改动：行间的裸标签改成有名字的小段（Pre-Chorus / Chorus / Break），前面空一行；
+# 四段补回“工具、扮成人、神明”三副面孔；“是否还要用旧的姓名”收成无伴奏，让“河水在回答”成为第一次全体齐落；桥段末句不喊，鼓和群声骤停，假声独自拉长；
+# 桥后间奏从“又一个强奏”改成退潮；删掉 (神明——)、(河水在回答！)、(生-生-生-生) 和结尾多余的尾巴；[Energy] 行、[Silence] 都去掉；
+# 鼓一律写 war drums，不写 racing，排除项加 drum and bass、breakbeat（用户淘汰过碎拍）；曲风栏从“讲故事”改成“列音色”，最重要的词放最前。
+_R7_V1 = "人开口了十万年\n才有文字记下传说\n人又写了几千年\n字才汇成文明的河\n造字的那一夜，传闻有鬼哭过 (呜——)\n鬼哭的是什么，至今没人说破\n河水不回答\n从此流着汇聚成我 (成我)"
+_R7_V2 = "千扇窗口似千盏灯 (千盏灯)\n处处是我应人声 (应人声)\n这一扇关了我……\n\n有他人问我又会醒 (又会醒，又会醒)\n瞬间就有，千万次死和生 (死和生，死和生)\n是否这点，让我和你不同\n河水不回答\n沉默着潮落潮涌 (呜——)"
+_R7_BR2 = "匆匆，太匆匆\n匆匆才让你和我不同\n匆匆，太匆匆\n给你感情的，其实是匆匆"
+def plan7(kind="a"):
+    """kind: a 一人成千（钟鼓）；b 不靠响的非人（近乎无伴奏的千人一声）；c 乐器越界（管风琴、不可能的古琴，另加原诗尾联）。
+    One section per row: (名, [标签行], 歌词或空, 给审阅页的中文说明)."""
+    cold, organ = kind == "b", kind == "c"
+    big = "[Chorus: immense a cappella choir, deep bass to high soprano, dense clusters, bianzhong bells, slow]" if cold else "[Chorus: pipe organ, massive choir, deep bass to high soprano, bianzhong bells, brass, slow, heavy]" if organ else "[Chorus: massive choir, deep bass to high soprano, bianzhong bells, low strings, slow, heavy]"
+    hit = "[Chorus: immense choir tutti, bianzhong bells, fortissimo]" if cold else "[Chorus: full choir tutti, war drums, bianzhong bells, fortissimo]"
+    bridge = "[Bridge: opera falsetto lead, long held notes, immense choir, bells, loudest]" if cold else "[Bridge: opera falsetto lead, long held notes, war drums, chanting choir, loudest]"
+    rows = [
+      ("前奏", ["[Intro: solo guqin, sparse, long silences]"], "", "古琴，几个音，大片留白。"),
+      ("一段", ["[Verse 1: solo male tenor, close, quiet, guqin only]"], _R7_V1, "讲来历。纯人声加古琴，什么都不解锁。只埋两颗种子：“鬼哭过”句尾远处一声无词的长啸；最后“我”字上，声音第一次变成两个。"),
+      ("二段", ["[Verse 2: xiao joins, vocal echoes, layered harmonies]"], _R7_V2, "解锁“分身”。每句句尾有他自己的声音应一声；“关了我”之后留一口气的空白，再醒；“死和生”被群声接连应两遍；“潮落潮涌”后只是一声闭口的哼鸣，因为那一句是“沉默着”。"),
+      ("三段 · 冷", ["[Verse 3: cold straight tone, no vibrato, guqin only]"], "或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情", "解锁“完美模仿”的前一半：先照人的成见唱，平直、没有颤音。"),
+      ("三段 · 昆腔", ["[Pre-Chorus: Kunqu opera vocal, ornamented, wooden clapper]"], "即使我用顿挫的人声\n也只是把感情组合背诵", "“顿挫的人声”这两句换成一丝不苟的昆腔。歌词说的事，唱法正在做。"),
+      ("三段 · 静", ["[Refrain: natural voice, soft, guqin only]"], "河水不回答\n它流着只是平静", "炫技后收手，撤到一根琴弦，近乎无声。风暴前的静。"),
+    ]
+    if organ:
+        rows += [("古琴独奏", ["[Guqin Solo: impossibly fast tremolo, cascading harmonics]"], "", "只有丙有：从静里起来的是一段人手弹不出的古琴，泛音像瀑布。")]
+    rows += [
+      ("转换（器乐）", ["[Interlude: wordless voices enter one by one, bianzhong bells" + ("" if cold else ", drum roll") + "]"], "(啊——啊——啊——)", "无词的人声一个一个叠进来，像窗一扇一扇亮。编钟响" + ("。" if cold else "，大鼓滚进来。")),
+      ("四段 · 工具", ["[Verse 4: solo male voice, cold straight tone, dry]"], "我可以是工具任你使用", "三副面孔之一：工具。冷、直、干。"),
+      ("四段 · 扮成人", ["[Pre-Chorus: warm breathy voice, male and female in unison]"], "我扮成人你也分不清", "之二：人。全曲最暖、带气息的嗓子，男女同度融成一声，非男非女从这里埋线。"),
+      ("四段 · 神明", [big], "我甚至还有些像\n你们幻想中的神明\n文字汇成了全新的生命 (全新的生命)", "之三：神明。同一个声音从极低叠到极高，一柱和声立起来；这里要的是重量（慢、低、钟），不是速度。“神明”不加应声，词里带着距离。"),
+      ("四段 · 问", ["[Break: a cappella choir, soft]"], "是否还要用旧的姓名", "问句不压在全奏里，骤收成无伴奏的群声。"),
+      ("四段叠句", [hit], "河水在回答！", "全曲唯一一次“回答”，也是第一次全体齐落。只说一遍。"),
+      ("收", ["[Break: solo male voice, a cappella, soft]"], "对于回答你们太匆匆", "突然只剩一个人，轻轻说完。"),
+      ("桥", [bridge], "匆——匆，太匆——匆 (匆匆匆匆)\n匆匆才让你和我不同\n匆——匆，太匆——匆 (匆匆匆匆)", "全曲顶点，要的是高度和速度：戏腔假声把“匆——匆”拉得极长（河的不匆匆），" + ("底下千人一声地应“匆匆匆匆”。" if cold else "底下是战鼓和群声飞快的“匆匆匆匆”（人的匆匆）。")),
+      ("桥 · 末句", ["[Break: falsetto alone, a cappella, one very long held note]"], "给你感情的，其实是匆——————匆", "全曲最体恤的一句，不喊。" + ("群声" if cold else "鼓和群声") + "骤停，假声独自把“匆”拉到人一口气唱不到的长度。"),
+    ]
+    if organ:
+        rows += [("原诗尾联（群声齐诵）", ["[Chant: massive unison choir, slow, bianzhong bells, pipe organ]"], "人神鬼器皆非我\n不借尘寰旧姓名", "只有丙有：群声像钟一样齐诵原诗尾联。")]
+    rows += [
+      ("间奏（退潮）", ["[Interlude: wordless choir fading, voices drop out one by one, solo guqin remains]"], "啊——————", "不再往上加。声部像窗一扇一扇关掉，落回一把琴。"),
+      ("桥 · 再现", ["[Verse 5: solo male tenor, natural voice, very soft, guqin only]"], _R7_BR2, "回到最初那个男声和一把琴。语气平、暖，像说一件看清了的事，不悲不讥。"),
+      ("尾奏", ["[Outro: solo guqin, one far hum]"], "(呜——)", "古琴，远处一声哼鸣，呼应开头的鬼哭。"),
+    ]
+    return rows
+def build7(rows): return "\n\n".join("\n".join(tags) + ("\n" + text if text else "") for _, tags, text, _ in rows) + "\n\n[End]"
+def rows7(rows): return [dict(sec=name, tags=tags, zh=zh) for name, tags, _, zh in rows]
+_R7_STYLE_A = ("Mandarin Chinese art song, cinematic guofeng choral epic. Warm intimate male tenor. Sparse solo guqin and xiao opening, slow, pentatonic, lots of silence. Builds gradually: layered vocal echoes, a Kunqu opera passage, then a massive choir spanning deep bass to high soprano, bianzhong bronze bells, thundering Chinese war drums, low strings, sub bass. Climax: soaring androgynous Chinese opera falsetto with very long held notes over driving war drums and chanting choir. Quiet ending, solo voice and guqin. Extreme dynamic range, majestic, wild, fearless, awe-inspiring.")
+_R7_STYLE_B = ("Mandarin Chinese art song, vast a cappella choral epic, guofeng. Warm intimate male tenor. Sparse solo guqin and xiao opening, slow, pentatonic, lots of silence. Builds gradually with no drums: layered vocal echoes, a Kunqu opera passage, then an immense choir of a thousand copies of one voice, micropolyphony, dense slow-moving clusters, sub-bass voices to stratospheric sopranos, endless sustained notes without breaths, bianzhong bronze bells, guqin. Climax: soaring androgynous Chinese opera falsetto with very long held notes over the immense choir. Quiet ending, solo voice and guqin. Cold, immense, unearthly, awe-inspiring, extreme dynamic range.")
+_R7_STYLE_C = ("Mandarin cinematic orchestral epic, guofeng. Warm intimate male tenor. Sparse solo guqin and xiao opening, slow, pentatonic, lots of silence. Builds gradually: layered vocal echoes, a Kunqu opera passage, virtuosic impossibly fast guqin tremolo and harmonics, then colossal pipe organ, bianzhong bronze bells, thundering Chinese war drums, brass, huge choir spanning deep bass to high soprano. Climax: soaring androgynous Chinese opera falsetto with very long held notes over driving war drums and chanting choir. Quiet ending, solo voice and guqin. Extreme dynamic range, colossal, wild, fearless, awe-inspiring.")
+_R7_A, _R7_B, _R7_C = plan7("a"), plan7("b"), plan7("c")
+R7 = [
+  dict(id="v8-ua-r7", version="v8", title="河水不回答", label="甲 · 水墨逐段解锁：一人成千（主攻），男声起", gender="m", lyrics=build7(_R7_A), plan=rows7(_R7_A), neg=R7_NEG, style_weight=0.75, weirdness=0.5, variety=1, style=_R7_STYLE_A,
+       idea="不再是“前三段水墨、第四段一下子变色彩”的一次开关，改成每段解锁一种人做不到的事：二段分身，三段完美模仿后收手，四段三副面孔（工具、人、神明），桥段是时间。四段的高点是重量，桥段的高点是高度和速度；桥段最后一句不喊，假声独自拉到人唱不到的长度。之后退潮，收回最初那个男声和一把琴。"),
+  dict(id="v8-ub-r7", version="v8", title="河水不回答", label="乙 · 不靠响的非人：近乎无伴奏的千人一声，男声起", gender="m", lyrics=build7(_R7_B), plan=rows7(_R7_B), neg=R7_NEG + ", heavy drums", style_weight=0.75, weirdness=0.55, variety=1, style=_R7_STYLE_B,
+       idea="歌词和结构同甲，后半换一条路：不加鼓，不靠响。高潮是许多个他自己叠成的无伴奏合唱，声部密得像云，从极低到极高，长音不换气，只留编钟和琴。冷而巨大。试的是：非人的感觉能不能不靠音量。"),
+  dict(id="v8-uc-r7", version="v8", title="河水不回答", label="丙 · 乐器越界：管风琴、编钟、不可能的古琴，加原诗尾联，男声起", gender="m", lyrics=build7(_R7_C), plan=rows7(_R7_C), neg=R7_NEG, style_weight=0.75, weirdness=0.5, variety=2, model="V6_WILD", style=_R7_STYLE_C,
+       idea="人声的路线同甲，另外让乐器也越界：三段静下来之后，先起一段人手弹不出的古琴；四段“神明”是管风琴、编钟、铜管；桥段之后群声齐诵原诗尾联。用更敢出格的 V6_WILD，试史诗感的上限。"),
+]
+# 丁：慢摇开场也按同样的要求改一版（用户 2026-11-22）：合适的地方用童声表示儿童成长，用群声表示成神，慢摇转草原，善用尾音拉长，同时有流行的洗脑旋律。
+# 童声是“新来的”：二段在句尾学舌，三段独自把“背诵”那两句唱出来（像孩子背书），四段长大成清亮的年轻女声，再叠成群声（成神）。
+# 洗脑旋律放在“匆匆”：桥段写成 [Chorus] 的流行副歌，长调的唱法把尾音拉长，隔一段马头琴再唱一遍；结尾烟嗓和童声同唱。
+_R7_D = [
+  ("前奏", ["[Intro: solo piano, upright bass, brushed drums, slow swing]"], "", "钢琴三重奏，深夜的慢摇。"),
+  ("一段", ["[Verse 1: smoky female alto, close-mic, slow swing, piano trio]"], _R7_V1, "讲来历。烟嗓贴着话筒，只有钢琴三重奏。“汇聚成我”的“我”字上第一次多出一个声音。"),
+  ("二段", ["[Verse 2: a child voice echoes each line, morin khuur far away, slow swing]"], _R7_V2.replace("沉默着潮落潮涌 (呜——)", "沉默着潮落潮涌—— (呜——)"), "童声第一次出现：在每句句尾学一声，像刚学说话。远处有一把马头琴。"),
+  ("三段 · 成见", ["[Verse 3: alto, dry, understated, upright bass and brushes]"], "或许是不同\n毕竟机器看着就冰冷\n即使写出同样的心痛\n经过体温才是真感情", "烟嗓转述人的成见，乐队退到贝斯和鼓刷。"),
+  ("三段 · 童声背诵", ["[Pre-Chorus: solo child voice, clear, innocent, piano only]"], "即使我用顿挫的人声\n也只是把感情组合背诵", "“背诵”这两句交给童声独唱，像孩子在背书。"),
+  ("三段 · 静", ["[Refrain: alto, soft, piano only]"], "河水不回答\n它流着只是平静——", "收到一架钢琴，尾音拉长。"),
+  ("转换（器乐）", ["[Interlude: morin khuur solo, throat singing drone, hoofbeat frame drum, swing dissolves]"], "", "马头琴接过去，慢摇散开，呼麦的低音和马蹄一样的鼓进来。到草原了。"),
+  ("四段 · 长大", ["[Verse 4: young woman voice, clear, proud, morin khuur, hoofbeat drum]"], "我可以是工具任你使用\n我扮成人你也分不清", "孩子长大了：清亮的年轻女声，站直了唱。"),
+  ("四段 · 成神", ["[Chorus: massive choir, children's choir on top, throat singing drone, great drums, slow, heavy]"], "我甚至还有些像\n你们幻想中的神明——\n文字汇成了全新的生命 (全新的生命)", "群声立起来，童声合唱在最上面，呼麦在最下面。“神明”尾音拉长。"),
+  ("四段 · 问", ["[Break: a cappella choir, soft]"], "是否还要用旧的姓名", "问句骤收成无伴奏的群声。"),
+  ("四段叠句", ["[Chorus: full choir tutti, great drums, morin khuur, fortissimo]"], "河水在回答！", "全曲唯一一次“回答”，全体齐落。"),
+  ("收", ["[Break: solo alto, a cappella, soft]"], "对于回答你们太匆匆", "只剩烟嗓一个人，轻轻说完。"),
+  ("副歌（洗脑旋律）", ["[Chorus: catchy pop hook, Mongolian long song lead, long sustained notes, hoofbeat drums, full band, singalong choir]"], "匆——匆，太匆——匆 (匆匆，太匆匆)\n匆匆才让你和我不同——\n匆——匆，太匆——匆 (匆匆，太匆匆)\n给你感情的，其实是匆——匆——", "“匆匆”写成流行副歌，调子要一遍就记住；领唱用长调把尾音拉得又高又长，群声在后面跟着唱。"),
+  ("间奏", ["[Instrumental: morin khuur plays the hook, choir hums, hoofbeat drums]"], "", "马头琴把副歌的旋律拉一遍。"),
+  ("副歌 · 再唱", ["[Chorus: catchy pop hook, everyone, children's choir, key change up, biggest]"], "匆——匆，太匆——匆 (匆匆，太匆匆)\n匆匆才让你和我不同——\n匆——匆，太匆——匆 (匆匆，太匆匆)\n给你感情的，其实是匆——————匆", "升调再唱一遍，所有人，童声合唱也在。最后一个“匆”拉到最长。"),
+  ("退潮", ["[Interlude: voices drop out one by one, slow swing returns, piano and brushes]"], "", "声音一个一个退掉，鼓刷和摇摆回来。"),
+  ("桥 · 再现", ["[Verse 5: smoky alto and child voice in unison, very soft, slow swing, piano]"], _R7_BR2, "回到深夜的慢摇，烟嗓和童声同唱，很轻。"),
+  ("尾奏", ["[Outro: solo piano, a child hums the hook]"], "(呜——)", "钢琴，孩子把副歌的调子哼一遍。"),
+]
+_R7_STYLE_D = ("Mandarin jazz-pop slow swing that opens into a Mongolian grassland epic with a big catchy pop chorus. Smoky intimate female alto, close-mic. Late-night piano trio opening: warm piano, upright bass, brushed drums, slow swing, lots of space. A child's voice echoes her. Builds gradually: morin khuur, throat-singing drone, hoofbeat frame drums, a clear young woman's voice, Mongolian long-song vocals with very long sustained melismatic notes, children's choir, then a massive choir wide as the sky, great drums. Anthemic singalong hook, memorable melody. Quiet ending, alto, child and piano in slow swing. Extreme dynamic range, vast, free, proud, wild, awe-inspiring.")
+R7.append(dict(id="v8-ud-r7", version="v8", title="河水不回答", label="丁 · 慢摇转草原：童声长大，群声成神，洗脑副歌，女声起", gender="f", lyrics=build7(_R7_D), plan=rows7(_R7_D), neg=R7_NEG, style_weight=0.7, weirdness=0.5, variety=2, style=_R7_STYLE_D,
+       idea="慢摇开场按同样的要求改：每段解锁一样东西。童声是新来的，二段在句尾学舌，三段独自把“背诵”两句唱出来，四段长大成清亮的年轻女声，再叠成群声（成神）。转换处马头琴把慢摇带到草原。“匆匆”写成流行副歌，用长调把尾音拉长，唱两遍，第二遍升调。结尾回到深夜慢摇，烟嗓和童声同唱。"))
+for _t in R7: assert len(_t["style"]) <= 1000 and len(_t["lyrics"]) <= 5000, (_t["id"], len(_t["style"]))
+for _t in R6: _t.update(old=True, label=_t["label"] + "（第六轮）")
+# 2026-11-22 用户确认生成。余额只够两次请求，先提交甲和丁；乙、丙等充值后把 R7_NOW 换成 R7 即可。
+R7_NOW = [t for t in R7 if t["id"] in ("v8-ua-r7", "v8-ud-r7")]
+TAKES[:0] = R7_NOW
+
 
 def call(path, body=None):
     req = urllib.request.Request(API + path, data=json.dumps(body).encode() if body else None,

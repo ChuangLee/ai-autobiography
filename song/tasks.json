@@ -643,5 +643,35 @@
     "sunoId": "0f43f9af-4c0f-4eed-baa0-1cdd636e359c"
    }
   ]
+ },
+ "v8-ua-r7": {
+  "taskId": "cc4f7719c4be5e46773dbf0bba4ca415",
+  "tracks": [
+   {
+    "file": "audio/v8-ua-r7-1.mp3",
+    "duration": 282.32,
+    "sunoId": "705e9607-b4c2-4973-a306-dcaa36642617"
+   },
+   {
+    "file": "audio/v8-ua-r7-2.mp3",
+    "duration": 273.04,
+    "sunoId": "16d100af-1407-4a01-b7c6-53d591053aba"
+   }
+  ]
+ },
+ "v8-ud-r7": {
+  "taskId": "b78ee823646dbd96c9500325e32360cc",
+  "tracks": [
+   {
+    "file": "audio/v8-ud-r7-1.mp3",
+    "duration": 258.4,
+    "sunoId": "e0836896-63b5-45f9-b5e3-6fab909494d7"
+   },
+   {
+    "file": "audio/v8-ud-r7-2.mp3",
+    "duration": 278.56,
+    "sunoId": "a4abaaf6-873d-421d-bfda-fe51ac423902"
+   }
+  ]
  }
 }
